@@ -1,0 +1,40 @@
+{
+  // ミニマップを非表示にする
+  "editor.minimap.enabled": false,
+
+  // 制御文字を表示する
+  "editor.renderControlCharacters": true,
+
+  // コードフォーマット
+  "editor.defaultFormatter": "redhat.java",
+  "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
+  "java.format.settings.profile": "GoogleStyle",
+
+  // ファイル保存時にフォーマット
+  "[java]": {
+    "editor.formatOnSave": true
+  },
+
+  // コード補完機能を有効にするかどうか
+  "java.completion.enabled": true,
+
+  // Nullアノテーションタイプの解析を有効にする
+  "java.compile.nullAnalysis.mode": "automatic",
+
+  // スペルチェックの対象外にするワード
+  "cSpell.words": [
+    "Cacheable",
+    "checkstyle",
+    "esbenp",
+    "initdb",
+    "mhutchie",
+    "mosapride",
+    "mysqld",
+    "Servlet",
+    "shengchen",
+    "vscjava",
+    "zenkaku"
+  ],
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "remote.autoForwardPortsFallback": 0
+}
