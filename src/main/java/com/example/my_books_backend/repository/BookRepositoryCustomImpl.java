@@ -26,71 +26,92 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
     // Pageable pageableWithSort = PageRequest.of(
     // 0,
     // 10,
-    // Sort.by(Sort.Direction.DESC, "title")
+    // Sort.by(Sort.Direction.DESC, "publishedDate")
     // );
     // Page<Book> sortedResult = bookRepository.findByGenreIds(genres, pageableWithSort);
 
     @Override
     public Page<Book> findByGenreIds(List<String> genreIds, Pageable pageable) {
-        // 動的にFIND_IN_SETクエリを作成
-        StringBuilder sql = new StringBuilder("SELECT * FROM books WHERE ");
+        // SQLクエリ作成
+        String sql = buildQueryWithGenres("SELECT * FROM books WHERE ", genreIds);
+
+        // ソート条件を適用
+        sql += buildOrderByClause(pageable);
+
+        // ページングクエリの実行
+        Query query = entityManager.createNativeQuery(sql, Book.class);
+        setParameters(query, genreIds);
+        query.setFirstResult((int) pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+
+        @SuppressWarnings("unchecked")
+        List<Book> books = query.getResultList(); // ここで型の警告がでるので、アノテーション指定または型キャストする
+
+        // 総件数取得用のクエリを作成
+        String countSql = buildQueryWithGenres("SELECT COUNT(*) FROM books WHERE ", genreIds);
+        Query countQuery = entityManager.createNativeQuery(countSql);
+        setParameters(countQuery, genreIds);
+        Long total = ((Number) countQuery.getSingleResult()).longValue();
+
+        // 結果をPageオブジェクトで返却
+        return new PageImpl<>(books, pageable, total);
+    }
+
+    /**
+     * SQLクエリのWHERE句を、ジャンルIDのリストに基づいて動的に構築
+     */
+    private String buildQueryWithGenres(String baseQuery, List<String> genreIds) {
+        StringBuilder query = new StringBuilder(baseQuery);
         for (int i = 0; i < genreIds.size(); i++) {
             if (i > 0) {
-                sql.append(" AND ");
+                query.append(" AND ");
             }
-            sql.append("FIND_IN_SET(:genre_id").append(i).append(", genre_ids) > 0");
+            query.append("FIND_IN_SET(:genre_id").append(i).append(", genre_ids) > 0");
         }
+        return query.toString();
+    }
 
-        // ソート条件を追加
-        Sort sort = pageable.getSort();
-        if (!sort.isSorted()) {
-            sort = Sort.by(Sort.Direction.ASC, "title");
-        }
-
-        // ソート条件のSQLを構築
-        sql.append(" ORDER BY ");
+    /**
+     * SortオブジェクトからORDER BY句を作成
+     */
+    private String buildOrderByClause(Pageable pageable) {
+        Sort sort = pageable.getSort().isSorted() ? pageable.getSort()
+                : Sort.by(Sort.Direction.ASC, "title");
+        StringBuilder orderBy = new StringBuilder(" ORDER BY ");
         sort.forEach(order -> {
-            sql.append(order.getProperty()).append(" ").append(order.isAscending() ? "ASC" : "DESC")
+            // エンティティのフィールド名をデータベースのカラム名に変換
+            String columnName = convertToColumnName(order.getProperty());
+            orderBy.append(columnName).append(" ").append(order.isAscending() ? "ASC" : "DESC")
                     .append(", ");
         });
-        sql.setLength(sql.length() - 2); // 最後のカンマとスペースを削除
+        orderBy.setLength(orderBy.length() - 2); // 最後のカンマを削除
+        return orderBy.toString();
+    }
 
-        Query query = entityManager.createNativeQuery(sql.toString(), Book.class);
-
-        // パラメータを設定
+    /**
+     * ジャンルIDのリストをクエリのパラメータに設定
+     */
+    private void setParameters(Query query, List<String> genreIds) {
         for (int i = 0; i < genreIds.size(); i++) {
             query.setParameter("genre_id" + i, genreIds.get(i));
         }
+    }
 
-        // ページネーションの設定: 開始位置と最大件数を設定
-        query.setFirstResult((int) pageable.getOffset()); // 何件目から開始するか
-        query.setMaxResults(pageable.getPageSize()); // 1ページあたりの最大件数
-
-        // 結果リストを取得
-        @SuppressWarnings("unchecked")
-        List<Book> books = query.getResultList(); // ここで型の警告がでるので、アノテーションか型キャストする
-
-        // 総件数を取得するクエリ
-        StringBuilder countSql = new StringBuilder("SELECT COUNT(*) FROM books WHERE ");
-        for (int i = 0; i < genreIds.size(); i++) {
-            if (i > 0) {
-                countSql.append(" AND ");
-            }
-            countSql.append("FIND_IN_SET(:genre_id").append(i).append(", genre_ids) > 0");
+    /**
+     * エンティティのフィールド名をデータベースのカラム名に変換する
+     */
+    private String convertToColumnName(String fieldName) {
+        switch (fieldName) {
+            case "genreIds":
+                return "genre_ids";
+            case "publishedDate":
+                return "published_date";
+            case "pageCount":
+                return "page_count";
+            case "imageUrl":
+                return "image_url";
+            default:
+                return fieldName;
         }
-
-        // クエリを作成
-        Query countQuery = entityManager.createNativeQuery(countSql.toString());
-
-        // パラメータを設定
-        for (int i = 0; i < genreIds.size(); i++) {
-            countQuery.setParameter("genre_id" + i, genreIds.get(i));
-        }
-
-        // 総件数を取得
-        Long total = ((Number) countQuery.getSingleResult()).longValue();
-
-        // Pageオブジェクトを作成して返す
-        return new PageImpl<>(books, pageable, total);
     }
 }
