@@ -17,6 +17,19 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
     @PersistenceContext
     private EntityManager entityManager;
 
+    // // 基本的な呼び出し
+    // List<String> genres = Arrays.asList("fiction", "mystery");
+    // Pageable pageable = PageRequest.of(0, 10); // 1ページ目、10件ずつ
+    // Page<Book> result = bookRepository.findByGenreIds(genres, pageable);
+
+    // // ソート条件付きの呼び出し
+    // Pageable pageableWithSort = PageRequest.of(
+    // 0,
+    // 10,
+    // Sort.by(Sort.Direction.DESC, "title")
+    // );
+    // Page<Book> sortedResult = bookRepository.findByGenreIds(genres, pageableWithSort);
+
     @Override
     public Page<Book> findByGenreIds(List<String> genreIds, Pageable pageable) {
         // 動的にFIND_IN_SETクエリを作成
@@ -30,17 +43,18 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
 
         // ソート条件を追加
         Sort sort = pageable.getSort();
-        if (sort.isSorted()) {
-            sql.append(" ORDER BY ");
-            sort.forEach(order -> {
-                sql.append(order.getProperty()).append(" ")
-                        .append(order.isAscending() ? "ASC" : "DESC").append(", ");
-            });
-            // 最後のカンマを削除
-            sql.setLength(sql.length() - 2);
+        if (!sort.isSorted()) {
+            sort = Sort.by(Sort.Direction.ASC, "title");
         }
 
-        // クエリを作成
+        // ソート条件のSQLを構築
+        sql.append(" ORDER BY ");
+        sort.forEach(order -> {
+            sql.append(order.getProperty()).append(" ").append(order.isAscending() ? "ASC" : "DESC")
+                    .append(", ");
+        });
+        sql.setLength(sql.length() - 2); // 最後のカンマとスペースを削除
+
         Query query = entityManager.createNativeQuery(sql.toString(), Book.class);
 
         // パラメータを設定

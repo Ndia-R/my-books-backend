@@ -30,7 +30,7 @@ public class BookService {
 
     private static final Integer DEFAULT_START_PAGE = 0;
     private static final Integer DEFAULT_MAX_RESULTS = 20;
-    private static final Sort DEFAULT_SORT = Sort.by("title").ascending();
+    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "published_date");
 
     public List<BookDto> getBooks() {
         List<Book> books = bookRepository.findAll();
