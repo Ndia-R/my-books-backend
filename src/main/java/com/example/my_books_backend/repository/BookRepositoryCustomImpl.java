@@ -1,5 +1,7 @@
 package com.example.my_books_backend.repository;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,19 +30,27 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
     // 10,
     // Sort.by(Sort.Direction.DESC, "publishedDate")
     // );
-    // Page<Book> sortedResult = bookRepository.findByGenreIds(genres, pageableWithSort);
+    // Page<Book> sortedResult = bookRepository.findByGenreIds(genres,
+    // pageableWithSort);
 
     @Override
-    public Page<Book> findByGenreIds(List<String> genreIds, Pageable pageable) {
+    public Page<Book> findByGenreIds(String genreIdsParam, Pageable pageable) {
+        // AND条件とOR条件を解析
+        List<String> andConditions = Arrays.asList(genreIdsParam.split(","));
+        List<List<String>> orConditions = new ArrayList<>();
+        for (String andCondition : andConditions) {
+            orConditions.add(Arrays.asList(andCondition.split("\\|")));
+        }
+
         // SQLクエリ作成
-        String sql = buildQueryWithGenres("SELECT * FROM books WHERE ", genreIds);
+        String sql = buildQueryWithGenres("SELECT * FROM books WHERE ", orConditions);
 
         // ソート条件を適用
         sql += buildOrderByClause(pageable);
 
         // ページングクエリの実行
         Query query = entityManager.createNativeQuery(sql, Book.class);
-        setParameters(query, genreIds);
+        setParameters(query, orConditions);
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
 
@@ -48,9 +58,9 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         List<Book> books = query.getResultList(); // ここで型の警告がでるので、アノテーション指定または型キャストする
 
         // 総件数取得用のクエリを作成
-        String countSql = buildQueryWithGenres("SELECT COUNT(*) FROM books WHERE ", genreIds);
+        String countSql = buildQueryWithGenres("SELECT COUNT(*) FROM books WHERE ", orConditions);
         Query countQuery = entityManager.createNativeQuery(countSql);
-        setParameters(countQuery, genreIds);
+        setParameters(countQuery, orConditions);
         Long total = ((Number) countQuery.getSingleResult()).longValue();
 
         // 結果をPageオブジェクトで返却
@@ -60,13 +70,22 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
     /**
      * SQLクエリのWHERE句を、ジャンルIDのリストに基づいて動的に構築
      */
-    private String buildQueryWithGenres(String baseQuery, List<String> genreIds) {
+    private String buildQueryWithGenres(String baseQuery, List<List<String>> orConditions) {
         StringBuilder query = new StringBuilder(baseQuery);
-        for (int i = 0; i < genreIds.size(); i++) {
+        for (int i = 0; i < orConditions.size(); i++) {
             if (i > 0) {
                 query.append(" AND ");
             }
-            query.append("FIND_IN_SET(:genre_id").append(i).append(", genre_ids) > 0");
+            query.append("(");
+            List<String> orCondition = orConditions.get(i);
+            for (int j = 0; j < orCondition.size(); j++) {
+                if (j > 0) {
+                    query.append(" OR ");
+                }
+                query.append("FIND_IN_SET(:genre_id").append(i).append("_").append(j)
+                        .append(", genre_ids) > 0");
+            }
+            query.append(")");
         }
         return query.toString();
     }
@@ -91,9 +110,12 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
     /**
      * ジャンルIDのリストをクエリのパラメータに設定
      */
-    private void setParameters(Query query, List<String> genreIds) {
-        for (int i = 0; i < genreIds.size(); i++) {
-            query.setParameter("genre_id" + i, genreIds.get(i));
+    private void setParameters(Query query, List<List<String>> orConditions) {
+        for (int i = 0; i < orConditions.size(); i++) {
+            List<String> orCondition = orConditions.get(i);
+            for (int j = 0; j < orCondition.size(); j++) {
+                query.setParameter("genre_id" + i + "_" + j, orCondition.get(j));
+            }
         }
     }
 

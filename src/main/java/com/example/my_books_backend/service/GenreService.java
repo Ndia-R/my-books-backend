@@ -41,7 +41,7 @@ public class GenreService {
 
     @CacheEvict(value = "getGenres", allEntries = true)
     public GenreDto createGenre(GenreCreateDto dto) {
-        Genre genre = genreMapper.CreateDtoToEntity(dto);
+        Genre genre = genreMapper.toEntity(dto);
         Genre saveGenre = genreRepository.save(genre);
         GenreDto genreDto = genreMapper.toDto(saveGenre);
         return genreDto;

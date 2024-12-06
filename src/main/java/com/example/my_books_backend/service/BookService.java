@@ -51,10 +51,9 @@ public class BookService {
         return bookResponseDto;
     }
 
-    public BookResponseDto searchByGenreId(List<String> genreIds, Integer page,
-            Integer maxResults) {
+    public BookResponseDto searchByGenreId(String genreId, Integer page, Integer maxResults) {
         Pageable pageable = createPageable(page, maxResults);
-        Page<Book> pageBook = bookRepositoryCustom.findByGenreIds(genreIds, pageable);
+        Page<Book> pageBook = bookRepositoryCustom.findByGenreIds(genreId, pageable);
         BookResponseDto bookResponseDto = bookMapper.toResponseDto(pageBook);
         return bookResponseDto;
     }

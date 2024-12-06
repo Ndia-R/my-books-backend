@@ -33,6 +33,14 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST, request);
     }
 
+    @ExceptionHandler({ConflictException.class})
+    public ResponseEntity<Object> handleConflict(ConflictException ex, WebRequest request) {
+        ErrorResponse errorResponse =
+                new ErrorResponse(Arrays.asList(ex.getMessage()), HttpStatus.CONFLICT);
+        return this.handleExceptionInternal(ex, errorResponse, new HttpHeaders(),
+                HttpStatus.CONFLICT, request);
+    }
+
     @Override
     @SuppressWarnings("null")
     protected ResponseEntity<Object> handleMethodArgumentNotValid(

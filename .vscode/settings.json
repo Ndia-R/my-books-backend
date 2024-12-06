@@ -32,9 +32,14 @@
     "mysqld",
     "Servlet",
     "shengchen",
+    "springframework",
+    "userdetails",
     "vscjava",
     "zenkaku"
   ],
+  // スペルチェックの対象外にするファイル
+  "cSpell.files": ["devcontainer.json", "build.gradle"],
+
   "java.configuration.updateBuildConfiguration": "interactive",
   "remote.autoForwardPortsFallback": 0
 }

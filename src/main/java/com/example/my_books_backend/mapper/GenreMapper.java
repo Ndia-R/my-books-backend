@@ -22,11 +22,11 @@ public class GenreMapper {
         return modelMapper.map(genreDto, Genre.class);
     }
 
-    public List<GenreDto> toDtoList(List<Genre> genres) {
-        return genres.stream().map(genre -> toDto(genre)).toList();
+    public Genre toEntity(GenreCreateDto createGenreDto) {
+        return modelMapper.map(createGenreDto, Genre.class);
     }
 
-    public Genre CreateDtoToEntity(GenreCreateDto createGenreDto) {
-        return modelMapper.map(createGenreDto, Genre.class);
+    public List<GenreDto> toDtoList(List<Genre> genres) {
+        return genres.stream().map(genre -> toDto(genre)).toList();
     }
 }

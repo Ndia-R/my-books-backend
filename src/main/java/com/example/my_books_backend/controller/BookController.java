@@ -1,6 +1,5 @@
 package com.example.my_books_backend.controller;
 
-import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -44,8 +43,7 @@ public class BookController {
     public ResponseEntity<BookResponseDto> searchByGenreId(@RequestParam String genreId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
-        List<String> genreIds = Arrays.asList(genreId.split(","));
-        BookResponseDto bookResponse = bookService.searchByGenreId(genreIds, page, maxResults);
+        BookResponseDto bookResponse = bookService.searchByGenreId(genreId, page, maxResults);
         return ResponseEntity.ok(bookResponse);
     }
 
