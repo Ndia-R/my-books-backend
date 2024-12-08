@@ -23,7 +23,7 @@ import com.example.my_books_backend.service.GenreService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/genres")
+@RequestMapping("/api/genres")
 public class GenreController {
 
     @Autowired

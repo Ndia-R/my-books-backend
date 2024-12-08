@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.my_books_backend.dto.user.UserLoginDto;
-import com.example.my_books_backend.dto.user.UserSignupDto;
 import com.example.my_books_backend.exception.ConflictException;
+import com.example.my_books_backend.security.request.LoginRequest;
+import com.example.my_books_backend.security.request.SignupRequest;
 import com.example.my_books_backend.service.UserService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
@@ -29,10 +29,10 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserLoginDto dto) {
+    public ResponseEntity<String> authenticateUser(@RequestBody LoginRequest request) {
         try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    request.getEmail(), request.getPassword()));
             return ResponseEntity.ok("Login successful");
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -41,9 +41,9 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody UserSignupDto dto) {
+    public ResponseEntity<String> registerUser(@RequestBody SignupRequest request) {
         try {
-            userService.signup(dto.getEmail(), dto.getPassword());
+            userService.signup(request.getEmail(), request.getPassword());
             return ResponseEntity.ok("Signup successful");
         } catch (ConflictException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)

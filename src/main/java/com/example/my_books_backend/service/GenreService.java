@@ -2,7 +2,6 @@ package com.example.my_books_backend.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -81,10 +80,8 @@ public class GenreService {
     }
 
     private Genre findGenreById(Integer id) {
-        Optional<Genre> found = genreRepository.findById(id);
-        if (found.isEmpty()) {
-            throw new NotFoundException("Not found with this ID: " + id);
-        }
-        return found.get();
+        Genre genre = genreRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Not found with this ID: " + id));
+        return genre;
     }
 }

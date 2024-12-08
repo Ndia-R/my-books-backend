@@ -13,7 +13,7 @@ import com.example.my_books_backend.dto.book.BookResponseDto;
 import com.example.my_books_backend.service.BookService;
 
 @RestController
-@RequestMapping("/books")
+@RequestMapping("/api/books")
 public class BookController {
 
     @Autowired

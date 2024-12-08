@@ -1,7 +1,6 @@
 package com.example.my_books_backend.service;
 
 import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -71,10 +70,8 @@ public class BookService {
     }
 
     private Book findBookById(String id) {
-        Optional<Book> found = bookRepository.findById(id);
-        if (found.isEmpty()) {
-            throw new NotFoundException("Not found with this ID: " + id);
-        }
-        return found.get();
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Not found with this ID: " + id));
+        return book;
     }
 }
