@@ -1,7 +1,9 @@
-package com.example.my_books_backend.shared;
+package com.example.my_books_backend.util;
 
 import java.security.SecureRandom;
+import org.springframework.stereotype.Component;
 
+@Component
 public class RandomStringUtil {
     private static final String CHARACTERS =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

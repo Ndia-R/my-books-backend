@@ -9,6 +9,7 @@ import com.example.my_books_backend.model.Book;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, String> {
+
     Page<Book> findByTitleContaining(String q, Pageable pageable);
 
     List<Book> findTop10ByOrderByPublishedDateDesc();

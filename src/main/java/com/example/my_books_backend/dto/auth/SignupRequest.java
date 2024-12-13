@@ -1,6 +1,7 @@
-package com.example.my_books_backend.security.request;
+package com.example.my_books_backend.dto.auth;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -13,10 +14,12 @@ import lombok.NoArgsConstructor;
 public class SignupRequest {
 
     @NotNull
-    @Email
+    @NotBlank(message = "メールアドレスは必須です")
+    @Email(message = "無効なメールアドレスです")
     private String email;
 
     @NotNull
-    @Size(min = 8, message = "Password must be at least 8 characters long")
+    @NotBlank(message = "パスワードは必須です")
+    @Size(min = 6, message = "パスワードは6文字以上で入力してください")
     private String password;
 }

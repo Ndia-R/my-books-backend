@@ -1,7 +1,7 @@
 package com.example.my_books_backend.model;
 
 import java.sql.Date;
-import com.example.my_books_backend.shared.EntityBase;
+import com.example.my_books_backend.model.shared.EntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

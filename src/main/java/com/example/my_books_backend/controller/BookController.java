@@ -1,7 +1,6 @@
 package com.example.my_books_backend.controller;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,13 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.book.BookDto;
 import com.example.my_books_backend.dto.book.BookResponseDto;
 import com.example.my_books_backend.service.BookService;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/books")
+@RequiredArgsConstructor
 public class BookController {
 
-    @Autowired
-    private BookService bookService;
+    private final BookService bookService;
 
     @GetMapping("")
     public ResponseEntity<List<BookDto>> getBooks() {
@@ -52,5 +52,4 @@ public class BookController {
         List<BookDto> books = bookService.getNewReleases();
         return ResponseEntity.ok(books);
     }
-
 }

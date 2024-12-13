@@ -1,4 +1,4 @@
-package com.example.my_books_backend.shared;
+package com.example.my_books_backend.model.shared;
 
 import java.time.LocalDateTime;
 import jakarta.persistence.Column;

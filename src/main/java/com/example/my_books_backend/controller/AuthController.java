@@ -1,6 +1,5 @@
 package com.example.my_books_backend.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,23 +12,22 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.my_books_backend.dto.auth.LoginRequest;
+import com.example.my_books_backend.dto.auth.SignupRequest;
 import com.example.my_books_backend.exception.ConflictException;
-import com.example.my_books_backend.security.request.LoginRequest;
-import com.example.my_books_backend.security.request.SignupRequest;
-import com.example.my_books_backend.service.UserService;
+import com.example.my_books_backend.service.AuthService;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticateUser(@RequestBody LoginRequest request) {
+    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     request.getEmail(), request.getPassword()));
@@ -38,12 +36,13 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Login failed: " + e.getMessage());
         }
+
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> registerUser(@RequestBody SignupRequest request) {
+    public ResponseEntity<String> signup(@RequestBody SignupRequest request) {
         try {
-            userService.signup(request.getEmail(), request.getPassword());
+            authService.signup(request.getEmail(), request.getPassword());
             return ResponseEntity.ok("Signup successful");
         } catch (ConflictException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)

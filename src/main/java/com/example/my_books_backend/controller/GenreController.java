@@ -3,7 +3,6 @@ package com.example.my_books_backend.controller;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,13 +20,14 @@ import com.example.my_books_backend.dto.genre.GenreUpdateDto;
 import com.example.my_books_backend.model.Genre;
 import com.example.my_books_backend.service.GenreService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/genres")
+@RequiredArgsConstructor
 public class GenreController {
 
-    @Autowired
-    private GenreService genreService;
+    private final GenreService genreService;
 
     @GetMapping("")
     public ResponseEntity<List<GenreDto>> getGenres() {

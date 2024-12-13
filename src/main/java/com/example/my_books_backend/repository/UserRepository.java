@@ -7,11 +7,8 @@ import com.example.my_books_backend.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
-    Optional<User> findByUserName(String username);
 
     Optional<User> findByEmail(String email);
-
-    Boolean existsByUserName(String username);
 
     Boolean existsByEmail(String email);
 }
