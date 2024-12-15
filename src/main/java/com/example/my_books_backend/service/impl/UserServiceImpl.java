@@ -1,49 +1,41 @@
 package com.example.my_books_backend.service.impl;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.my_books_backend.dto.user.UserCreateDto;
 import com.example.my_books_backend.dto.user.UserDto;
 import com.example.my_books_backend.dto.user.UserUpdateDto;
-import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.UserMapper;
+import com.example.my_books_backend.model.Role;
+import com.example.my_books_backend.model.RoleName;
 import com.example.my_books_backend.model.User;
+import com.example.my_books_backend.repository.RoleRepository;
 import com.example.my_books_backend.repository.UserRepository;
 import com.example.my_books_backend.service.UserService;
+import com.example.my_books_backend.util.RandomStringUtil;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    @Autowired
-    PasswordEncoder passwordEncoder;
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
+    private final RandomStringUtil randomStringUtil;
 
-    @Autowired
-    private UserMapper userMapper;
+    private final String DEFAULT_AVATAR_URL = "http://localhost:18080/images/avatars/avatar00.jpg";
 
     @Override
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
-    }
-
-    @Override
-    public UserDto signup(String email, String password) {
-        if (userRepository.existsByEmail(email)) {
-            throw new ConflictException("User already exists: " + email);
-        }
-
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        User saveUser = userRepository.save(user);
-        UserDto userDto = userMapper.toDto(saveUser);
-        return userDto;
     }
 
     @Override
@@ -63,6 +55,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(UserCreateDto dto) {
         User user = userMapper.toEntity(dto);
+
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+
+        if (user.getRoles() == null) {
+            Role role = roleRepository.findByName(RoleName.ROLE_USER);
+            user.setRoles(Collections.singletonList(role));
+        }
+
+        if (user.getName() == null) {
+            String name = "USER_" + randomStringUtil.generateRandomString();
+            user.setName(name);
+        }
+
+        if (user.getAvatarUrl() == null) {
+            String avatarUrl = DEFAULT_AVATAR_URL;
+            user.setAvatarUrl(avatarUrl);
+        }
+
         User saveUser = userRepository.save(user);
         UserDto userDto = userMapper.toDto(saveUser);
         return userDto;

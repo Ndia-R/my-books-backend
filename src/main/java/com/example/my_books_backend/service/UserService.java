@@ -12,8 +12,6 @@ public interface UserService {
 
     Optional<User> findByEmail(String email);
 
-    UserDto signup(String email, String password);
-
     List<UserDto> getUsers();
 
     UserDto getUserById(Integer id);

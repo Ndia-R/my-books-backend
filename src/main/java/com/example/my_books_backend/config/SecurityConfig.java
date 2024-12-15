@@ -28,9 +28,10 @@ public class SecurityConfig {
         http.sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.authorizeHttpRequests(authorize -> authorize.requestMatchers("/api/**").permitAll()
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                .permitAll().anyRequest().authenticated());
+        http.authorizeHttpRequests(
+                authorize -> authorize.requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                        .permitAll().anyRequest().authenticated());
 
         http.logout(logout -> logout.logoutUrl("/auth/logout").logoutSuccessUrl("/")
                 .invalidateHttpSession(true).deleteCookies("JSESSIONID"));

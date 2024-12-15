@@ -15,7 +15,12 @@ public class UserMapper {
     private ModelMapper modelMapper;
 
     public UserDto toDto(User user) {
-        return modelMapper.map(user, UserDto.class);
+        UserDto userDto = modelMapper.map(user, UserDto.class);
+
+        List<String> roles = user.getRoles().stream().map(role -> role.getName()).toList();
+        userDto.setRoles(roles);
+
+        return userDto;
     }
 
     public User toEntity(UserDto userDto) {

@@ -10,7 +10,7 @@ public class RandomStringUtil {
     private static final int LENGTH = 12;
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    public static String generateRandomString() {
+    public String generateRandomString() {
         StringBuilder sb = new StringBuilder(LENGTH);
         for (int i = 0; i < LENGTH; i++) {
             int index = RANDOM.nextInt(CHARACTERS.length());

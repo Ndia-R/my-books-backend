@@ -3,6 +3,8 @@ package com.example.my_books_backend.model;
 import com.example.my_books_backend.model.shared.EntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,8 +28,17 @@ public class Role extends EntityBase {
     private Integer id;
 
     @Column(name = "name", nullable = false, unique = true)
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private RoleName name;
 
     @Column(name = "description", nullable = false)
     private String description;
+
+    public Role(RoleName name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name.toString();
+    }
 }
