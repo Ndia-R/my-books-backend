@@ -26,7 +26,7 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
                                 HttpStatus.NOT_FOUND, request);
         }
 
-        @ExceptionHandler({BadRequestException.class})
+        @ExceptionHandler({BadRequestException.class, ValidationException.class})
         public ResponseEntity<Object> handleBadRequest(BadRequestException ex, WebRequest request) {
                 ErrorResponse errorResponse = new ErrorResponse(Arrays.asList(ex.getMessage()),
                                 HttpStatus.BAD_REQUEST);
@@ -42,8 +42,8 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
                                 HttpStatus.CONFLICT, request);
         }
 
-        @ExceptionHandler({UnAuthorizedException.class})
-        public ResponseEntity<Object> handleUnAuthorized(UnAuthorizedException ex,
+        @ExceptionHandler({UnauthorizedException.class})
+        public ResponseEntity<Object> handleUnauthorized(UnauthorizedException ex,
                         WebRequest request) {
                 ErrorResponse errorResponse = new ErrorResponse(Arrays.asList(ex.getMessage()),
                                 HttpStatus.UNAUTHORIZED);

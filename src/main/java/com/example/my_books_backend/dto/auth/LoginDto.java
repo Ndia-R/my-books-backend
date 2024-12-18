@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class LoginDto {
 
     @NotNull
-    @Email
+    @Email(message = "無効なメールアドレスです")
     private String email;
 
     @NotNull

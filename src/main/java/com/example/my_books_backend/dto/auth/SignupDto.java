@@ -15,11 +15,14 @@ public class SignupDto {
 
     @NotNull
     @NotBlank(message = "メールアドレスは必須です")
-    @Email(message = "無効なメールアドレスです")
+    @Email(message = "有効なメールアドレスを入力してください")
     private String email;
 
     @NotNull
     @NotBlank(message = "パスワードは必須です")
-    @Size(min = 6, message = "パスワードは6文字以上で入力してください")
+    @Size(min = 4, message = "パスワードは4文字以上で入力してください")
     private String password;
+
+    @NotBlank(message = "確認パスワードは必須です")
+    private String confirmPassword;
 }

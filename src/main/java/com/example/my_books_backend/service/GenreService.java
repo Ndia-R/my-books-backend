@@ -1,10 +1,10 @@
 package com.example.my_books_backend.service;
 
 import java.util.List;
-import java.util.Map;
 import com.example.my_books_backend.dto.genre.GenreCreateDto;
 import com.example.my_books_backend.dto.genre.GenreDto;
-import com.example.my_books_backend.dto.genre.GenreUpdateDto;
+import com.example.my_books_backend.dto.genre.GenrePatchDto;
+import com.example.my_books_backend.dto.genre.GenrePutDto;
 
 public interface GenreService {
 
@@ -14,9 +14,9 @@ public interface GenreService {
 
     GenreDto createGenre(GenreCreateDto dto);
 
-    void updateGenre(Integer id, GenreUpdateDto dto);
+    void putGenre(Integer id, GenrePutDto dto);
 
-    void patchGenre(Integer id, Map<String, Object> updates);
+    void patchGenre(Integer id, GenrePatchDto dto);
 
     void deleteGenre(Integer id);
 }

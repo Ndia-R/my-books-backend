@@ -13,7 +13,7 @@ import com.example.my_books_backend.service.BookService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/api/v1/books")
 @RequiredArgsConstructor
 public class BookController {
 

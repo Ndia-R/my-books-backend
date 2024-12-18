@@ -8,12 +8,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.example.my_books_backend.dto.auth.LoginDto;
-import com.example.my_books_backend.dto.auth.LoginResponse;
+import com.example.my_books_backend.dto.auth.LoginResponseDto;
 import com.example.my_books_backend.dto.auth.SignupDto;
 import com.example.my_books_backend.dto.user.UserCreateDto;
 import com.example.my_books_backend.dto.user.UserDto;
 import com.example.my_books_backend.exception.ConflictException;
-import com.example.my_books_backend.exception.UnAuthorizedException;
+import com.example.my_books_backend.exception.UnauthorizedException;
+import com.example.my_books_backend.exception.ValidationException;
 import com.example.my_books_backend.model.User;
 import com.example.my_books_backend.repository.UserRepository;
 import com.example.my_books_backend.util.JwtUtil;
@@ -28,14 +29,14 @@ public class AuthService {
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
-    public LoginResponse login(LoginDto loginDto) {
+    public LoginResponseDto login(LoginDto loginDto) {
         Authentication authentication;
         try {
             authentication =
                     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                             loginDto.getEmail(), loginDto.getPassword()));
         } catch (AuthenticationException e) {
-            throw new UnAuthorizedException("Login failed: Invalid email or password.");
+            throw new UnauthorizedException("ログインに失敗しました。メールアドレスまたはパスワードが無効です。");
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -46,20 +47,23 @@ public class AuthService {
         String name = user.getName();
         List<String> roles = user.getRoles().stream().map(role -> role.getName()).toList();
 
-        LoginResponse response = new LoginResponse(accessToken, name, roles);
-        return response;
+        return new LoginResponseDto(accessToken, name, roles);
     }
 
     public UserDto signup(SignupDto signupDto) {
+        if (!signupDto.getPassword().equals(signupDto.getConfirmPassword())) {
+            throw new ValidationException("パスワードと確認用パスワードが一致していません。");
+        }
+
         if (userRepository.existsByEmail(signupDto.getEmail())) {
-            throw new ConflictException("User already exists: " + signupDto.getEmail());
+            throw new ConflictException(
+                    "サインアップに失敗しました。このメールアドレスは既に登録されています。: " + signupDto.getEmail());
         }
 
         UserCreateDto dto = new UserCreateDto();
         dto.setEmail(signupDto.getEmail());
         dto.setPassword(signupDto.getPassword());
 
-        UserDto userDto = userService.createUser(dto);
-        return userDto;
+        return userService.createUser(dto);
     }
 }

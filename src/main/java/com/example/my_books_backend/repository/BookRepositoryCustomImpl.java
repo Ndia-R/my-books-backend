@@ -20,7 +20,7 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
     private EntityManager entityManager;
 
     // // 基本的な呼び出し
-    // List<String> genres = Arrays.asList("fiction", "mystery");
+    // List<String> genres = Arrays.asList("ミステリー", "サスペンス");
     // Pageable pageable = PageRequest.of(0, 10); // 1ページ目、10件ずつ
     // Page<Book> result = bookRepository.findByGenreIds(genres, pageable);
 
@@ -67,9 +67,7 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         return new PageImpl<>(books, pageable, total);
     }
 
-    /**
-     * SQLクエリのWHERE句を、ジャンルIDのリストに基づいて動的に構築
-     */
+    // SQLクエリのWHERE句を、ジャンルIDのリストに基づいて動的に構築
     private String buildQueryWithGenres(String baseQuery, List<List<String>> orConditions) {
         StringBuilder query = new StringBuilder(baseQuery);
         for (int i = 0; i < orConditions.size(); i++) {
@@ -90,9 +88,7 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         return query.toString();
     }
 
-    /**
-     * SortオブジェクトからORDER BY句を作成
-     */
+    // SortオブジェクトからORDER BY句を作成
     private String buildOrderByClause(Pageable pageable) {
         Sort sort = pageable.getSort().isSorted() ? pageable.getSort()
                 : Sort.by(Sort.Direction.ASC, "title");
@@ -107,9 +103,7 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         return orderBy.toString();
     }
 
-    /**
-     * ジャンルIDのリストをクエリのパラメータに設定
-     */
+    // ジャンルIDのリストをクエリのパラメータに設定
     private void setParameters(Query query, List<List<String>> orConditions) {
         for (int i = 0; i < orConditions.size(); i++) {
             List<String> orCondition = orConditions.get(i);
@@ -119,9 +113,7 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         }
     }
 
-    /**
-     * エンティティのフィールド名をデータベースのカラム名に変換する
-     */
+    // エンティティのフィールド名をデータベースのカラム名に変換する
     private String convertToColumnName(String fieldName) {
         switch (fieldName) {
             case "genreIds":

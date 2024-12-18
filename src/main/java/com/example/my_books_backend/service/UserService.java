@@ -1,8 +1,9 @@
 package com.example.my_books_backend.service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import com.example.my_books_backend.dto.user.EmailChangeDto;
+import com.example.my_books_backend.dto.user.PasswordChangeDto;
 import com.example.my_books_backend.dto.user.UserCreateDto;
 import com.example.my_books_backend.dto.user.UserDto;
 import com.example.my_books_backend.dto.user.UserUpdateDto;
@@ -16,11 +17,17 @@ public interface UserService {
 
     UserDto getUserById(Integer id);
 
+    void deleteUser(Integer id);
+
     UserDto createUser(UserCreateDto dto);
 
-    void updateUser(Integer id, UserUpdateDto dto);
+    UserDto getCurrentUser();
 
-    void patchUser(Integer id, Map<String, Object> updates);
+    void updateCurrentUser(UserUpdateDto dto);
 
-    void deleteUser(Integer id);
+    void changeEmail(EmailChangeDto dto);
+
+    void changePassword(PasswordChangeDto dto);
+
+
 }

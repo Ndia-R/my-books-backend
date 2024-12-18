@@ -31,38 +31,33 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<BookDto> getBooks() {
         List<Book> books = bookRepository.findAll();
-        List<BookDto> booksDto = bookMapper.toDtoList(books);
-        return booksDto;
+        return bookMapper.toDtoList(books);
     }
 
     @Override
     public BookDto getBookById(String id) {
         Book book = findBookById(id);
-        BookDto bookDto = bookMapper.toDto(book);
-        return bookDto;
+        return bookMapper.toDto(book);
     }
 
     @Override
     public BookResponseDto searchByTitle(String q, Integer page, Integer maxResults) {
         Pageable pageable = createPageable(page, maxResults);
         Page<Book> pageBook = bookRepository.findByTitleContaining(q, pageable);
-        BookResponseDto bookResponseDto = bookMapper.toResponseDto(pageBook);
-        return bookResponseDto;
+        return bookMapper.toResponseDto(pageBook);
     }
 
     @Override
     public BookResponseDto searchByGenreId(String genreId, Integer page, Integer maxResults) {
         Pageable pageable = createPageable(page, maxResults);
         Page<Book> pageBook = bookRepositoryCustom.findByGenreIds(genreId, pageable);
-        BookResponseDto bookResponseDto = bookMapper.toResponseDto(pageBook);
-        return bookResponseDto;
+        return bookMapper.toResponseDto(pageBook);
     }
 
     @Override
     public List<BookDto> getNewReleases() {
         List<Book> books = bookRepository.findTop10ByOrderByPublishedDateDesc();
-        List<BookDto> booksDto = bookMapper.toDtoList(books);
-        return booksDto;
+        return bookMapper.toDtoList(books);
     }
 
     private Pageable createPageable(Integer page, Integer maxResults) {
@@ -73,7 +68,7 @@ public class BookServiceImpl implements BookService {
 
     private Book findBookById(String id) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Not found with this ID: " + id));
+                .orElseThrow(() -> new NotFoundException("見つかりませんでした。 ID: " + id));
         return book;
     }
 }

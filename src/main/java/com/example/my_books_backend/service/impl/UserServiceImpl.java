@@ -2,15 +2,21 @@ package com.example.my_books_backend.service.impl;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.example.my_books_backend.dto.user.EmailChangeDto;
+import com.example.my_books_backend.dto.user.PasswordChangeDto;
 import com.example.my_books_backend.dto.user.UserCreateDto;
 import com.example.my_books_backend.dto.user.UserDto;
 import com.example.my_books_backend.dto.user.UserUpdateDto;
+import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.NotFoundException;
+import com.example.my_books_backend.exception.UnauthorizedException;
+import com.example.my_books_backend.exception.ValidationException;
 import com.example.my_books_backend.mapper.UserMapper;
 import com.example.my_books_backend.model.Role;
 import com.example.my_books_backend.model.RoleName;
@@ -31,7 +37,8 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final RandomStringUtil randomStringUtil;
 
-    private final String DEFAULT_AVATAR_URL = "http://localhost:18080/images/avatars/avatar00.jpg";
+    @Value("${spring.app.default.avatarUrl}")
+    private final String DEFAULT_AVATAR_URL;
 
     @Override
     public Optional<User> findByEmail(String email) {
@@ -41,15 +48,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getUsers() {
         List<User> users = userRepository.findAll();
-        List<UserDto> usersDto = userMapper.toDtoList(users);
-        return usersDto;
+        return userMapper.toDtoList(users);
     }
 
     @Override
     public UserDto getUserById(Integer id) {
         User user = findUserById(id);
-        UserDto userDto = userMapper.toDto(user);
-        return userDto;
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -74,41 +79,57 @@ public class UserServiceImpl implements UserService {
         }
 
         User saveUser = userRepository.save(user);
-        UserDto userDto = userMapper.toDto(saveUser);
-        return userDto;
+        return userMapper.toDto(saveUser);
     }
 
     @Override
-    public void updateUser(Integer id, UserUpdateDto dto) {
-        User user = findUserById(id);
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+    public UserDto getCurrentUser() {
+        User user = getAuthenticatedUser();
+        return userMapper.toDto(user);
+    }
+
+    @Override
+    public void updateCurrentUser(UserUpdateDto dto) {
+        User user = getAuthenticatedUser();
+
+        if (dto.getName() != null) {
+            user.setName(dto.getName());
         }
-        user.setAvatarUrl(dto.getAvatarUrl());
+        if (dto.getAvatarUrl() != null) {
+            user.setAvatarUrl(dto.getAvatarUrl());
+        }
         userRepository.save(user);
     }
 
     @Override
-    public void patchUser(Integer id, Map<String, Object> updates) {
-        User user = findUserById(id);
-        updates.forEach((key, value) -> {
-            switch (key) {
-                case "name":
-                    user.setName((String) value);
-                    break;
-                case "email":
-                    user.setEmail((String) value);
-                    break;
-                case "password":
-                    user.setPassword(passwordEncoder.encode((String) value));
-                    break;
-                case "avatarUrl":
-                    user.setAvatarUrl((String) value);
-                    break;
-            }
-        });
+    public void changeEmail(EmailChangeDto dto) {
+        User user = getAuthenticatedUser();
+
+        if (userRepository.existsByEmail(dto.getNewEmail())) {
+            throw new ConflictException("このメールアドレスは既に登録されています。: " + dto.getNewEmail());
+        }
+
+        // 本来はここで新しいメールアドレスにメールを送ってメール内のリンクを
+        // クリックしてもらうなどで、新しいメールアドレスが本人のものであるか
+        // 確認してから、メールアドレスを更新する
+
+        user.setEmail(dto.getNewEmail());
+        userRepository.save(user);
+    }
+
+    @Override
+    public void changePassword(PasswordChangeDto dto) {
+        User user = getAuthenticatedUser();
+
+        if (!dto.getNewPassword().equals(dto.getConfirmNewPassword())) {
+            throw new ValidationException("新しいパスワードと確認用パスワードが一致していません。");
+        }
+
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+            throw new UnauthorizedException("現在のパスワードが間違っています。");
+        }
+
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         userRepository.save(user);
     }
 
@@ -120,7 +141,14 @@ public class UserServiceImpl implements UserService {
 
     private User findUserById(Integer id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Not found with this ID: " + id));
+                .orElseThrow(() -> new NotFoundException("見つかりませんでした。 ID: " + id));
         return user;
     }
+
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User authenticatedUser = (User) authentication.getPrincipal();
+        return authenticatedUser;
+    }
+
 }

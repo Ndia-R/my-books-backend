@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class AuthTokenFilter extends OncePerRequestFilter {
+    private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtUtil jwtUtil;
@@ -34,7 +37,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 String email = jwtUtil.getSubjectFromToken(jwt);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails, null,
                                 userDetails.getAuthorities());
@@ -58,5 +60,4 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         }
         return null;
     }
-
 }

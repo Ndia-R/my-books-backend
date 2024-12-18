@@ -37,9 +37,13 @@
     "vscjava",
     "zenkaku"
   ],
-  // スペルチェックの対象外にするファイル
-  "cSpell.files": ["devcontainer.json", "build.gradle"],
 
+  // スペルチェックの対象外にするファイル
+  "cSpell.files": ["devcontainer.json"],
+
+  // Javaのビルド構成（build.gradleやpom.xmlなど）が変更された場合に、VS Codeがその変更を反映するよう促すダイアログを表示
   "java.configuration.updateBuildConfiguration": "interactive",
+
+  // リモート開発環境（例えば、SSHやDevContainerなど）で、ポートフォワードが自動的に行われない場合のフォールバック動作を制御
   "remote.autoForwardPortsFallback": 0
 }

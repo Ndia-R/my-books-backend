@@ -2,7 +2,6 @@ package com.example.my_books_backend.controller;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,14 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.my_books_backend.dto.genre.GenreCreateDto;
 import com.example.my_books_backend.dto.genre.GenreDto;
-import com.example.my_books_backend.dto.genre.GenreUpdateDto;
-import com.example.my_books_backend.model.Genre;
+import com.example.my_books_backend.dto.genre.GenrePatchDto;
+import com.example.my_books_backend.dto.genre.GenrePutDto;
 import com.example.my_books_backend.service.GenreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/genres")
+@RequestMapping("/api/v1/genres")
 @RequiredArgsConstructor
 public class GenreController {
 
@@ -50,21 +49,21 @@ public class GenreController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<GenreDto> updateGenre(@PathVariable Integer id,
-            @Valid @RequestBody GenreUpdateDto dto) {
-        genreService.updateGenre(id, dto);
+    public ResponseEntity<Void> putGenre(@PathVariable Integer id,
+            @Valid @RequestBody GenrePutDto dto) {
+        genreService.putGenre(id, dto);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<GenreDto> patchGenre(@PathVariable Integer id,
-            @Valid @RequestBody Map<String, Object> updates) {
-        genreService.patchGenre(id, updates);
+    public ResponseEntity<Void> patchGenre(@PathVariable Integer id,
+            @Valid @RequestBody GenrePatchDto dto) {
+        genreService.patchGenre(id, dto);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Genre> deleteGenre(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteGenre(@PathVariable Integer id) {
         genreService.deleteGenre(id);
         return ResponseEntity.noContent().build();
     }
