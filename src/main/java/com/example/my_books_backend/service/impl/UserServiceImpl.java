@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
     private final RandomStringUtil randomStringUtil;
 
     @Value("${spring.app.default.avatarUrl}")
-    private final String DEFAULT_AVATAR_URL;
+    private String DEFAULT_AVATAR_URL;
 
     @Override
     public Optional<User> findByEmail(String email) {
