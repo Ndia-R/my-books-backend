@@ -5,10 +5,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.my_books_backend.dto.auth.LoginDto;
-import com.example.my_books_backend.dto.auth.LoginResponseDto;
-import com.example.my_books_backend.dto.auth.SignupDto;
-import com.example.my_books_backend.dto.user.UserDto;
+import com.example.my_books_backend.dto.auth.LoginRequest;
+import com.example.my_books_backend.dto.auth.LoginResponse;
+import com.example.my_books_backend.dto.auth.SignupRequest;
+import com.example.my_books_backend.dto.auth.TokenRefreshRequest;
+import com.example.my_books_backend.dto.auth.TokenRefreshResponse;
+import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,18 +19,24 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class AuthController {
-
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginDto loginDto) {
-        LoginResponseDto loginResponseDto = authService.login(loginDto);
-        return ResponseEntity.ok(loginResponseDto);
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        LoginResponse loginResponse = authService.login(loginRequest);
+        return ResponseEntity.ok(loginResponse);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<UserDto> signup(@Valid @RequestBody SignupDto signupDto) {
-        UserDto user = authService.signup(signupDto);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserResponse> signup(@Valid @RequestBody SignupRequest signupRequest) {
+        UserResponse userResponse = authService.signup(signupRequest);
+        return ResponseEntity.ok(userResponse);
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<TokenRefreshResponse> refreshToken(
+            @RequestBody TokenRefreshRequest tokenRefreshRequest) {
+        TokenRefreshResponse tokenRefreshResponse = authService.refreshToken(tokenRefreshRequest);
+        return ResponseEntity.ok(tokenRefreshResponse);
     }
 }

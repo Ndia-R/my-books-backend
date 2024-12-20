@@ -1,18 +1,17 @@
 package com.example.my_books_backend.service;
 
 import java.util.List;
-import com.example.my_books_backend.dto.book.BookDto;
-import com.example.my_books_backend.dto.book.BookResponseDto;
+import com.example.my_books_backend.dto.book.BookResponse;
+import com.example.my_books_backend.dto.book.PaginatedBookResponse;
 
 public interface BookService {
+    List<BookResponse> getAllBooks();
 
-    List<BookDto> getBooks();
+    BookResponse getBookById(String id);
 
-    BookDto getBookById(String id);
+    PaginatedBookResponse searchByTitle(String q, Integer page, Integer maxResults);
 
-    BookResponseDto searchByTitle(String q, Integer page, Integer maxResults);
+    PaginatedBookResponse searchByGenreId(String genreId, Integer page, Integer maxResults);
 
-    BookResponseDto searchByGenreId(String genreId, Integer page, Integer maxResults);
-
-    List<BookDto> getNewReleases();
+    List<BookResponse> getNewReleases();
 }

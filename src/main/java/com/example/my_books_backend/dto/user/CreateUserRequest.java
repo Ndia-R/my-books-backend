@@ -1,7 +1,7 @@
 package com.example.my_books_backend.dto.user;
 
 import java.util.List;
-import com.example.my_books_backend.model.Role;
+import com.example.my_books_backend.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -11,8 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserCreateDto {
-
+public class CreateUserRequest {
     @NotNull
     @Email
     private String email;

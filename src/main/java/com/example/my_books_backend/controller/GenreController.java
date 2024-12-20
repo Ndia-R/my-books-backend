@@ -13,10 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.example.my_books_backend.dto.genre.GenreCreateDto;
-import com.example.my_books_backend.dto.genre.GenreDto;
-import com.example.my_books_backend.dto.genre.GenrePatchDto;
-import com.example.my_books_backend.dto.genre.GenrePutDto;
+import com.example.my_books_backend.dto.genre.CreateGenreRequest;
+import com.example.my_books_backend.dto.genre.GenreResponse;
+import com.example.my_books_backend.dto.genre.UpdateGenreRequest;
 import com.example.my_books_backend.service.GenreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,24 +24,24 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/genres")
 @RequiredArgsConstructor
 public class GenreController {
-
     private final GenreService genreService;
 
     @GetMapping("")
-    public ResponseEntity<List<GenreDto>> getGenres() {
-        List<GenreDto> genres = genreService.getGenres();
+    public ResponseEntity<List<GenreResponse>> getAllGenres() {
+        List<GenreResponse> genres = genreService.getAllGenres();
         return ResponseEntity.ok(genres);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GenreDto> getGenreById(@PathVariable Integer id) {
-        GenreDto genre = genreService.getGenreById(id);
+    public ResponseEntity<GenreResponse> getGenreById(@PathVariable Integer id) {
+        GenreResponse genre = genreService.getGenreById(id);
         return ResponseEntity.ok(genre);
     }
 
     @PostMapping("")
-    public ResponseEntity<GenreDto> createGenre(@Valid @RequestBody GenreCreateDto dto) {
-        GenreDto genre = genreService.createGenre(dto);
+    public ResponseEntity<GenreResponse> createGenre(
+            @Valid @RequestBody CreateGenreRequest createGenreRequest) {
+        GenreResponse genre = genreService.createGenre(createGenreRequest);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(genre.getId()).toUri();
         return ResponseEntity.created(location).body(genre);
@@ -50,15 +49,15 @@ public class GenreController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> putGenre(@PathVariable Integer id,
-            @Valid @RequestBody GenrePutDto dto) {
-        genreService.putGenre(id, dto);
+            @Valid @RequestBody UpdateGenreRequest updateGenreRequest) {
+        genreService.putGenre(id, updateGenreRequest);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Void> patchGenre(@PathVariable Integer id,
-            @Valid @RequestBody GenrePatchDto dto) {
-        genreService.patchGenre(id, dto);
+            @Valid @RequestBody UpdateGenreRequest updateGenreRequest) {
+        genreService.patchGenre(id, updateGenreRequest);
         return ResponseEntity.noContent().build();
     }
 

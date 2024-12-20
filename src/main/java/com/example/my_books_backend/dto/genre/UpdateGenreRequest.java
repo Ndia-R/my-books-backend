@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GenrePutDto {
-
+public class UpdateGenreRequest {
     @NotNull
     @Length(max = 50)
     private String name;

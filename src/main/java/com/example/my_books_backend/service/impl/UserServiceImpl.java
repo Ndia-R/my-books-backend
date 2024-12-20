@@ -8,19 +8,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.example.my_books_backend.dto.user.EmailChangeDto;
-import com.example.my_books_backend.dto.user.PasswordChangeDto;
-import com.example.my_books_backend.dto.user.UserCreateDto;
-import com.example.my_books_backend.dto.user.UserDto;
-import com.example.my_books_backend.dto.user.UserUpdateDto;
+import com.example.my_books_backend.dto.user.EmailChangeRequest;
+import com.example.my_books_backend.dto.user.PasswordChangeRequest;
+import com.example.my_books_backend.dto.user.CreateUserRequest;
+import com.example.my_books_backend.dto.user.UserResponse;
+import com.example.my_books_backend.dto.user.UpdateUserRequest;
+import com.example.my_books_backend.entity.Role;
+import com.example.my_books_backend.entity.RoleName;
+import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.exception.UnauthorizedException;
 import com.example.my_books_backend.exception.ValidationException;
 import com.example.my_books_backend.mapper.UserMapper;
-import com.example.my_books_backend.model.Role;
-import com.example.my_books_backend.model.RoleName;
-import com.example.my_books_backend.model.User;
 import com.example.my_books_backend.repository.RoleRepository;
 import com.example.my_books_backend.repository.UserRepository;
 import com.example.my_books_backend.service.UserService;
@@ -30,7 +30,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -46,22 +45,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsers() {
+    public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
-        return userMapper.toDtoList(users);
+        return userMapper.toResponseList(users);
     }
 
     @Override
-    public UserDto getUserById(Integer id) {
+    public UserResponse getUserById(Integer id) {
         User user = findUserById(id);
-        return userMapper.toDto(user);
+        return userMapper.toResponse(user);
     }
 
     @Override
-    public UserDto createUser(UserCreateDto dto) {
-        User user = userMapper.toEntity(dto);
+    public UserResponse createUser(CreateUserRequest createUserRequest) {
+        User user = userMapper.toEntity(createUserRequest);
 
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setPassword(passwordEncoder.encode(createUserRequest.getPassword()));
 
         if (user.getRoles() == null) {
             Role role = roleRepository.findByName(RoleName.ROLE_USER);
@@ -79,57 +78,66 @@ public class UserServiceImpl implements UserService {
         }
 
         User saveUser = userRepository.save(user);
-        return userMapper.toDto(saveUser);
+        return userMapper.toResponse(saveUser);
     }
 
     @Override
-    public UserDto getCurrentUser() {
+    public UserResponse getCurrentUser() {
         User user = getAuthenticatedUser();
-        return userMapper.toDto(user);
+        return userMapper.toResponse(user);
     }
 
     @Override
-    public void updateCurrentUser(UserUpdateDto dto) {
+    public void updateCurrentUser(UpdateUserRequest updateUserRequest) {
         User user = getAuthenticatedUser();
 
-        if (dto.getName() != null) {
-            user.setName(dto.getName());
+        String name = updateUserRequest.getName();
+        String avatarUrl = updateUserRequest.getAvatarUrl();
+
+        if (name != null) {
+            user.setName(name);
         }
-        if (dto.getAvatarUrl() != null) {
-            user.setAvatarUrl(dto.getAvatarUrl());
+        if (avatarUrl != null) {
+            user.setAvatarUrl(avatarUrl);
         }
         userRepository.save(user);
     }
 
     @Override
-    public void changeEmail(EmailChangeDto dto) {
+    public void changeEmail(EmailChangeRequest emailChangeRequest) {
         User user = getAuthenticatedUser();
 
-        if (userRepository.existsByEmail(dto.getNewEmail())) {
-            throw new ConflictException("このメールアドレスは既に登録されています。: " + dto.getNewEmail());
+        String email = emailChangeRequest.getNewEmail();
+
+        if (userRepository.existsByEmail(email)) {
+            throw new ConflictException("このメールアドレスは既に登録されています。: " + email);
         }
 
         // 本来はここで新しいメールアドレスにメールを送ってメール内のリンクを
         // クリックしてもらうなどで、新しいメールアドレスが本人のものであるか
         // 確認してから、メールアドレスを更新する
 
-        user.setEmail(dto.getNewEmail());
+        user.setEmail(email);
         userRepository.save(user);
     }
 
     @Override
-    public void changePassword(PasswordChangeDto dto) {
+    public void changePassword(PasswordChangeRequest passwordChangeRequest) {
         User user = getAuthenticatedUser();
 
-        if (!dto.getNewPassword().equals(dto.getConfirmNewPassword())) {
+        String newPassword = passwordChangeRequest.getNewPassword();
+        String confirmNewPassword = passwordChangeRequest.getConfirmNewPassword();
+        String currentPassword = passwordChangeRequest.getCurrentPassword();
+
+        if (!newPassword.equals(confirmNewPassword)) {
             throw new ValidationException("新しいパスワードと確認用パスワードが一致していません。");
         }
 
-        if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new UnauthorizedException("現在のパスワードが間違っています。");
         }
 
-        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
 
@@ -150,5 +158,4 @@ public class UserServiceImpl implements UserService {
         User authenticatedUser = (User) authentication.getPrincipal();
         return authenticatedUser;
     }
-
 }

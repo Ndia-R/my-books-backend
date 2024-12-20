@@ -33,7 +33,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String jwt = getJwtFromHeader(request);
-            if (jwt != null && jwtUtil.validateToken(jwt)) {
+            if (jwt != null && jwtUtil.validateAccessToken(jwt)) {
                 String email = jwtUtil.getSubjectFromToken(jwt);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);

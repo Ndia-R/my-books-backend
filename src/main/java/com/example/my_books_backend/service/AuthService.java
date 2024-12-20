@@ -7,15 +7,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import com.example.my_books_backend.dto.auth.LoginDto;
-import com.example.my_books_backend.dto.auth.LoginResponseDto;
-import com.example.my_books_backend.dto.auth.SignupDto;
-import com.example.my_books_backend.dto.user.UserCreateDto;
-import com.example.my_books_backend.dto.user.UserDto;
+import com.example.my_books_backend.dto.auth.LoginRequest;
+import com.example.my_books_backend.dto.auth.LoginResponse;
+import com.example.my_books_backend.dto.auth.SignupRequest;
+import com.example.my_books_backend.dto.auth.TokenRefreshRequest;
+import com.example.my_books_backend.dto.auth.TokenRefreshResponse;
+import com.example.my_books_backend.dto.user.CreateUserRequest;
+import com.example.my_books_backend.dto.user.UserResponse;
+import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.UnauthorizedException;
 import com.example.my_books_backend.exception.ValidationException;
-import com.example.my_books_backend.model.User;
 import com.example.my_books_backend.repository.UserRepository;
 import com.example.my_books_backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +31,12 @@ public class AuthService {
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
-    public LoginResponseDto login(LoginDto loginDto) {
+    public LoginResponse login(LoginRequest loginRequest) {
         Authentication authentication;
         try {
             authentication =
                     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                            loginDto.getEmail(), loginDto.getPassword()));
+                            loginRequest.getEmail(), loginRequest.getPassword()));
         } catch (AuthenticationException e) {
             throw new UnauthorizedException("ログインに失敗しました。メールアドレスまたはパスワードが無効です。");
         }
@@ -43,27 +45,47 @@ public class AuthService {
 
         User user = (User) authentication.getPrincipal();
 
-        String accessToken = jwtUtil.generateToken(user);
+        String accessToken = jwtUtil.generateAccessToken(user);
+        String refreshToken = jwtUtil.generateRefreshToken(user);
+
         String name = user.getName();
         List<String> roles = user.getRoles().stream().map(role -> role.getName()).toList();
 
-        return new LoginResponseDto(accessToken, name, roles);
+        return new LoginResponse(accessToken, refreshToken, name, roles);
     }
 
-    public UserDto signup(SignupDto signupDto) {
-        if (!signupDto.getPassword().equals(signupDto.getConfirmPassword())) {
+    public UserResponse signup(SignupRequest signupRequest) {
+        String email = signupRequest.getEmail();
+        String password = signupRequest.getPassword();
+        String confirmPassword = signupRequest.getConfirmPassword();
+
+        if (!password.equals(confirmPassword)) {
             throw new ValidationException("パスワードと確認用パスワードが一致していません。");
         }
 
-        if (userRepository.existsByEmail(signupDto.getEmail())) {
-            throw new ConflictException(
-                    "サインアップに失敗しました。このメールアドレスは既に登録されています。: " + signupDto.getEmail());
+        if (userRepository.existsByEmail(email)) {
+            throw new ConflictException("サインアップに失敗しました。このメールアドレスは既に登録されています。: " + email);
         }
 
-        UserCreateDto dto = new UserCreateDto();
-        dto.setEmail(signupDto.getEmail());
-        dto.setPassword(signupDto.getPassword());
+        CreateUserRequest createUserRequest = new CreateUserRequest();
+        createUserRequest.setEmail(email);
+        createUserRequest.setPassword(password);
 
-        return userService.createUser(dto);
+        return userService.createUser(createUserRequest);
+    }
+
+    public TokenRefreshResponse refreshToken(TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        if (jwtUtil.validateRefreshToken(requestRefreshToken)) {
+            String email = jwtUtil.getSubjectFromToken(requestRefreshToken);
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new UnauthorizedException("ユーザーが見つかりません。"));
+
+            String newAccessToken = jwtUtil.generateAccessToken(user);
+            return new TokenRefreshResponse(newAccessToken, requestRefreshToken);
+        } else {
+            throw new UnauthorizedException("リフレッシュトークンが無効です。");
+        }
     }
 }

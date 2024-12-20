@@ -6,11 +6,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import com.example.my_books_backend.dto.book.BookDto;
-import com.example.my_books_backend.dto.book.BookResponseDto;
+import com.example.my_books_backend.dto.book.BookResponse;
+import com.example.my_books_backend.dto.book.PaginatedBookResponse;
+import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.BookMapper;
-import com.example.my_books_backend.model.Book;
 import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.repository.BookRepositoryCustom;
 import com.example.my_books_backend.service.BookService;
@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
-
     private final BookRepository bookRepository;
     private final BookRepositoryCustom bookRepositoryCustom;
     private final BookMapper bookMapper;
@@ -29,35 +28,35 @@ public class BookServiceImpl implements BookService {
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "publishedDate");
 
     @Override
-    public List<BookDto> getBooks() {
+    public List<BookResponse> getAllBooks() {
         List<Book> books = bookRepository.findAll();
-        return bookMapper.toDtoList(books);
+        return bookMapper.toResponseList(books);
     }
 
     @Override
-    public BookDto getBookById(String id) {
+    public BookResponse getBookById(String id) {
         Book book = findBookById(id);
-        return bookMapper.toDto(book);
+        return bookMapper.toResponse(book);
     }
 
     @Override
-    public BookResponseDto searchByTitle(String q, Integer page, Integer maxResults) {
+    public PaginatedBookResponse searchByTitle(String q, Integer page, Integer maxResults) {
         Pageable pageable = createPageable(page, maxResults);
         Page<Book> pageBook = bookRepository.findByTitleContaining(q, pageable);
-        return bookMapper.toResponseDto(pageBook);
+        return bookMapper.toPaginatedBookResponse(pageBook);
     }
 
     @Override
-    public BookResponseDto searchByGenreId(String genreId, Integer page, Integer maxResults) {
+    public PaginatedBookResponse searchByGenreId(String genreId, Integer page, Integer maxResults) {
         Pageable pageable = createPageable(page, maxResults);
         Page<Book> pageBook = bookRepositoryCustom.findByGenreIds(genreId, pageable);
-        return bookMapper.toResponseDto(pageBook);
+        return bookMapper.toPaginatedBookResponse(pageBook);
     }
 
     @Override
-    public List<BookDto> getNewReleases() {
+    public List<BookResponse> getNewReleases() {
         List<Book> books = bookRepository.findTop10ByOrderByPublishedDateDesc();
-        return bookMapper.toDtoList(books);
+        return bookMapper.toResponseList(books);
     }
 
     private Pageable createPageable(Integer page, Integer maxResults) {

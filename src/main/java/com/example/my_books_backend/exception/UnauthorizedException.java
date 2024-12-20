@@ -1,7 +1,6 @@
 package com.example.my_books_backend.exception;
 
 public class UnauthorizedException extends RuntimeException {
-
     private static final long serialVersionUID = 1L;
 
     public UnauthorizedException() {}

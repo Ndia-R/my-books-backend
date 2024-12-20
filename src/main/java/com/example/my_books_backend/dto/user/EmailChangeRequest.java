@@ -5,8 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class EmailChangeDto {
-
+public class EmailChangeRequest {
     @NotBlank(message = "新しいメールアドレスは必須です")
     @Email
     private String newEmail;

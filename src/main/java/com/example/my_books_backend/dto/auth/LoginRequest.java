@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginDto {
-
+public class LoginRequest {
     @NotNull
     @Email(message = "無効なメールアドレスです")
     private String email;

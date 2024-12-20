@@ -2,36 +2,35 @@ package com.example.my_books_backend.mapper;
 
 import java.util.List;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.example.my_books_backend.dto.user.UserCreateDto;
-import com.example.my_books_backend.dto.user.UserDto;
-import com.example.my_books_backend.model.User;
+import com.example.my_books_backend.dto.user.CreateUserRequest;
+import com.example.my_books_backend.dto.user.UserResponse;
+import com.example.my_books_backend.entity.User;
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class UserMapper {
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
-    public UserDto toDto(User user) {
-        UserDto userDto = modelMapper.map(user, UserDto.class);
+    public UserResponse toResponse(User user) {
+        UserResponse userResponse = modelMapper.map(user, UserResponse.class);
 
         List<String> roles = user.getRoles().stream().map(role -> role.getName()).toList();
-        userDto.setRoles(roles);
+        userResponse.setRoles(roles);
 
-        return userDto;
+        return userResponse;
     }
 
-    public User toEntity(UserDto userDto) {
-        return modelMapper.map(userDto, User.class);
+    public User toEntity(UserResponse userResponse) {
+        return modelMapper.map(userResponse, User.class);
     }
 
-    public User toEntity(UserCreateDto createUserDto) {
-        return modelMapper.map(createUserDto, User.class);
+    public User toEntity(CreateUserRequest createUserRequest) {
+        return modelMapper.map(createUserRequest, User.class);
     }
 
-    public List<UserDto> toDtoList(List<User> users) {
-        return users.stream().map(user -> toDto(user)).toList();
+    public List<UserResponse> toResponseList(List<User> users) {
+        return users.stream().map(user -> toResponse(user)).toList();
     }
 }

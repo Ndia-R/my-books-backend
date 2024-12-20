@@ -1,4 +1,4 @@
-package com.example.my_books_backend.model.shared;
+package com.example.my_books_backend.entity.shared;
 
 import java.time.LocalDateTime;
 import jakarta.persistence.Column;
@@ -10,7 +10,6 @@ import lombok.Data;
 @Data
 @MappedSuperclass
 public class EntityBase {
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

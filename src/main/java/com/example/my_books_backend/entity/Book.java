@@ -1,7 +1,7 @@
-package com.example.my_books_backend.model;
+package com.example.my_books_backend.entity;
 
 import java.sql.Date;
-import com.example.my_books_backend.model.shared.EntityBase;
+import com.example.my_books_backend.entity.shared.EntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Book extends EntityBase {
-
     @Id
     @Column(name = "id", nullable = false)
     private String id;

@@ -2,32 +2,29 @@ package com.example.my_books_backend.service;
 
 import java.util.List;
 import java.util.Optional;
-import com.example.my_books_backend.dto.user.EmailChangeDto;
-import com.example.my_books_backend.dto.user.PasswordChangeDto;
-import com.example.my_books_backend.dto.user.UserCreateDto;
-import com.example.my_books_backend.dto.user.UserDto;
-import com.example.my_books_backend.dto.user.UserUpdateDto;
-import com.example.my_books_backend.model.User;
+import com.example.my_books_backend.dto.user.EmailChangeRequest;
+import com.example.my_books_backend.dto.user.PasswordChangeRequest;
+import com.example.my_books_backend.dto.user.CreateUserRequest;
+import com.example.my_books_backend.dto.user.UserResponse;
+import com.example.my_books_backend.dto.user.UpdateUserRequest;
+import com.example.my_books_backend.entity.User;
 
 public interface UserService {
-
     Optional<User> findByEmail(String email);
 
-    List<UserDto> getUsers();
+    List<UserResponse> getAllUsers();
 
-    UserDto getUserById(Integer id);
+    UserResponse getUserById(Integer id);
 
     void deleteUser(Integer id);
 
-    UserDto createUser(UserCreateDto dto);
+    UserResponse createUser(CreateUserRequest createUserRequest);
 
-    UserDto getCurrentUser();
+    UserResponse getCurrentUser();
 
-    void updateCurrentUser(UserUpdateDto dto);
+    void updateCurrentUser(UpdateUserRequest updateUserRequest);
 
-    void changeEmail(EmailChangeDto dto);
+    void changeEmail(EmailChangeRequest emailChangeRequest);
 
-    void changePassword(PasswordChangeDto dto);
-
-
+    void changePassword(PasswordChangeRequest passwordChangeRequest);
 }

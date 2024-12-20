@@ -1,4 +1,4 @@
-package com.example.my_books_backend.dto.user;
+package com.example.my_books_backend.dto.auth;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -8,10 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
-    private Integer id;
-    private String email;
+public class LoginResponse {
+    private String accessToken;
+    private String refreshToken;
+    private String username;
     private List<String> roles;
-    private String name;
-    private String avatarUrl;
 }

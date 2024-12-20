@@ -5,8 +5,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
-public class PasswordChangeDto {
-
+public class PasswordChangeRequest {
     @NotBlank(message = "現在のパスワードは必須です")
     private String currentPassword;
 

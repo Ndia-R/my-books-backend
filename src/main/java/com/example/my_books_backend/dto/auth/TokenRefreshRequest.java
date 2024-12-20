@@ -1,4 +1,4 @@
-package com.example.my_books_backend.dto.user;
+package com.example.my_books_backend.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserUpdateDto {
-
-    private String name;
-    private String avatarUrl;
+public class TokenRefreshRequest {
+    private String refreshToken;
 }

@@ -1,22 +1,20 @@
 package com.example.my_books_backend.service;
 
 import java.util.List;
-import com.example.my_books_backend.dto.genre.GenreCreateDto;
-import com.example.my_books_backend.dto.genre.GenreDto;
-import com.example.my_books_backend.dto.genre.GenrePatchDto;
-import com.example.my_books_backend.dto.genre.GenrePutDto;
+import com.example.my_books_backend.dto.genre.CreateGenreRequest;
+import com.example.my_books_backend.dto.genre.GenreResponse;
+import com.example.my_books_backend.dto.genre.UpdateGenreRequest;
 
 public interface GenreService {
+    List<GenreResponse> getAllGenres();
 
-    List<GenreDto> getGenres();
+    GenreResponse getGenreById(Integer id);
 
-    GenreDto getGenreById(Integer id);
+    GenreResponse createGenre(CreateGenreRequest createGenreRequest);
 
-    GenreDto createGenre(GenreCreateDto dto);
+    void putGenre(Integer id, UpdateGenreRequest updateGenreRequest);
 
-    void putGenre(Integer id, GenrePutDto dto);
-
-    void patchGenre(Integer id, GenrePatchDto dto);
+    void patchGenre(Integer id, UpdateGenreRequest updateGenreRequest);
 
     void deleteGenre(Integer id);
 }

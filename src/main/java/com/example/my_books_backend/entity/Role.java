@@ -1,6 +1,6 @@
-package com.example.my_books_backend.model;
+package com.example.my_books_backend.entity;
 
-import com.example.my_books_backend.model.shared.EntityBase;
+import com.example.my_books_backend.entity.shared.EntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,7 +21,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role extends EntityBase {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

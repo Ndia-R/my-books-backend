@@ -8,14 +8,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
-import com.example.my_books_backend.model.Book;
+import com.example.my_books_backend.entity.Book;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
 @Repository
 public class BookRepositoryCustomImpl implements BookRepositoryCustom {
-
     @PersistenceContext
     private EntityManager entityManager;
 

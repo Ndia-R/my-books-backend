@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import com.example.my_books_backend.entity.Role;
+import com.example.my_books_backend.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -19,8 +21,6 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import com.example.my_books_backend.model.Role;
-import com.example.my_books_backend.model.User;
 
 @Component
 public class JwtUtil {
@@ -29,17 +29,30 @@ public class JwtUtil {
     @Value("${spring.app.jwtSecret}")
     private String secret;
 
-    @Value("${spring.app.jwtExpirationMs}")
-    private int expiration;
+    @Value("${spring.app.jwtAccessExpirationMs}")
+    private int accessExpiration;
 
-    // トークン生成
-    public String generateToken(User user) {
+    @Value("${spring.app.jwtRefreshExpirationMs}")
+    private int refreshExpiration;
+
+    // アクセストークン生成
+    public String generateAccessToken(User user) {
         String email = user.getEmail();
         String username = user.getName();
         String roles = user.getRoles().stream().map(Role::getName).collect(Collectors.joining(","));
 
         return Jwts.builder().subject(email).claim("username", username).claim("roles", roles)
-                .issuedAt(new Date()).expiration(new Date(System.currentTimeMillis() + expiration))
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + accessExpiration)).signWith(key())
+                .compact();
+    }
+
+    // リフレッシュトークン生成
+    public String generateRefreshToken(User user) {
+        String email = user.getEmail();
+
+        return Jwts.builder().subject(email).issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
                 .signWith(key()).compact();
     }
 
@@ -49,8 +62,8 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // トークンの検証
-    public boolean validateToken(String token) {
+    // アクセストークンの検証
+    public boolean validateAccessToken(String token) {
         try {
             Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(token);
             return true;
@@ -62,6 +75,17 @@ public class JwtUtil {
             logger.error("JWT token is unsupported: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims string is empty: {}", e.getMessage());
+        }
+        return false;
+    }
+
+    // リフレッシュトークンの検証
+    public boolean validateRefreshToken(String token) {
+        try {
+            Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(token);
+            return true;
+        } catch (Exception e) {
+            logger.error("Invalid JWT token: {}", e.getMessage());
         }
         return false;
     }
