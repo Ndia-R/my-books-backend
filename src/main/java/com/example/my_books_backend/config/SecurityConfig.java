@@ -28,10 +28,9 @@ public class SecurityConfig {
         http.sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.authorizeHttpRequests(authorize -> authorize.requestMatchers("/api/v1/login")
-                .permitAll().requestMatchers("/api/v1/signup").permitAll()
-                .requestMatchers("/api/v1/books/**").permitAll()
-                .requestMatchers("/api/v1/genres/**").permitAll()
+        http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/api/v1/login", "/api/v1/signup", "/api/v1/refresh-token")
+                .permitAll().requestMatchers("/api/v1/books/**", "/api/v1/genres/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                 .permitAll().anyRequest().authenticated());
 

@@ -52,23 +52,20 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    public ResponseEntity<Void> updateCurrentUser(
-            @Valid @RequestBody UpdateUserRequest updateUserRequest) {
-        userService.updateCurrentUser(updateUserRequest);
+    public ResponseEntity<Void> updateCurrentUser(@Valid @RequestBody UpdateUserRequest request) {
+        userService.updateCurrentUser(request);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/me/email")
-    public ResponseEntity<Void> changeEmail(
-            @Valid @RequestBody EmailChangeRequest emailChangeRequest) {
-        userService.changeEmail(emailChangeRequest);
+    public ResponseEntity<Void> changeEmail(@Valid @RequestBody EmailChangeRequest request) {
+        userService.changeEmail(request);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/me/password")
-    public ResponseEntity<Void> changePassword(
-            @Valid @RequestBody PasswordChangeRequest passwordChangeRequest) {
-        userService.changePassword(passwordChangeRequest);
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody PasswordChangeRequest request) {
+        userService.changePassword(request);
         return ResponseEntity.noContent().build();
     }
 }

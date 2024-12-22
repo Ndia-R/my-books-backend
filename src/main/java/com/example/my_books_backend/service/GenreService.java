@@ -10,11 +10,11 @@ public interface GenreService {
 
     GenreResponse getGenreById(Integer id);
 
-    GenreResponse createGenre(CreateGenreRequest createGenreRequest);
+    GenreResponse createGenre(CreateGenreRequest request);
 
-    void putGenre(Integer id, UpdateGenreRequest updateGenreRequest);
+    void putGenre(Integer id, UpdateGenreRequest request);
 
-    void patchGenre(Integer id, UpdateGenreRequest updateGenreRequest);
+    void patchGenre(Integer id, UpdateGenreRequest request);
 
     void deleteGenre(Integer id);
 }

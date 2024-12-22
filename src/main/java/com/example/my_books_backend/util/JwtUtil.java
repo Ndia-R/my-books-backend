@@ -5,12 +5,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import com.example.my_books_backend.entity.Role;
 import com.example.my_books_backend.entity.User;
@@ -21,6 +25,8 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class JwtUtil {
@@ -29,11 +35,16 @@ public class JwtUtil {
     @Value("${spring.app.jwtSecret}")
     private String secret;
 
-    @Value("${spring.app.jwtAccessExpirationMs}")
+    @Value("${spring.app.jwtAccessExpiration}")
     private int accessExpiration;
 
-    @Value("${spring.app.jwtRefreshExpirationMs}")
+    @Value("${spring.app.jwtRefreshExpiration}")
     private int refreshExpiration;
+
+    private static final String REFRESH_TOKEN_KEY = "refreshToken";
+
+    // リフレッシュトークンの失効リスト（jtiをキー、トークンの有効期限（エポックタイム）を値とする）
+    private Map<String, Long> invalidatedTokens = new ConcurrentHashMap<>();
 
     // アクセストークン生成
     public String generateAccessToken(User user) {
@@ -43,49 +54,94 @@ public class JwtUtil {
 
         return Jwts.builder().subject(email).claim("username", username).claim("roles", roles)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + accessExpiration)).signWith(key())
-                .compact();
+                .expiration(new Date(System.currentTimeMillis() + accessExpiration * 1000))
+                .signWith(key()).compact();
     }
 
     // リフレッシュトークン生成
     public String generateRefreshToken(User user) {
         String email = user.getEmail();
+        String jti = UUID.randomUUID().toString(); // 一意のトークンID（失効リストで使用）
 
-        return Jwts.builder().subject(email).issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
+        return Jwts.builder().subject(email).id(jti).issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + refreshExpiration * 1000))
                 .signWith(key()).compact();
     }
 
-    // 秘密鍵の生成
-    private Key key() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        return Keys.hmacShaKeyFor(keyBytes);
+    // リフレッシュトークンからCookieを作成
+    public Cookie createRefreshTokenCookie(String refreshToken) {
+        Cookie cookie = new Cookie(REFRESH_TOKEN_KEY, refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // HTTPS通信の時は「true」にする
+        cookie.setPath("/api/v1");
+        cookie.setMaxAge(refreshExpiration);
+        return cookie;
     }
 
-    // アクセストークンの検証
-    public boolean validateAccessToken(String token) {
+    // リフレッシュトークンを失効リストに追加
+    public void addInvalidatedTokens(String refreshToken) {
+        String jti = getJtiFromToken(refreshToken);
+        Long expiryTime = getExpiryTimeFromToken(refreshToken).getTime();
+        invalidatedTokens.put(jti, expiryTime);
+    }
+
+    // リフレッシュトークンが失効リストに含まれているか
+    public boolean isTokenInvalid(String refreshToken) {
+        String jti = getJtiFromToken(refreshToken);
+        Long expiryTime = invalidatedTokens.get(jti);
+        if (expiryTime == null) {
+            return false;
+        }
+
+        // 現在時刻が有効期限を過ぎている場合も無効
+        return System.currentTimeMillis() > expiryTime;
+    }
+
+    // リフレッシュトークン失効リストの定期クリーンアップ
+    @Scheduled(cron = "${spring.app.deleteInvalidRefreshTokens.schedule.cron}", zone = "Asia/Tokyo")
+    public void cleanupInvalidatedTokens() {
+        long currentTime = System.currentTimeMillis();
+        invalidatedTokens.entrySet().removeIf(entry -> entry.getValue() < currentTime);
+        logger.info("リフレッシュトークン失効リストをクリーンアップしました。");
+    }
+
+    // リフレッシュトークンを無効にしたCookieを取得
+    public Cookie getInvalidateRefreshTokenCookie() {
+        Cookie cookie = new Cookie(REFRESH_TOKEN_KEY, "");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // HTTPS通信の時は「true」にする
+        cookie.setPath("/api/v1");
+        cookie.setMaxAge(0); // すぐに削除
+        return cookie;
+    }
+
+    // リフレッシュトークンをCookieから取得
+    public String getRefreshTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (REFRESH_TOKEN_KEY.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    // トークンの検証
+    public boolean validateToken(String token) {
         try {
             Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(token);
             return true;
         } catch (MalformedJwtException e) {
-            logger.error("Invalid JWT token: {}", e.getMessage());
+            logger.error("無効な JWTトークン: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            logger.error("JWT token is expired: {}", e.getMessage());
+            logger.error("JWTトークンの有効期限が切れています: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            logger.error("JWT token is unsupported: {}", e.getMessage());
+            logger.error("JWTトークンはサポートされていません: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            logger.error("JWT claims string is empty: {}", e.getMessage());
-        }
-        return false;
-    }
-
-    // リフレッシュトークンの検証
-    public boolean validateRefreshToken(String token) {
-        try {
-            Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(token);
-            return true;
-        } catch (Exception e) {
-            logger.error("Invalid JWT token: {}", e.getMessage());
+            logger.error("JWTクレーム文字列が空です: {}", e.getMessage());
         }
         return false;
     }
@@ -93,6 +149,16 @@ public class JwtUtil {
     // トークンからサブジェクトを取得
     public String getSubjectFromToken(String token) {
         return getClaimFromToken(token, claims -> claims.getSubject());
+    }
+
+    // トークンからJTIを取得
+    public String getJtiFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.getId());
+    }
+
+    // トークンから有効期限を取得
+    public Date getExpiryTimeFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.getExpiration());
     }
 
     // トークンのロールを取得
@@ -104,14 +170,10 @@ public class JwtUtil {
         });
     }
 
-    // トークンの有効期限を取得
-    public Date getExpirationDateFromToken(String token) {
-        return getClaimFromToken(token, claims -> claims.getExpiration());
-    }
-
-    // トークンの有効期限チェック
-    public Boolean isTokenExpired(String token) {
-        return getExpirationDateFromToken(token).before(new Date());
+    // 秘密鍵の生成
+    private Key key() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     // 汎用的なクレーム取得メソッド

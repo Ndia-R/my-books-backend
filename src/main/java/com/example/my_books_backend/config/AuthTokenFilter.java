@@ -32,9 +32,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            String jwt = getJwtFromHeader(request);
-            if (jwt != null && jwtUtil.validateAccessToken(jwt)) {
-                String email = jwtUtil.getSubjectFromToken(jwt);
+            String token = getTokenFromHeader(request);
+            if (token != null && jwtUtil.validateToken(token)) {
+                String email = jwtUtil.getSubjectFromToken(token);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
                 UsernamePasswordAuthenticationToken authentication =
@@ -47,13 +47,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}", e);
+            logger.error("ユーザー認証を設定できません: {}", e);
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private String getJwtFromHeader(HttpServletRequest request) {
+    private String getTokenFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);

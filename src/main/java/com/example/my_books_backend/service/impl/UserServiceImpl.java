@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final RandomStringUtil randomStringUtil;
 
-    @Value("${spring.app.default.avatarUrl}")
+    @Value("${spring.app.defaultAvatarUrl}")
     private String DEFAULT_AVATAR_URL;
 
     @Override
@@ -57,10 +57,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse createUser(CreateUserRequest createUserRequest) {
-        User user = userMapper.toEntity(createUserRequest);
+    public UserResponse createUser(CreateUserRequest request) {
+        User user = userMapper.toEntity(request);
 
-        user.setPassword(passwordEncoder.encode(createUserRequest.getPassword()));
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         if (user.getRoles() == null) {
             Role role = roleRepository.findByName(RoleName.ROLE_USER);
@@ -88,11 +88,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateCurrentUser(UpdateUserRequest updateUserRequest) {
+    public void updateCurrentUser(UpdateUserRequest request) {
         User user = getAuthenticatedUser();
 
-        String name = updateUserRequest.getName();
-        String avatarUrl = updateUserRequest.getAvatarUrl();
+        String name = request.getName();
+        String avatarUrl = request.getAvatarUrl();
 
         if (name != null) {
             user.setName(name);
@@ -104,10 +104,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changeEmail(EmailChangeRequest emailChangeRequest) {
+    public void changeEmail(EmailChangeRequest request) {
         User user = getAuthenticatedUser();
 
-        String email = emailChangeRequest.getNewEmail();
+        String email = request.getNewEmail();
 
         if (userRepository.existsByEmail(email)) {
             throw new ConflictException("このメールアドレスは既に登録されています。: " + email);
@@ -122,12 +122,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changePassword(PasswordChangeRequest passwordChangeRequest) {
+    public void changePassword(PasswordChangeRequest request) {
         User user = getAuthenticatedUser();
 
-        String newPassword = passwordChangeRequest.getNewPassword();
-        String confirmNewPassword = passwordChangeRequest.getConfirmNewPassword();
-        String currentPassword = passwordChangeRequest.getCurrentPassword();
+        String newPassword = request.getNewPassword();
+        String confirmNewPassword = request.getConfirmNewPassword();
+        String currentPassword = request.getCurrentPassword();
 
         if (!newPassword.equals(confirmNewPassword)) {
             throw new ValidationException("新しいパスワードと確認用パスワードが一致していません。");

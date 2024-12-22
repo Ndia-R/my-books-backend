@@ -18,13 +18,13 @@ public interface UserService {
 
     void deleteUser(Integer id);
 
-    UserResponse createUser(CreateUserRequest createUserRequest);
+    UserResponse createUser(CreateUserRequest request);
 
     UserResponse getCurrentUser();
 
-    void updateCurrentUser(UpdateUserRequest updateUserRequest);
+    void updateCurrentUser(UpdateUserRequest request);
 
-    void changeEmail(EmailChangeRequest emailChangeRequest);
+    void changeEmail(EmailChangeRequest request);
 
-    void changePassword(PasswordChangeRequest passwordChangeRequest);
+    void changePassword(PasswordChangeRequest request);
 }

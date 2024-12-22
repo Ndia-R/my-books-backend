@@ -40,8 +40,8 @@ public class GenreController {
 
     @PostMapping("")
     public ResponseEntity<GenreResponse> createGenre(
-            @Valid @RequestBody CreateGenreRequest createGenreRequest) {
-        GenreResponse genre = genreService.createGenre(createGenreRequest);
+            @Valid @RequestBody CreateGenreRequest request) {
+        GenreResponse genre = genreService.createGenre(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(genre.getId()).toUri();
         return ResponseEntity.created(location).body(genre);
@@ -49,15 +49,15 @@ public class GenreController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> putGenre(@PathVariable Integer id,
-            @Valid @RequestBody UpdateGenreRequest updateGenreRequest) {
-        genreService.putGenre(id, updateGenreRequest);
+            @Valid @RequestBody UpdateGenreRequest request) {
+        genreService.putGenre(id, request);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Void> patchGenre(@PathVariable Integer id,
-            @Valid @RequestBody UpdateGenreRequest updateGenreRequest) {
-        genreService.patchGenre(id, updateGenreRequest);
+            @Valid @RequestBody UpdateGenreRequest request) {
+        genreService.patchGenre(id, request);
         return ResponseEntity.noContent().build();
     }
 

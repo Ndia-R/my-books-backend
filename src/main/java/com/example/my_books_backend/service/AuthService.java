@@ -6,12 +6,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import com.example.my_books_backend.dto.auth.LoginRequest;
 import com.example.my_books_backend.dto.auth.LoginResponse;
 import com.example.my_books_backend.dto.auth.SignupRequest;
-import com.example.my_books_backend.dto.auth.TokenRefreshRequest;
-import com.example.my_books_backend.dto.auth.TokenRefreshResponse;
+import com.example.my_books_backend.dto.auth.AccessTokenResponse;
 import com.example.my_books_backend.dto.user.CreateUserRequest;
 import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.entity.User;
@@ -19,45 +19,51 @@ import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.UnauthorizedException;
 import com.example.my_books_backend.exception.ValidationException;
 import com.example.my_books_backend.repository.UserRepository;
+import com.example.my_books_backend.service.impl.UserDetailsServiceImpl;
 import com.example.my_books_backend.util.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final UserDetailsServiceImpl userDetailsService;
     private final JwtUtil jwtUtil;
 
-    public LoginResponse login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest request, HttpServletResponse response) {
         Authentication authentication;
         try {
             authentication =
                     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                            loginRequest.getEmail(), loginRequest.getPassword()));
+                            request.getEmail(), request.getPassword()));
         } catch (AuthenticationException e) {
             throw new UnauthorizedException("ログインに失敗しました。メールアドレスまたはパスワードが無効です。");
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         User user = (User) authentication.getPrincipal();
 
         String accessToken = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
 
+        Cookie refreshTokenCookie = jwtUtil.createRefreshTokenCookie(refreshToken);
+        response.addCookie(refreshTokenCookie);
+
         String name = user.getName();
         List<String> roles = user.getRoles().stream().map(role -> role.getName()).toList();
 
-        return new LoginResponse(accessToken, refreshToken, name, roles);
+        return new LoginResponse(accessToken, name, roles);
     }
 
-    public UserResponse signup(SignupRequest signupRequest) {
-        String email = signupRequest.getEmail();
-        String password = signupRequest.getPassword();
-        String confirmPassword = signupRequest.getConfirmPassword();
+    public UserResponse signup(SignupRequest request) {
+        String email = request.getEmail();
+        String password = request.getPassword();
+        String confirmPassword = request.getConfirmPassword();
 
         if (!password.equals(confirmPassword)) {
             throw new ValidationException("パスワードと確認用パスワードが一致していません。");
@@ -74,18 +80,34 @@ public class AuthService {
         return userService.createUser(createUserRequest);
     }
 
-    public TokenRefreshResponse refreshToken(TokenRefreshRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
+    public AccessTokenResponse refreshAccessToken(HttpServletRequest request) {
+        String refreshToken = jwtUtil.getRefreshTokenFromCookie(request);
 
-        if (jwtUtil.validateRefreshToken(requestRefreshToken)) {
-            String email = jwtUtil.getSubjectFromToken(requestRefreshToken);
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new UnauthorizedException("ユーザーが見つかりません。"));
+        if (refreshToken == null || !jwtUtil.validateToken(refreshToken)
+                || jwtUtil.isTokenInvalid(refreshToken)) {
+            throw new UnauthorizedException("トークンが無効です。");
+        }
 
-            String newAccessToken = jwtUtil.generateAccessToken(user);
-            return new TokenRefreshResponse(newAccessToken, requestRefreshToken);
-        } else {
-            throw new UnauthorizedException("リフレッシュトークンが無効です。");
+        String email = jwtUtil.getSubjectFromToken(refreshToken);
+        User user = (User) userDetailsService.loadUserByUsername(email);
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String accessToken = jwtUtil.generateAccessToken(user);
+        return new AccessTokenResponse(accessToken);
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = jwtUtil.getRefreshTokenFromCookie(request);
+
+        if (refreshToken != null) {
+            jwtUtil.addInvalidatedTokens(refreshToken);
+
+            Cookie cookie = jwtUtil.getInvalidateRefreshTokenCookie();
+            response.addCookie(cookie);
         }
     }
 }
