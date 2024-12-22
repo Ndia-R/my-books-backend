@@ -72,8 +72,8 @@ public class JwtUtil {
     public Cookie createRefreshTokenCookie(String refreshToken) {
         Cookie cookie = new Cookie(REFRESH_TOKEN_KEY, refreshToken);
         cookie.setHttpOnly(true);
+        cookie.setPath("/");
         cookie.setSecure(false); // HTTPS通信の時は「true」にする
-        cookie.setPath("/api/v1");
         cookie.setMaxAge(refreshExpiration);
         return cookie;
     }
@@ -109,8 +109,8 @@ public class JwtUtil {
     public Cookie getInvalidateRefreshTokenCookie() {
         Cookie cookie = new Cookie(REFRESH_TOKEN_KEY, "");
         cookie.setHttpOnly(true);
+        cookie.setPath("/");
         cookie.setSecure(false); // HTTPS通信の時は「true」にする
-        cookie.setPath("/api/v1");
         cookie.setMaxAge(0); // すぐに削除
         return cookie;
     }
