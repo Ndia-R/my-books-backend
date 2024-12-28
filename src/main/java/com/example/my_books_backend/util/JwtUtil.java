@@ -74,7 +74,7 @@ public class JwtUtil {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setAttribute("SameSite", "None");
-        cookie.setSecure(false); // HTTPS通信の時は「true」にする
+        cookie.setSecure(true);
         cookie.setMaxAge(refreshExpiration);
         return cookie;
     }
@@ -84,6 +84,12 @@ public class JwtUtil {
         String jti = getJtiFromToken(refreshToken);
         Long expiryTime = getExpiryTimeFromToken(refreshToken).getTime();
         invalidatedTokens.put(jti, expiryTime);
+
+        for (Map.Entry<String, Long> entry : invalidatedTokens.entrySet()) {
+            String key = entry.getKey();
+            Long time = entry.getValue();
+            logger.info("expiryTime: " + time + " key: " + key);
+        }
     }
 
     // リフレッシュトークンが失効リストに含まれているか
@@ -112,7 +118,7 @@ public class JwtUtil {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setAttribute("SameSite", "None");
-        cookie.setSecure(false); // HTTPS通信の時は「true」にする
+        cookie.setSecure(true);
         cookie.setMaxAge(0); // すぐに削除
         return cookie;
     }

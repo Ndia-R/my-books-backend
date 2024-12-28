@@ -41,9 +41,15 @@ public class AuthController {
         return ResponseEntity.ok(accessTokenResponse);
     }
 
+    @PostMapping("/validate-token")
+    public ResponseEntity<Void> validateToken(HttpServletRequest request) {
+        authService.validateToken(request);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
         authService.logout(request, response);
-        return ResponseEntity.ok("ログアウトしました。");
+        return ResponseEntity.ok().build();
     }
 }

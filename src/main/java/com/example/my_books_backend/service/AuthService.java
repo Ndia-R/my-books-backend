@@ -15,6 +15,7 @@ import com.example.my_books_backend.dto.auth.AccessTokenResponse;
 import com.example.my_books_backend.dto.user.CreateUserRequest;
 import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.entity.User;
+import com.example.my_books_backend.exception.BadRequestException;
 import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.UnauthorizedException;
 import com.example.my_books_backend.exception.ValidationException;
@@ -100,14 +101,25 @@ public class AuthService {
         return new AccessTokenResponse(accessToken);
     }
 
+    public void validateToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+            throw new UnauthorizedException("トークンが無効です。");
+        }
+        String accessToken = bearerToken.substring(7);
+        if (!jwtUtil.validateToken(accessToken)) {
+            throw new UnauthorizedException("トークンが無効です。");
+        }
+    }
+
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = jwtUtil.getRefreshTokenFromCookie(request);
-
-        if (refreshToken != null) {
-            jwtUtil.addInvalidatedTokens(refreshToken);
-
-            Cookie cookie = jwtUtil.getInvalidateRefreshTokenCookie();
-            response.addCookie(cookie);
+        if (refreshToken == null) {
+            throw new BadRequestException("ログアウトに失敗しました。");
         }
+
+        jwtUtil.addInvalidatedTokens(refreshToken);
+        Cookie cookie = jwtUtil.getInvalidateRefreshTokenCookie();
+        response.addCookie(cookie);
     }
 }
