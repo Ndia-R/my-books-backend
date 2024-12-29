@@ -18,7 +18,6 @@ import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.exception.BadRequestException;
 import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.UnauthorizedException;
-import com.example.my_books_backend.exception.ValidationException;
 import com.example.my_books_backend.repository.UserRepository;
 import com.example.my_books_backend.service.impl.UserDetailsServiceImpl;
 import com.example.my_books_backend.util.JwtUtil;
@@ -62,12 +61,12 @@ public class AuthService {
     }
 
     public UserResponse signup(SignupRequest request) {
+        String username = request.getUsername();
         String email = request.getEmail();
         String password = request.getPassword();
-        String confirmPassword = request.getConfirmPassword();
 
-        if (!password.equals(confirmPassword)) {
-            throw new ValidationException("パスワードと確認用パスワードが一致していません。");
+        if (userRepository.existsByName(username)) {
+            throw new ConflictException("サインアップに失敗しました。このユーザー名は既に登録されています。: " + username);
         }
 
         if (userRepository.existsByEmail(email)) {
@@ -77,6 +76,7 @@ public class AuthService {
         CreateUserRequest createUserRequest = new CreateUserRequest();
         createUserRequest.setEmail(email);
         createUserRequest.setPassword(password);
+        createUserRequest.setName(username);
 
         return userService.createUser(createUserRequest);
     }

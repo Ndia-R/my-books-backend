@@ -27,4 +27,6 @@ public interface UserService {
     void changeEmail(EmailChangeRequest request);
 
     void changePassword(PasswordChangeRequest request);
+
+    Boolean checkUsernameExists(String username);
 }

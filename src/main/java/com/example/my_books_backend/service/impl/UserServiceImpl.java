@@ -158,4 +158,9 @@ public class UserServiceImpl implements UserService {
         User authenticatedUser = (User) authentication.getPrincipal();
         return authenticatedUser;
     }
+
+    @Override
+    public Boolean checkUsernameExists(String username) {
+        return userRepository.existsByName(username);
+    }
 }
