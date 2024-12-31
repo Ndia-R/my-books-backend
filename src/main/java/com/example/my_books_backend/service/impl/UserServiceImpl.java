@@ -8,8 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.example.my_books_backend.dto.user.EmailChangeRequest;
-import com.example.my_books_backend.dto.user.PasswordChangeRequest;
+import com.example.my_books_backend.dto.user.ChangeEmailRequest;
+import com.example.my_books_backend.dto.user.ChangePasswordRequest;
 import com.example.my_books_backend.dto.user.CreateUserRequest;
 import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.dto.user.UpdateUserRequest;
@@ -104,10 +104,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changeEmail(EmailChangeRequest request) {
+    public void changeEmail(ChangeEmailRequest request) {
         User user = getAuthenticatedUser();
 
         String email = request.getNewEmail();
+        String password = request.getPassword();
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new UnauthorizedException("パスワードが間違っています。");
+        }
 
         if (userRepository.existsByEmail(email)) {
             throw new ConflictException("このメールアドレスは既に登録されています。: " + email);
@@ -122,7 +127,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changePassword(PasswordChangeRequest request) {
+    public void changePassword(ChangePasswordRequest request) {
         User user = getAuthenticatedUser();
 
         String newPassword = request.getNewPassword();

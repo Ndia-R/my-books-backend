@@ -45,9 +45,21 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                         .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else if (token != null) {
+                logger.warn("無効なトークン: {}", token);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
+                return;
             }
         } catch (Exception e) {
             logger.error("ユーザー認証を設定できません: {}", e);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"error\": \"An unexpected error occurred\"}");
+            return;
         }
 
         filterChain.doFilter(request, response);

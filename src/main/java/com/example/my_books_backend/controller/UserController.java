@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.user.CheckUsernameExistsResponse;
-import com.example.my_books_backend.dto.user.EmailChangeRequest;
-import com.example.my_books_backend.dto.user.PasswordChangeRequest;
+import com.example.my_books_backend.dto.user.ChangeEmailRequest;
+import com.example.my_books_backend.dto.user.ChangePasswordRequest;
 import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.dto.user.UpdateUserRequest;
 import com.example.my_books_backend.service.UserService;
@@ -60,13 +60,13 @@ public class UserController {
     }
 
     @PutMapping("/me/email")
-    public ResponseEntity<Void> changeEmail(@Valid @RequestBody EmailChangeRequest request) {
+    public ResponseEntity<Void> changeEmail(@Valid @RequestBody ChangeEmailRequest request) {
         userService.changeEmail(request);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/me/password")
-    public ResponseEntity<Void> changePassword(@Valid @RequestBody PasswordChangeRequest request) {
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         userService.changePassword(request);
         return ResponseEntity.noContent().build();
     }

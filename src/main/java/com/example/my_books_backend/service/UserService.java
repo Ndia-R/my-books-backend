@@ -2,8 +2,8 @@ package com.example.my_books_backend.service;
 
 import java.util.List;
 import java.util.Optional;
-import com.example.my_books_backend.dto.user.EmailChangeRequest;
-import com.example.my_books_backend.dto.user.PasswordChangeRequest;
+import com.example.my_books_backend.dto.user.ChangeEmailRequest;
+import com.example.my_books_backend.dto.user.ChangePasswordRequest;
 import com.example.my_books_backend.dto.user.CreateUserRequest;
 import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.dto.user.UpdateUserRequest;
@@ -24,9 +24,9 @@ public interface UserService {
 
     void updateCurrentUser(UpdateUserRequest request);
 
-    void changeEmail(EmailChangeRequest request);
+    void changeEmail(ChangeEmailRequest request);
 
-    void changePassword(PasswordChangeRequest request);
+    void changePassword(ChangePasswordRequest request);
 
     Boolean checkUsernameExists(String username);
 }
