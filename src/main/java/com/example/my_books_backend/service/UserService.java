@@ -28,5 +28,5 @@ public interface UserService {
 
     void changePassword(ChangePasswordRequest request);
 
-    Boolean checkUsernameExists(String username);
+    Boolean checkNameExists(String name);
 }

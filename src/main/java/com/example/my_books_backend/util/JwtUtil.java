@@ -49,10 +49,10 @@ public class JwtUtil {
     // アクセストークン生成
     public String generateAccessToken(User user) {
         String email = user.getEmail();
-        String username = user.getName();
+        String name = user.getName();
         String roles = user.getRoles().stream().map(Role::getName).collect(Collectors.joining(","));
 
-        return Jwts.builder().subject(email).claim("username", username).claim("roles", roles)
+        return Jwts.builder().subject(email).claim("name", name).claim("roles", roles)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + accessExpiration * 1000))
                 .signWith(key()).compact();

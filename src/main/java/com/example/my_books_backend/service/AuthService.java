@@ -61,12 +61,12 @@ public class AuthService {
     }
 
     public UserResponse signup(SignupRequest request) {
-        String username = request.getUsername();
+        String name = request.getName();
         String email = request.getEmail();
         String password = request.getPassword();
 
-        if (userRepository.existsByName(username)) {
-            throw new ConflictException("サインアップに失敗しました。このユーザー名は既に登録されています。: " + username);
+        if (userRepository.existsByName(name)) {
+            throw new ConflictException("サインアップに失敗しました。このユーザー名は既に登録されています。: " + name);
         }
 
         if (userRepository.existsByEmail(email)) {
@@ -74,9 +74,9 @@ public class AuthService {
         }
 
         CreateUserRequest createUserRequest = new CreateUserRequest();
+        createUserRequest.setName(name);
         createUserRequest.setEmail(email);
         createUserRequest.setPassword(password);
-        createUserRequest.setName(username);
 
         return userService.createUser(createUserRequest);
     }

@@ -36,7 +36,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/v1/login", "/api/v1/signup", "/api/v1/refresh-token",
-                        "/api/v1/validate-token", "/api/v1/logout", "/api/v1/check-username-exists")
+                        "/api/v1/validate-token", "/api/v1/logout", "/api/v1/check-name-exists")
                 .permitAll().requestMatchers("/api/v1/books/**", "/api/v1/genres/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                 .permitAll().anyRequest().authenticated());

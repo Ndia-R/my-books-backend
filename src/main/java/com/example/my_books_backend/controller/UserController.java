@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.my_books_backend.dto.user.CheckUsernameExistsResponse;
+import com.example.my_books_backend.dto.user.CheckNameExistsResponse;
 import com.example.my_books_backend.dto.user.ChangeEmailRequest;
 import com.example.my_books_backend.dto.user.ChangePasswordRequest;
 import com.example.my_books_backend.dto.user.UserResponse;
@@ -71,10 +71,9 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/check-username-exists")
-    public ResponseEntity<CheckUsernameExistsResponse> checkUsernameExists(
-            @RequestParam String username) {
-        Boolean exists = userService.checkUsernameExists(username);
-        return ResponseEntity.ok(new CheckUsernameExistsResponse(exists));
+    @GetMapping("/check-name-exists")
+    public ResponseEntity<CheckNameExistsResponse> checkNameExists(@RequestParam String name) {
+        Boolean exists = userService.checkNameExists(name);
+        return ResponseEntity.ok(new CheckNameExistsResponse(exists));
     }
 }

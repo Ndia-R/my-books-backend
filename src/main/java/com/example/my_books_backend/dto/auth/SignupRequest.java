@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class SignupRequest {
     @NotNull
     @NotBlank(message = "ユーザー名は必須です")
-    private String username;
+    private String name;
 
     @NotNull
     @NotBlank(message = "メールアドレスは必須です")
