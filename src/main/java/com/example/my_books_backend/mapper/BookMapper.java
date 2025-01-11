@@ -2,7 +2,6 @@ package com.example.my_books_backend.mapper;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -16,12 +15,11 @@ import lombok.RequiredArgsConstructor;
 public class BookMapper {
     private final ModelMapper modelMapper;
 
-    public BookResponse toResponse(Book book) {
+    public BookResponse toBookResponse(Book book) {
         BookResponse bookResponse = modelMapper.map(book, BookResponse.class);
 
-        List<Integer> genreIds =
-                Arrays.stream(book.getGenreIds().split(",")).map(Integer::parseInt).toList();
-        bookResponse.setGenreIds(genreIds);
+        List<Long> genres = book.getGenres().stream().map(genre -> genre.getId()).toList();
+        bookResponse.setGenreIds(genres);
 
         List<String> authors = Arrays.asList(book.getAuthors().split(","));
         bookResponse.setAuthors(authors);
@@ -29,28 +27,15 @@ public class BookMapper {
         return bookResponse;
     }
 
-    public Book toEntity(BookResponse bookResponse) {
-        Book book = modelMapper.map(bookResponse, Book.class);
-
-        String genreIds = bookResponse.getGenreIds().stream().map(String::valueOf)
-                .collect(Collectors.joining(","));
-        book.setGenreIds(genreIds);
-
-        String authors = String.join(",", bookResponse.getAuthors());
-        book.setAuthors(authors);
-
-        return book;
-    }
-
-    public List<BookResponse> toResponseList(List<Book> books) {
-        return books.stream().map(book -> toResponse(book)).toList();
+    public List<BookResponse> toBookResponseList(List<Book> books) {
+        return books.stream().map(book -> toBookResponse(book)).toList();
     }
 
     public PaginatedBookResponse toPaginatedBookResponse(Page<Book> pageBook) {
         Integer page = pageBook.getNumber();
         Integer totalPages = pageBook.getTotalPages();
         Integer totalItems = (int) pageBook.getTotalElements();
-        List<BookResponse> booksDto = toResponseList(pageBook.getContent());
+        List<BookResponse> booksDto = toBookResponseList(pageBook.getContent());
         return new PaginatedBookResponse(page, totalPages, totalItems, booksDto);
     }
 }

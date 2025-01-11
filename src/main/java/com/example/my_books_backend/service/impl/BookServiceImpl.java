@@ -30,13 +30,13 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<BookResponse> getAllBooks() {
         List<Book> books = bookRepository.findAll();
-        return bookMapper.toResponseList(books);
+        return bookMapper.toBookResponseList(books);
     }
 
     @Override
     public BookResponse getBookById(String id) {
         Book book = findBookById(id);
-        return bookMapper.toResponse(book);
+        return bookMapper.toBookResponse(book);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<BookResponse> getNewReleases() {
         List<Book> books = bookRepository.findTop10ByOrderByPublishedDateDesc();
-        return bookMapper.toResponseList(books);
+        return bookMapper.toBookResponseList(books);
     }
 
     private Pageable createPageable(Integer page, Integer maxResults) {

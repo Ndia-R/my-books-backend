@@ -1,10 +1,16 @@
 package com.example.my_books_backend.entity;
 
 import java.sql.Date;
+import java.util.List;
 import com.example.my_books_backend.entity.shared.EntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,8 +34,10 @@ public class Book extends EntityBase {
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "genre_ids", nullable = false)
-    private String genreIds;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "book_genres", joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id"))
+    private List<Genre> genres;
 
     @Column(name = "authors", nullable = false)
     private String authors;
@@ -51,4 +59,13 @@ public class Book extends EntityBase {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    @OneToMany(mappedBy = "book")
+    private List<Review> reviews;
+
+    @OneToMany(mappedBy = "book")
+    private List<Favorite> favorites;
+
+    @OneToMany(mappedBy = "book")
+    private List<MyList> myLists;
 }

@@ -3,6 +3,7 @@ package com.example.my_books_backend.config;
 import java.util.Arrays;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -35,9 +36,15 @@ public class SecurityConfig {
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/v1/login", "/api/v1/signup", "/api/v1/refresh-token",
-                        "/api/v1/validate-token", "/api/v1/logout", "/api/v1/check-name-exists")
-                .permitAll().requestMatchers("/api/v1/books/**", "/api/v1/genres/**").permitAll()
+                .requestMatchers("/api/v1/login", "/api/v1/signup", "/api/v1/logout").permitAll()
+                .requestMatchers("/api/v1/refresh-token", "/api/v1/validate-token").permitAll()
+                .requestMatchers("/api/v1/check-name-exists").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/books/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/genres/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
+                // .requestMatchers("/api/v1/favorites/**").permitAll()
+                // .requestMatchers("/api/v1/my-lists/**").permitAll()
+                // .requestMatchers("/api/v1/roles/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                 .permitAll().anyRequest().authenticated());
 

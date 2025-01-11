@@ -24,7 +24,7 @@ public class Role extends EntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(name = "name", nullable = false, unique = true)
     @Enumerated(EnumType.STRING)
@@ -32,12 +32,4 @@ public class Role extends EntityBase {
 
     @Column(name = "description", nullable = false)
     private String description;
-
-    public Role(RoleName name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name.toString();
-    }
 }

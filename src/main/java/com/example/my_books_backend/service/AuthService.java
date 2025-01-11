@@ -55,7 +55,8 @@ public class AuthService {
         response.addCookie(refreshTokenCookie);
 
         String name = user.getName();
-        List<String> roles = user.getRoles().stream().map(role -> role.getName()).toList();
+        List<String> roles =
+                user.getRoles().stream().map(role -> role.getName().toString()).toList();
 
         return new LoginResponse(accessToken, name, roles);
     }

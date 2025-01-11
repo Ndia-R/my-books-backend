@@ -6,6 +6,6 @@ import com.example.my_books_backend.entity.Role;
 import com.example.my_books_backend.entity.RoleName;
 
 @Repository
-public interface RoleRepository extends JpaRepository<Role, Integer> {
+public interface RoleRepository extends JpaRepository<Role, Long> {
     Role findByName(RoleName name);
 }

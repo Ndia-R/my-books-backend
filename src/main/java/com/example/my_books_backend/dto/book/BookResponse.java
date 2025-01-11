@@ -13,7 +13,7 @@ public class BookResponse {
     private String id;
     private String title;
     private String description;
-    private List<Integer> genreIds;
+    private List<Long> genreIds;
     private List<String> authors;
     private String publisher;
     private Date publishedDate;

@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import com.example.my_books_backend.entity.Genre;
 
 @Repository
-public interface GenreRepository extends JpaRepository<Genre, Integer> {
+public interface GenreRepository extends JpaRepository<Genre, Long> {
 }

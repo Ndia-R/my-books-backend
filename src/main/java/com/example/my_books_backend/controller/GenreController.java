@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -33,7 +32,7 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GenreResponse> getGenreById(@PathVariable Integer id) {
+    public ResponseEntity<GenreResponse> getGenreById(@PathVariable Long id) {
         GenreResponse genre = genreService.getGenreById(id);
         return ResponseEntity.ok(genre);
     }
@@ -48,21 +47,14 @@ public class GenreController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> putGenre(@PathVariable Integer id,
+    public ResponseEntity<Void> updateGenre(@PathVariable Long id,
             @Valid @RequestBody UpdateGenreRequest request) {
-        genreService.putGenre(id, request);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<Void> patchGenre(@PathVariable Integer id,
-            @Valid @RequestBody UpdateGenreRequest request) {
-        genreService.patchGenre(id, request);
+        genreService.updateGenre(id, request);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGenre(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
         genreService.deleteGenre(id);
         return ResponseEntity.noContent().build();
     }

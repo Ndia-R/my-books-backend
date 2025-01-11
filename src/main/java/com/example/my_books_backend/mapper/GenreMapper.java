@@ -13,19 +13,15 @@ import lombok.RequiredArgsConstructor;
 public class GenreMapper {
     private final ModelMapper modelMapper;
 
-    public GenreResponse toResponse(Genre genre) {
+    public GenreResponse toGenreResponse(Genre genre) {
         return modelMapper.map(genre, GenreResponse.class);
     }
 
-    public Genre toEntity(GenreResponse genreResponse) {
-        return modelMapper.map(genreResponse, Genre.class);
+    public List<GenreResponse> toGenreResponseList(List<Genre> genres) {
+        return genres.stream().map(genre -> toGenreResponse(genre)).toList();
     }
 
-    public Genre toEntity(CreateGenreRequest createGenreDto) {
-        return modelMapper.map(createGenreDto, Genre.class);
-    }
-
-    public List<GenreResponse> toResponseList(List<Genre> genres) {
-        return genres.stream().map(genre -> toResponse(genre)).toList();
+    public Genre toGenreEntity(CreateGenreRequest createGenreRequest) {
+        return modelMapper.map(createGenreRequest, Genre.class);
     }
 }

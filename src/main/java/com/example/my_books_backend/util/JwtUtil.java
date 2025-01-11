@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import com.example.my_books_backend.entity.Role;
 import com.example.my_books_backend.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -50,7 +49,8 @@ public class JwtUtil {
     public String generateAccessToken(User user) {
         String email = user.getEmail();
         String name = user.getName();
-        String roles = user.getRoles().stream().map(Role::getName).collect(Collectors.joining(","));
+        String roles = user.getRoles().stream().map(role -> role.getName().toString())
+                .collect(Collectors.joining(","));
 
         return Jwts.builder().subject(email).claim("name", name).claim("roles", roles)
                 .issuedAt(new Date())

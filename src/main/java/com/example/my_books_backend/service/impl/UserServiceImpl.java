@@ -47,18 +47,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
-        return userMapper.toResponseList(users);
+        return userMapper.toUserResponseList(users);
     }
 
     @Override
-    public UserResponse getUserById(Integer id) {
+    public UserResponse getUserById(Long id) {
         User user = findUserById(id);
-        return userMapper.toResponse(user);
+        return userMapper.toUserResponse(user);
     }
 
     @Override
     public UserResponse createUser(CreateUserRequest request) {
-        User user = userMapper.toEntity(request);
+        User user = userMapper.toUserEntity(request);
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
@@ -78,13 +78,13 @@ public class UserServiceImpl implements UserService {
         }
 
         User saveUser = userRepository.save(user);
-        return userMapper.toResponse(saveUser);
+        return userMapper.toUserResponse(saveUser);
     }
 
     @Override
     public UserResponse getCurrentUser() {
         User user = getAuthenticatedUser();
-        return userMapper.toResponse(user);
+        return userMapper.toUserResponse(user);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
     public void changeEmail(ChangeEmailRequest request) {
         User user = getAuthenticatedUser();
 
-        String email = request.getNewEmail();
+        String email = request.getEmail();
         String password = request.getPassword();
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
@@ -147,12 +147,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Integer id) {
+    public void deleteUser(Long id) {
         User user = findUserById(id);
         userRepository.delete(user);
     }
 
-    private User findUserById(Integer id) {
+    private User findUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("見つかりませんでした。 ID: " + id));
         return user;

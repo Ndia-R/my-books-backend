@@ -6,9 +6,9 @@ import lombok.Getter;
 
 @Getter
 public class ChangeEmailRequest {
-    @NotBlank(message = "新しいメールアドレスは必須です")
+    @NotBlank(message = "メールアドレスは必須です")
     @Email
-    private String newEmail;
+    private String email;
 
     @NotBlank(message = "パスワードは必須です")
     private String password;

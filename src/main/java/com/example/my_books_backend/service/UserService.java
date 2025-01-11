@@ -14,9 +14,9 @@ public interface UserService {
 
     List<UserResponse> getAllUsers();
 
-    UserResponse getUserById(Integer id);
+    UserResponse getUserById(Long id);
 
-    void deleteUser(Integer id);
+    void deleteUser(Long id);
 
     UserResponse createUser(CreateUserRequest request);
 

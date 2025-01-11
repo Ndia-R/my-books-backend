@@ -1,8 +1,9 @@
 package com.example.my_books_backend.repository;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -34,57 +35,56 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
 
     @Override
     public Page<Book> findByGenreIds(String genreIdsParam, Pageable pageable) {
-        // AND条件とOR条件を解析
-        List<String> andConditions = Arrays.asList(genreIdsParam.split(","));
-        List<List<String>> orConditions = new ArrayList<>();
-        for (String andCondition : andConditions) {
-            orConditions.add(Arrays.asList(andCondition.split("\\|")));
+        if (genreIdsParam == null || genreIdsParam.isEmpty()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
         }
 
-        // SQLクエリ作成
-        String sql = buildQueryWithGenres("SELECT * FROM books WHERE ", orConditions);
+        boolean isAndSearch = genreIdsParam.contains(",");
+        List<Long> genreIds = Arrays.stream(genreIdsParam.split("[,|]")).map(Long::parseLong)
+                .collect(Collectors.toList());
 
-        // ソート条件を適用
+        String sql = "SELECT b.* FROM books b " + "JOIN book_genres bg ON b.id = bg.book_id "
+                + "WHERE bg.genre_id IN (:genreIds) ";
+
+        if (isAndSearch) {
+            sql += "GROUP BY b.id " + "HAVING COUNT(DISTINCT bg.genre_id) = :genreCount";
+        } else {
+            sql += "GROUP BY b.id";
+        }
+
         sql += buildOrderByClause(pageable);
 
-        // ページングクエリの実行
         Query query = entityManager.createNativeQuery(sql, Book.class);
-        setParameters(query, orConditions);
+        query.setParameter("genreIds", genreIds);
+        if (isAndSearch) {
+            query.setParameter("genreCount", genreIds.size());
+        }
+
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
 
         @SuppressWarnings("unchecked")
-        List<Book> books = query.getResultList(); // ここで型の警告がでるので、アノテーション指定または型キャストする
+        List<Book> books = query.getResultList(); // ここで型の警告がでるので、アノテーション指定
 
-        // 総件数取得用のクエリを作成
-        String countSql = buildQueryWithGenres("SELECT COUNT(*) FROM books WHERE ", orConditions);
-        Query countQuery = entityManager.createNativeQuery(countSql);
-        setParameters(countQuery, orConditions);
-        Long total = ((Number) countQuery.getSingleResult()).longValue();
+        // トータル件数を取得するためのクエリ
+        String countSql = "SELECT COUNT(DISTINCT b.id) FROM books b "
+                + "JOIN book_genres bg ON b.id = bg.book_id " + "WHERE bg.genre_id IN (:genreIds) ";
 
-        // 結果をPageオブジェクトで返却
-        return new PageImpl<>(books, pageable, total);
-    }
-
-    // SQLクエリのWHERE句を、ジャンルIDのリストに基づいて動的に構築
-    private String buildQueryWithGenres(String baseQuery, List<List<String>> orConditions) {
-        StringBuilder query = new StringBuilder(baseQuery);
-        for (int i = 0; i < orConditions.size(); i++) {
-            if (i > 0) {
-                query.append(" AND ");
-            }
-            query.append("(");
-            List<String> orCondition = orConditions.get(i);
-            for (int j = 0; j < orCondition.size(); j++) {
-                if (j > 0) {
-                    query.append(" OR ");
-                }
-                query.append("FIND_IN_SET(:genre_id").append(i).append("_").append(j)
-                        .append(", genre_ids) > 0");
-            }
-            query.append(")");
+        if (isAndSearch) {
+            countSql += "GROUP BY b.id " + "HAVING COUNT(DISTINCT bg.genre_id) = :genreCount";
+        } else {
+            countSql += "GROUP BY b.id";
         }
-        return query.toString();
+
+        Query countQuery = entityManager.createNativeQuery(countSql);
+        countQuery.setParameter("genreIds", genreIds);
+        if (isAndSearch) {
+            countQuery.setParameter("genreCount", genreIds.size());
+        }
+
+        long total = countQuery.getResultList().size();
+
+        return new PageImpl<>(books, pageable, total);
     }
 
     // SortオブジェクトからORDER BY句を作成
@@ -94,7 +94,7 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         StringBuilder orderBy = new StringBuilder(" ORDER BY ");
         sort.forEach(order -> {
             // エンティティのフィールド名をデータベースのカラム名に変換
-            String columnName = convertToColumnName(order.getProperty());
+            String columnName = convertCamelToSnake(order.getProperty());
             orderBy.append(columnName).append(" ").append(order.isAscending() ? "ASC" : "DESC")
                     .append(", ");
         });
@@ -102,29 +102,28 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         return orderBy.toString();
     }
 
-    // ジャンルIDのリストをクエリのパラメータに設定
-    private void setParameters(Query query, List<List<String>> orConditions) {
-        for (int i = 0; i < orConditions.size(); i++) {
-            List<String> orCondition = orConditions.get(i);
-            for (int j = 0; j < orCondition.size(); j++) {
-                query.setParameter("genre_id" + i + "_" + j, orCondition.get(j));
+    private String convertCamelToSnake(String camelCase) {
+        if (camelCase == null || camelCase.isEmpty()) {
+            return camelCase;
+        }
+
+        StringBuilder snakeCase = new StringBuilder();
+        char[] charArray = camelCase.toCharArray();
+
+        for (char c : charArray) {
+            if (Character.isUpperCase(c)) {
+                snakeCase.append('_');
+                snakeCase.append(Character.toLowerCase(c));
+            } else {
+                snakeCase.append(c);
             }
         }
-    }
 
-    // エンティティのフィールド名をデータベースのカラム名に変換する
-    private String convertToColumnName(String fieldName) {
-        switch (fieldName) {
-            case "genreIds":
-                return "genre_ids";
-            case "publishedDate":
-                return "published_date";
-            case "pageCount":
-                return "page_count";
-            case "imageUrl":
-                return "image_url";
-            default:
-                return fieldName;
+        // 先頭にアンダースコアが付く場合があるので削除
+        if (snakeCase.charAt(0) == '_') {
+            snakeCase.deleteCharAt(0);
         }
+
+        return snakeCase.toString();
     }
 }

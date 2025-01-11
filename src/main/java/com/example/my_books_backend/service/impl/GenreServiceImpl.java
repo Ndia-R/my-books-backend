@@ -25,39 +25,28 @@ public class GenreServiceImpl implements GenreService {
     @Cacheable("getAllGenres")
     public List<GenreResponse> getAllGenres() {
         List<Genre> genres = genreRepository.findAll();
-        return genreMapper.toResponseList(genres);
+        return genreMapper.toGenreResponseList(genres);
     }
 
     @Override
     @Cacheable(value = "getGenreById", key = "#p0")
-    public GenreResponse getGenreById(Integer id) {
+    public GenreResponse getGenreById(Long id) {
         Genre genre = findGenreById(id);
-        return genreMapper.toResponse(genre);
+        return genreMapper.toGenreResponse(genre);
     }
 
     @Override
     @CacheEvict(value = "getAllGenres", allEntries = true)
     public GenreResponse createGenre(CreateGenreRequest request) {
-        Genre genre = genreMapper.toEntity(request);
+        Genre genre = genreMapper.toGenreEntity(request);
         Genre saveGenre = genreRepository.save(genre);
-        return genreMapper.toResponse(saveGenre);
+        return genreMapper.toGenreResponse(saveGenre);
     }
 
     @Override
     @Caching(evict = {@CacheEvict(value = "getGenreById", key = "#p0"),
             @CacheEvict(value = "getAllGenres", allEntries = true)})
-    public void putGenre(Integer id, UpdateGenreRequest request) {
-        Genre genre = findGenreById(id);
-
-        genre.setName(request.getName());
-        genre.setDescription(request.getDescription());
-        genreRepository.save(genre);
-    }
-
-    @Override
-    @Caching(evict = {@CacheEvict(value = "getGenreById", key = "#p0"),
-            @CacheEvict(value = "getAllGenres", allEntries = true)})
-    public void patchGenre(Integer id, UpdateGenreRequest request) {
+    public void updateGenre(Long id, UpdateGenreRequest request) {
         Genre genre = findGenreById(id);
 
         String name = request.getName();
@@ -68,7 +57,7 @@ public class GenreServiceImpl implements GenreService {
         }
 
         if (description != null) {
-            genre.setName(description);
+            genre.setDescription(description);
         }
         genreRepository.save(genre);
     }
@@ -76,12 +65,12 @@ public class GenreServiceImpl implements GenreService {
     @Override
     @Caching(evict = {@CacheEvict(value = "getGenreById", key = "#p0"),
             @CacheEvict(value = "getAllGenres", allEntries = true)})
-    public void deleteGenre(Integer id) {
+    public void deleteGenre(Long id) {
         Genre genre = findGenreById(id);
         genreRepository.delete(genre);
     }
 
-    private Genre findGenreById(Integer id) {
+    private Genre findGenreById(Long id) {
         Genre genre = genreRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("見つかりませんでした。 ID: " + id));
         return genre;
