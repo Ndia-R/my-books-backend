@@ -10,4 +10,6 @@ public interface MyListRepository extends JpaRepository<MyList, Long> {
     List<MyList> findByUserIdOrderByUpdatedAtDesc(Long userId);
 
     List<MyList> findByBookIdOrderByUpdatedAtDesc(String bookId);
+
+    Integer countByUserIdAndIsDeletedFalse(Long userId);
 }

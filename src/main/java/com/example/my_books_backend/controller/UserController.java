@@ -16,6 +16,7 @@ import com.example.my_books_backend.dto.user.ChangeEmailRequest;
 import com.example.my_books_backend.dto.user.ChangePasswordRequest;
 import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.dto.user.UpdateUserRequest;
+import com.example.my_books_backend.dto.user.UserProfileCountsResponse;
 import com.example.my_books_backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -75,5 +76,12 @@ public class UserController {
     public ResponseEntity<CheckNameExistsResponse> checkNameExists(@RequestParam String name) {
         Boolean exists = userService.checkNameExists(name);
         return ResponseEntity.ok(new CheckNameExistsResponse(exists));
+    }
+
+    @GetMapping("/users/profile-counts/{userId}")
+    public ResponseEntity<UserProfileCountsResponse> getUserProfileCounts(
+            @PathVariable Long userId) {
+        UserProfileCountsResponse userProfileCounts = userService.getUserProfileCounts(userId);
+        return ResponseEntity.ok(userProfileCounts);
     }
 }

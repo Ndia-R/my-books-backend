@@ -10,4 +10,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     List<Favorite> findByUserIdOrderByUpdatedAtDesc(Long userId);
 
     List<Favorite> findByBookIdOrderByUpdatedAtDesc(String bookId);
+
+    Integer countByUserIdAndIsDeletedFalse(Long userId);
 }

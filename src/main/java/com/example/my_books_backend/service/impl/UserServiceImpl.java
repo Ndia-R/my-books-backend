@@ -13,6 +13,7 @@ import com.example.my_books_backend.dto.user.ChangePasswordRequest;
 import com.example.my_books_backend.dto.user.CreateUserRequest;
 import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.dto.user.UpdateUserRequest;
+import com.example.my_books_backend.dto.user.UserProfileCountsResponse;
 import com.example.my_books_backend.entity.Role;
 import com.example.my_books_backend.entity.RoleName;
 import com.example.my_books_backend.entity.User;
@@ -21,6 +22,9 @@ import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.exception.UnauthorizedException;
 import com.example.my_books_backend.exception.ValidationException;
 import com.example.my_books_backend.mapper.UserMapper;
+import com.example.my_books_backend.repository.FavoriteRepository;
+import com.example.my_books_backend.repository.MyListRepository;
+import com.example.my_books_backend.repository.ReviewRepository;
 import com.example.my_books_backend.repository.RoleRepository;
 import com.example.my_books_backend.repository.UserRepository;
 import com.example.my_books_backend.service.UserService;
@@ -32,6 +36,10 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final FavoriteRepository favoriteRepository;
+    private final MyListRepository myListRepository;
+    private final ReviewRepository reviewRepository;
+
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final RandomStringUtil randomStringUtil;
@@ -167,5 +175,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean checkNameExists(String name) {
         return userRepository.existsByName(name);
+    }
+
+    @Override
+    public UserProfileCountsResponse getUserProfileCounts(Long userId) {
+        Integer favoritesCount = favoriteRepository.countByUserIdAndIsDeletedFalse(userId);
+        Integer myListCount = myListRepository.countByUserIdAndIsDeletedFalse(userId);
+        Integer reviewCount = reviewRepository.countByUserIdAndIsDeletedFalse(userId);
+
+        return new UserProfileCountsResponse(favoritesCount, myListCount, reviewCount);
     }
 }
