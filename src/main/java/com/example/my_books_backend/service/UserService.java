@@ -5,9 +5,9 @@ import java.util.Optional;
 import com.example.my_books_backend.dto.user.ChangeEmailRequest;
 import com.example.my_books_backend.dto.user.ChangePasswordRequest;
 import com.example.my_books_backend.dto.user.CreateUserRequest;
+import com.example.my_books_backend.dto.user.ProfileCountsResponse;
 import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.dto.user.UpdateUserRequest;
-import com.example.my_books_backend.dto.user.UserProfileCountsResponse;
 import com.example.my_books_backend.entity.User;
 
 public interface UserService {
@@ -23,6 +23,8 @@ public interface UserService {
 
     UserResponse getCurrentUser();
 
+    ProfileCountsResponse getProfileCounts();
+
     void updateCurrentUser(UpdateUserRequest request);
 
     void changeEmail(ChangeEmailRequest request);
@@ -30,6 +32,4 @@ public interface UserService {
     void changePassword(ChangePasswordRequest request);
 
     Boolean checkNameExists(String name);
-
-    UserProfileCountsResponse getUserProfileCounts(Long userId);
 }

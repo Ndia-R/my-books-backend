@@ -45,8 +45,9 @@ public class SecurityConfig {
                 // .requestMatchers("/api/v1/favorites/**").permitAll()
                 // .requestMatchers("/api/v1/my-lists/**").permitAll()
                 // .requestMatchers("/api/v1/roles/**").permitAll()
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                .permitAll().anyRequest().authenticated());
+                // .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                // .permitAll()
+                .anyRequest().authenticated());
 
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 

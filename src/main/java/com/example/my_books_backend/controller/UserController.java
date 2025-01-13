@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.user.CheckNameExistsResponse;
+import com.example.my_books_backend.dto.user.ProfileCountsResponse;
 import com.example.my_books_backend.dto.user.ChangeEmailRequest;
 import com.example.my_books_backend.dto.user.ChangePasswordRequest;
 import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.dto.user.UpdateUserRequest;
-import com.example.my_books_backend.dto.user.UserProfileCountsResponse;
 import com.example.my_books_backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +54,12 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/me/profile-counts")
+    public ResponseEntity<ProfileCountsResponse> getProfileCounts() {
+        ProfileCountsResponse profileCounts = userService.getProfileCounts();
+        return ResponseEntity.ok(profileCounts);
+    }
+
     @PutMapping("/me")
     public ResponseEntity<Void> updateCurrentUser(@Valid @RequestBody UpdateUserRequest request) {
         userService.updateCurrentUser(request);
@@ -78,10 +84,4 @@ public class UserController {
         return ResponseEntity.ok(new CheckNameExistsResponse(exists));
     }
 
-    @GetMapping("/users/profile-counts/{userId}")
-    public ResponseEntity<UserProfileCountsResponse> getUserProfileCounts(
-            @PathVariable Long userId) {
-        UserProfileCountsResponse userProfileCounts = userService.getUserProfileCounts(userId);
-        return ResponseEntity.ok(userProfileCounts);
-    }
 }

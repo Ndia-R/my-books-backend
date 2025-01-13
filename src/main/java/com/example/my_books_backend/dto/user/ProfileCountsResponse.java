@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserProfileCountsResponse {
+public class ProfileCountsResponse {
     private Integer favoriteCount;
     private Integer myListCount;
     private Integer reviewCount;

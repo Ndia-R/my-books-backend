@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 import com.example.my_books_backend.dto.user.ChangeEmailRequest;
 import com.example.my_books_backend.dto.user.ChangePasswordRequest;
 import com.example.my_books_backend.dto.user.CreateUserRequest;
+import com.example.my_books_backend.dto.user.ProfileCountsResponse;
 import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.dto.user.UpdateUserRequest;
-import com.example.my_books_backend.dto.user.UserProfileCountsResponse;
 import com.example.my_books_backend.entity.Role;
 import com.example.my_books_backend.entity.RoleName;
 import com.example.my_books_backend.entity.User;
@@ -96,6 +96,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ProfileCountsResponse getProfileCounts() {
+        User user = getAuthenticatedUser();
+        Integer favoritesCount = favoriteRepository.countByUserIdAndIsDeletedFalse(user.getId());
+        Integer myListCount = myListRepository.countByUserIdAndIsDeletedFalse(user.getId());
+        Integer reviewCount = reviewRepository.countByUserIdAndIsDeletedFalse(user.getId());
+
+        return new ProfileCountsResponse(favoritesCount, myListCount, reviewCount);
+    }
+
+    @Override
     public void updateCurrentUser(UpdateUserRequest request) {
         User user = getAuthenticatedUser();
 
@@ -175,14 +185,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean checkNameExists(String name) {
         return userRepository.existsByName(name);
-    }
-
-    @Override
-    public UserProfileCountsResponse getUserProfileCounts(Long userId) {
-        Integer favoritesCount = favoriteRepository.countByUserIdAndIsDeletedFalse(userId);
-        Integer myListCount = myListRepository.countByUserIdAndIsDeletedFalse(userId);
-        Integer reviewCount = reviewRepository.countByUserIdAndIsDeletedFalse(userId);
-
-        return new UserProfileCountsResponse(favoritesCount, myListCount, reviewCount);
     }
 }
