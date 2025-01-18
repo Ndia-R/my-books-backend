@@ -1,6 +1,9 @@
-package com.example.my_books_backend.dto.genre;
+package com.example.my_books_backend.dto.role;
 
 import org.hibernate.validator.constraints.Length;
+import com.example.my_books_backend.entity.RoleName;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,10 +12,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateGenreRequest {
+public class RoleRequest {
     @NotNull
-    @Length(max = 50)
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private RoleName name;
 
     @NotNull
     @Length(max = 255)

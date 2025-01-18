@@ -40,8 +40,8 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         }
 
         boolean isAndSearch = genreIdsParam.contains(",");
-        List<Long> genreIds = Arrays.stream(genreIdsParam.split("[,|]")).map(Long::parseLong)
-                .collect(Collectors.toList());
+        List<Long> genreIds = Arrays.stream(genreIdsParam.split("[,|]"))
+                .map(genreId -> Long.parseLong(genreId)).collect(Collectors.toList());
 
         String sql = "SELECT b.* FROM books b " + "JOIN book_genres bg ON b.id = bg.book_id "
                 + "WHERE bg.genre_id IN (:genreIds) ";

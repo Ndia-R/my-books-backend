@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.user.ChangeEmailRequest;
 import com.example.my_books_backend.dto.user.ChangePasswordRequest;
 import com.example.my_books_backend.dto.user.CreateUserRequest;
@@ -65,6 +66,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserResponse createUser(CreateUserRequest request) {
         User user = userMapper.toUserEntity(request);
 
@@ -91,23 +93,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getCurrentUser() {
-        User user = getAuthenticatedUser();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
         return userMapper.toUserResponse(user);
     }
 
     @Override
     public ProfileCountsResponse getProfileCounts() {
-        User user = getAuthenticatedUser();
-        Integer favoritesCount = favoriteRepository.countByUserIdAndIsDeletedFalse(user.getId());
-        Integer myListCount = myListRepository.countByUserIdAndIsDeletedFalse(user.getId());
-        Integer reviewCount = reviewRepository.countByUserIdAndIsDeletedFalse(user.getId());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+
+        Integer favoritesCount = favoriteRepository.countByUserId(user.getId());
+        Integer myListCount = myListRepository.countByUserId(user.getId());
+        Integer reviewCount = reviewRepository.countByUserId(user.getId());
 
         return new ProfileCountsResponse(favoritesCount, myListCount, reviewCount);
     }
 
     @Override
+    @Transactional
     public void updateCurrentUser(UpdateUserRequest request) {
-        User user = getAuthenticatedUser();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
 
         String name = request.getName();
         String avatarUrl = request.getAvatarUrl();
@@ -122,8 +129,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void changeEmail(ChangeEmailRequest request) {
-        User user = getAuthenticatedUser();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
 
         String email = request.getEmail();
         String password = request.getPassword();
@@ -145,8 +154,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void changePassword(ChangePasswordRequest request) {
-        User user = getAuthenticatedUser();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
 
         String newPassword = request.getNewPassword();
         String confirmNewPassword = request.getConfirmNewPassword();
@@ -165,25 +176,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long id) {
         User user = findUserById(id);
         userRepository.delete(user);
+    }
+
+    @Override
+    public Boolean checkNameExists(String name) {
+        return userRepository.existsByName(name);
     }
 
     private User findUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("見つかりませんでした。 ID: " + id));
         return user;
-    }
-
-    private User getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User authenticatedUser = (User) authentication.getPrincipal();
-        return authenticatedUser;
-    }
-
-    @Override
-    public Boolean checkNameExists(String name) {
-        return userRepository.existsByName(name);
     }
 }

@@ -5,9 +5,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
-import com.example.my_books_backend.dto.genre.CreateGenreRequest;
+import org.springframework.transaction.annotation.Transactional;
+import com.example.my_books_backend.dto.genre.GenreRequest;
 import com.example.my_books_backend.dto.genre.GenreResponse;
-import com.example.my_books_backend.dto.genre.UpdateGenreRequest;
 import com.example.my_books_backend.entity.Genre;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.GenreMapper;
@@ -36,17 +36,21 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "getAllGenres", allEntries = true)
-    public GenreResponse createGenre(CreateGenreRequest request) {
-        Genre genre = genreMapper.toGenreEntity(request);
+    public GenreResponse createGenre(GenreRequest request) {
+        Genre genre = new Genre();
+        genre.setName(request.getName());
+        genre.setDescription(request.getDescription());
         Genre saveGenre = genreRepository.save(genre);
         return genreMapper.toGenreResponse(saveGenre);
     }
 
     @Override
+    @Transactional
     @Caching(evict = {@CacheEvict(value = "getGenreById", key = "#p0"),
             @CacheEvict(value = "getAllGenres", allEntries = true)})
-    public void updateGenre(Long id, UpdateGenreRequest request) {
+    public GenreResponse updateGenre(Long id, GenreRequest request) {
         Genre genre = findGenreById(id);
 
         String name = request.getName();
@@ -59,10 +63,12 @@ public class GenreServiceImpl implements GenreService {
         if (description != null) {
             genre.setDescription(description);
         }
-        genreRepository.save(genre);
+        Genre savedGenre = genreRepository.save(genre);
+        return genreMapper.toGenreResponse(savedGenre);
     }
 
     @Override
+    @Transactional
     @Caching(evict = {@CacheEvict(value = "getGenreById", key = "#p0"),
             @CacheEvict(value = "getAllGenres", allEntries = true)})
     public void deleteGenre(Long id) {

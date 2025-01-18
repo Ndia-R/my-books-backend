@@ -1,7 +1,6 @@
 package com.example.my_books_backend.controller;
 
 import java.net.URI;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,10 +8,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.example.my_books_backend.dto.favorite.CreateFavoriteRequest;
+import com.example.my_books_backend.dto.book.PaginatedBookResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteStateResponse;
 import com.example.my_books_backend.service.FavoriteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,42 +26,31 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     @GetMapping("")
-    public ResponseEntity<List<FavoriteResponse>> getAllFavorites() {
-        List<FavoriteResponse> favorites = favoriteService.getAllFavorites();
+    public ResponseEntity<PaginatedBookResponse> getFavorites(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer maxResults) {
+        PaginatedBookResponse favorites = favoriteService.getFavorites(page, maxResults);
         return ResponseEntity.ok(favorites);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<FavoriteResponse> getFavoriteById(@PathVariable Long id) {
-        FavoriteResponse favorite = favoriteService.getFavoriteById(id);
-        return ResponseEntity.ok(favorite);
     }
 
     @PostMapping("")
-    public ResponseEntity<FavoriteResponse> createFavorite(
-            @Valid @RequestBody CreateFavoriteRequest request) {
-        FavoriteResponse favorite = favoriteService.createFavorite(request);
+    public ResponseEntity<FavoriteResponse> addFavorite(
+            @Valid @RequestBody FavoriteRequest request) {
+        FavoriteResponse favorite = favoriteService.addFavorite(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(favorite.getId()).toUri();
+                .buildAndExpand(favorite.getFavoriteId()).toUri();
         return ResponseEntity.created(location).body(favorite);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFavorite(@PathVariable Long id) {
-        favoriteService.deleteFavorite(id);
+    @DeleteMapping("/{bookId}")
+    public ResponseEntity<Void> removeFavorite(@PathVariable String bookId) {
+        favoriteService.removeFavorite(bookId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<FavoriteResponse>> getFavoritesByUserId(@PathVariable Long userId) {
-        List<FavoriteResponse> favorites = favoriteService.getFavoritesByUserId(userId);
-        return ResponseEntity.ok(favorites);
-    }
-
-    @GetMapping("/book/{bookId}")
-    public ResponseEntity<List<FavoriteResponse>> getFavoritesByBookId(
-            @PathVariable String bookId) {
-        List<FavoriteResponse> favorites = favoriteService.getFavoritesByBookId(bookId);
-        return ResponseEntity.ok(favorites);
+    @GetMapping("/favorite-state/{bookId}")
+    public ResponseEntity<FavoriteStateResponse> getFavoriteState(@PathVariable String bookId) {
+        FavoriteStateResponse favoriteStateResponse = favoriteService.getFavoriteState(bookId);
+        return ResponseEntity.ok(favoriteStateResponse);
     }
 }

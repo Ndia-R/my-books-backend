@@ -1,19 +1,16 @@
 package com.example.my_books_backend.service;
 
-import java.util.List;
-import com.example.my_books_backend.dto.my_list.CreateMyListRequest;
+import com.example.my_books_backend.dto.book.PaginatedBookResponse;
+import com.example.my_books_backend.dto.my_list.MyListRequest;
 import com.example.my_books_backend.dto.my_list.MyListResponse;
+import com.example.my_books_backend.dto.my_list.MyListStateResponse;
 
 public interface MyListService {
-    List<MyListResponse> getAllMyLists();
+    PaginatedBookResponse getMyLists(Integer page, Integer maxResults);
 
-    MyListResponse getMyListById(Long id);
+    MyListResponse addMyList(MyListRequest request);
 
-    MyListResponse createMyList(CreateMyListRequest request);
+    void removeMyList(String bookId);
 
-    void deleteMyList(Long id);
-
-    List<MyListResponse> getMyListsByUserId(Long userId);
-
-    List<MyListResponse> getMyListsByBookId(String bookId);
+    MyListStateResponse getMyListState(String bookId);
 }

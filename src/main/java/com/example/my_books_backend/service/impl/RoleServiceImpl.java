@@ -1,11 +1,13 @@
 package com.example.my_books_backend.service.impl;
 
 import java.util.List;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
-import com.example.my_books_backend.dto.role.CreateRoleRequest;
+import org.springframework.transaction.annotation.Transactional;
+import com.example.my_books_backend.dto.role.RoleRequest;
 import com.example.my_books_backend.dto.role.RoleResponse;
-import com.example.my_books_backend.dto.role.UpdateRoleRequest;
 import com.example.my_books_backend.entity.Role;
 import com.example.my_books_backend.entity.RoleName;
 import com.example.my_books_backend.exception.NotFoundException;
@@ -22,26 +24,34 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Cacheable("getAllRoles")
-    public List<com.example.my_books_backend.dto.role.RoleResponse> getAllRoles() {
+    public List<RoleResponse> getAllRoles() {
         List<Role> roles = roleRepository.findAll();
         return roleMapper.toRoleResponseList(roles);
     }
 
     @Override
+    @Cacheable(value = "getRoleById", key = "#p0")
     public RoleResponse getRoleById(Long id) {
         Role role = findRoleById(id);
         return roleMapper.toRoleResponse(role);
     }
 
     @Override
-    public RoleResponse createRole(CreateRoleRequest request) {
-        Role role = roleMapper.toRoleEntity(request);
+    @Transactional
+    @CacheEvict(value = "getAllRoles", allEntries = true)
+    public RoleResponse createRole(RoleRequest request) {
+        Role role = new Role();
+        role.setName(request.getName());
+        role.setDescription(request.getDescription());
         Role saveRole = roleRepository.save(role);
         return roleMapper.toRoleResponse(saveRole);
     }
 
     @Override
-    public void updateRole(Long id, UpdateRoleRequest request) {
+    @Transactional
+    @Caching(evict = {@CacheEvict(value = "getRoleById", key = "#p0"),
+            @CacheEvict(value = "getAllRoles", allEntries = true)})
+    public RoleResponse updateRole(Long id, RoleRequest request) {
         Role role = findRoleById(id);
 
         RoleName name = request.getName();
@@ -54,10 +64,14 @@ public class RoleServiceImpl implements RoleService {
         if (description != null) {
             role.setDescription(description);
         }
-        roleRepository.save(role);
+        Role savedRole = roleRepository.save(role);
+        return roleMapper.toRoleResponse(savedRole);
     }
 
     @Override
+    @Transactional
+    @Caching(evict = {@CacheEvict(value = "getRoleById", key = "#p0"),
+            @CacheEvict(value = "getAllRoles", allEntries = true)})
     public void deleteRole(Long id) {
         Role role = findRoleById(id);
         roleRepository.delete(role);

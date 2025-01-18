@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.example.my_books_backend.dto.genre.CreateGenreRequest;
+import com.example.my_books_backend.dto.genre.GenreRequest;
 import com.example.my_books_backend.dto.genre.GenreResponse;
-import com.example.my_books_backend.dto.genre.UpdateGenreRequest;
 import com.example.my_books_backend.service.GenreService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +37,7 @@ public class GenreController {
     }
 
     @PostMapping("")
-    public ResponseEntity<GenreResponse> createGenre(
-            @Valid @RequestBody CreateGenreRequest request) {
+    public ResponseEntity<GenreResponse> createGenre(@Valid @RequestBody GenreRequest request) {
         GenreResponse genre = genreService.createGenre(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(genre.getId()).toUri();
@@ -47,10 +45,10 @@ public class GenreController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateGenre(@PathVariable Long id,
-            @Valid @RequestBody UpdateGenreRequest request) {
-        genreService.updateGenre(id, request);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<GenreResponse> updateGenre(@PathVariable Long id,
+            @Valid @RequestBody GenreRequest request) {
+        GenreResponse genre = genreService.updateGenre(id, request);
+        return ResponseEntity.ok(genre);
     }
 
     @DeleteMapping("/{id}")

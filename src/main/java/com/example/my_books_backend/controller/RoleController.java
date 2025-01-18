@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.example.my_books_backend.dto.role.CreateRoleRequest;
+import com.example.my_books_backend.dto.role.RoleRequest;
 import com.example.my_books_backend.dto.role.RoleResponse;
-import com.example.my_books_backend.dto.role.UpdateRoleRequest;
 import com.example.my_books_backend.service.RoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +37,7 @@ public class RoleController {
     }
 
     @PostMapping("")
-    public ResponseEntity<RoleResponse> createRole(@Valid @RequestBody CreateRoleRequest request) {
+    public ResponseEntity<RoleResponse> createRole(@Valid @RequestBody RoleRequest request) {
         RoleResponse role = roleService.createRole(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(role.getId()).toUri();
@@ -46,10 +45,10 @@ public class RoleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateRole(@PathVariable Long id,
-            @Valid @RequestBody UpdateRoleRequest request) {
-        roleService.updateRole(id, request);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<RoleResponse> updateRole(@PathVariable Long id,
+            @Valid @RequestBody RoleRequest request) {
+        RoleResponse role = roleService.updateRole(id, request);
+        return ResponseEntity.ok(role);
     }
 
     @DeleteMapping("/{id}")

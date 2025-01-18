@@ -1,4 +1,4 @@
-package com.example.my_books_backend.dto.role;
+package com.example.my_books_backend.dto.genre;
 
 import org.hibernate.validator.constraints.Length;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateRoleRequest {
+public class GenreRequest {
     @NotNull
     @Length(max = 50)
     private String name;

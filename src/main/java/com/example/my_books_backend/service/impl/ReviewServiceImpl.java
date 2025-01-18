@@ -1,13 +1,25 @@
 package com.example.my_books_backend.service.impl;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import com.example.my_books_backend.dto.review.CreateReviewRequest;
+import org.springframework.transaction.annotation.Transactional;
+import com.example.my_books_backend.dto.review.MyReviewResponse;
+import com.example.my_books_backend.dto.review.PaginatedReviewResponse;
+import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
-import com.example.my_books_backend.dto.review.UpdateReviewRequest;
+import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Review;
+import com.example.my_books_backend.entity.ReviewId;
+import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.ReviewMapper;
+import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.repository.ReviewRepository;
 import com.example.my_books_backend.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -17,29 +29,59 @@ import lombok.RequiredArgsConstructor;
 public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
+    private final BookRepository bookRepository;
+
+    private static final Integer DEFAULT_START_PAGE = 0;
+    private static final Integer DEFAULT_MAX_RESULTS = 3;
+    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "updatedAt");
 
     @Override
-    public List<ReviewResponse> getAllReviews() {
-        List<Review> reviews = reviewRepository.findAll();
+    public PaginatedReviewResponse getReviews(String bookId, Integer page, Integer maxResults) {
+        Pageable pageable = createPageable(page, maxResults);
+        Page<Review> reviews = reviewRepository.findByBookId(bookId, pageable);
+        return reviewMapper.toPaginatedReviewResponse(reviews);
+    }
+
+    @Override
+    public List<ReviewResponse> getReviewsByBookId(String bookId) {
+        List<Review> reviews = reviewRepository.findByBookIdOrderByUpdatedAtDesc(bookId);
         return reviewMapper.toReviewResponseList(reviews);
     }
 
     @Override
-    public ReviewResponse getReviewById(Long id) {
-        Review review = findReviewById(id);
-        return reviewMapper.toReviewResponse(review);
+    public List<MyReviewResponse> getMyReviews() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        List<Review> reviews = reviewRepository.findByUserIdOrderByUpdatedAtDesc(user.getId());
+        return reviewMapper.toMyReviewResponseList(reviews);
     }
 
     @Override
-    public ReviewResponse createReview(CreateReviewRequest request) {
-        Review review = reviewMapper.toReviewEntity(request);
+    @Transactional
+    public ReviewResponse createReview(ReviewRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        Book book = bookRepository.findById(request.getBookId())
+                .orElseThrow(() -> new NotFoundException("Book not found"));
+        ReviewId reviewId = new ReviewId(user.getId(), book.getId());
+        Review review = new Review();
+        review.setId(reviewId);
+        review.setUser(user);
+        review.setBook(book);
+        review.setRating(request.getRating());
+        review.setComment(request.getComment());
         Review savedReview = reviewRepository.save(review);
         return reviewMapper.toReviewResponse(savedReview);
     }
 
     @Override
-    public void updateReview(Long id, UpdateReviewRequest request) {
-        Review review = findReviewById(id);
+    @Transactional
+    public ReviewResponse updateReview(ReviewRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        ReviewId reviewId = new ReviewId(user.getId(), request.getBookId());
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException("Review not found"));
 
         String comment = request.getComment();
         Double rating = request.getRating();
@@ -51,30 +93,22 @@ public class ReviewServiceImpl implements ReviewService {
         if (rating != null) {
             review.setRating(rating);
         }
-        reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
+        return reviewMapper.toReviewResponse(savedReview);
     }
 
     @Override
-    public void deleteReview(Long id) {
-        Review review = findReviewById(id);
-        reviewRepository.delete(review);
+    @Transactional
+    public void deleteReview(String bookId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        ReviewId reviewId = new ReviewId(user.getId(), bookId);
+        reviewRepository.deleteById(reviewId);
     }
 
-    @Override
-    public List<ReviewResponse> getReviewsByUserId(Long userId) {
-        List<Review> reviews = reviewRepository.findByUserIdOrderByUpdatedAtDesc(userId);
-        return reviewMapper.toReviewResponseList(reviews);
-    }
-
-    @Override
-    public List<ReviewResponse> getReviewsByBookId(String bookId) {
-        List<Review> reviews = reviewRepository.findByBookIdOrderByUpdatedAtDesc(bookId);
-        return reviewMapper.toReviewResponseList(reviews);
-    }
-
-    private Review findReviewById(Long id) {
-        Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("見つかりませんでした。 ID: " + id));
-        return review;
+    private Pageable createPageable(Integer page, Integer maxResults) {
+        page = (page != null) ? page : DEFAULT_START_PAGE;
+        maxResults = (maxResults != null) ? maxResults : DEFAULT_MAX_RESULTS;
+        return PageRequest.of(page, maxResults, DEFAULT_SORT);
     }
 }

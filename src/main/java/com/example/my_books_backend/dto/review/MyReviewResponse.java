@@ -1,9 +1,9 @@
-package com.example.my_books_backend.dto.favorite;
+package com.example.my_books_backend.dto.review;
 
 import java.time.LocalDateTime;
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.user.SimpleUserInfo;
-import com.example.my_books_backend.entity.FavoriteId;
+import com.example.my_books_backend.entity.ReviewId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,8 +11,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FavoriteResponse {
-    private FavoriteId favoriteId;
+public class MyReviewResponse {
+    private ReviewId reviewId;
+    private String comment;
+    private Double rating;
     private LocalDateTime updatedAt;
     private SimpleUserInfo user;
     private BookResponse book;

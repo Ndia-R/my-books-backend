@@ -1,19 +1,16 @@
 package com.example.my_books_backend.service;
 
-import java.util.List;
-import com.example.my_books_backend.dto.favorite.CreateFavoriteRequest;
+import com.example.my_books_backend.dto.book.PaginatedBookResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteStateResponse;
 
 public interface FavoriteService {
-    List<FavoriteResponse> getAllFavorites();
+    PaginatedBookResponse getFavorites(Integer page, Integer maxResults);
 
-    FavoriteResponse getFavoriteById(Long id);
+    FavoriteResponse addFavorite(FavoriteRequest request);
 
-    FavoriteResponse createFavorite(CreateFavoriteRequest request);
+    void removeFavorite(String bookId);
 
-    void deleteFavorite(Long id);
-
-    List<FavoriteResponse> getFavoritesByUserId(Long userId);
-
-    List<FavoriteResponse> getFavoritesByBookId(String bookId);
+    FavoriteStateResponse getFavoriteState(String bookId);
 }
