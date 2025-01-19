@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.book.PaginatedBookResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteCountResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteStateResponse;
@@ -73,12 +74,19 @@ public class FavoriteServiceImpl implements FavoriteService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Integer count = favoriteRepository.countByUserIdAndBookId(user.getId(), bookId);
-        Integer favoriteCount = favoriteRepository.countByBookId(bookId);
 
         FavoriteStateResponse favoriteStateResponse = new FavoriteStateResponse();
         favoriteStateResponse.setIsFavorite(count > 0 ? true : false);
-        favoriteStateResponse.setFavoriteCount(favoriteCount);
         return favoriteStateResponse;
+    }
+
+    @Override
+    public FavoriteCountResponse getFavoriteCount(String bookId) {
+        Integer count = favoriteRepository.countByBookId(bookId);
+
+        FavoriteCountResponse favoriteCountResponse = new FavoriteCountResponse();
+        favoriteCountResponse.setCount(count);
+        return favoriteCountResponse;
     }
 
     private Pageable createPageable(Integer page, Integer maxResults) {

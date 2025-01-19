@@ -41,11 +41,14 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/check-name-exists").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/books/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/genres/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/reviews/book/**").permitAll()
-                .requestMatchers("/api/v1/my-lists/**").permitAll()
-                .requestMatchers("/api/v1/favorite/**").permitAll()
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                .permitAll().anyRequest().authenticated());
+                .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
+                .requestMatchers("/api/v1/my-lists/count/**").permitAll()
+                .requestMatchers("/api/v1/favorites/count/**").permitAll()
+                // .requestMatchers("/api/v1/my-lists/**").permitAll()
+                // .requestMatchers("/api/v1/favorites/**").permitAll()
+                // .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                // .permitAll()
+                .anyRequest().authenticated());
 
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 

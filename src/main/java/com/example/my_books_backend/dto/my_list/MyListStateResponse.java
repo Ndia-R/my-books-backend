@@ -9,5 +9,4 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MyListStateResponse {
     private Boolean isMyList;
-    private Integer myListCount;
 }

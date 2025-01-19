@@ -1,6 +1,7 @@
 package com.example.my_books_backend.service;
 
 import com.example.my_books_backend.dto.book.PaginatedBookResponse;
+import com.example.my_books_backend.dto.my_list.MyListCountResponse;
 import com.example.my_books_backend.dto.my_list.MyListRequest;
 import com.example.my_books_backend.dto.my_list.MyListResponse;
 import com.example.my_books_backend.dto.my_list.MyListStateResponse;
@@ -13,4 +14,6 @@ public interface MyListService {
     void removeMyList(String bookId);
 
     MyListStateResponse getMyListState(String bookId);
+
+    MyListCountResponse getMyListCount(String bookId);
 }

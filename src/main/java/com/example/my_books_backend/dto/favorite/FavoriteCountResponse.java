@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FavoriteStateResponse {
-    private Boolean isFavorite;
+public class FavoriteCountResponse {
+    private Integer count;
 }

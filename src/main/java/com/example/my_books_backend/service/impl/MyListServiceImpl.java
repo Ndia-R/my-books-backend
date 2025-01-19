@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.book.PaginatedBookResponse;
+import com.example.my_books_backend.dto.my_list.MyListCountResponse;
 import com.example.my_books_backend.dto.my_list.MyListRequest;
 import com.example.my_books_backend.dto.my_list.MyListResponse;
 import com.example.my_books_backend.dto.my_list.MyListStateResponse;
@@ -73,12 +74,19 @@ public class MyListServiceImpl implements MyListService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Integer count = myListRepository.countByUserIdAndBookId(user.getId(), bookId);
-        Integer myListCount = myListRepository.countByBookId(bookId);
 
         MyListStateResponse myListStateResponse = new MyListStateResponse();
         myListStateResponse.setIsMyList(count > 0 ? true : false);
-        myListStateResponse.setMyListCount(myListCount);
         return myListStateResponse;
+    }
+
+    @Override
+    public MyListCountResponse getMyListCount(String bookId) {
+        Integer count = myListRepository.countByBookId(bookId);
+
+        MyListCountResponse myListCountResponse = new MyListCountResponse();
+        myListCountResponse.setCount(count);
+        return myListCountResponse;
     }
 
     private Pageable createPageable(Integer page, Integer maxResults) {

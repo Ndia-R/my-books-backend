@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.my_books_backend.dto.book.PaginatedBookResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteCountResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteStateResponse;
@@ -48,9 +49,15 @@ public class FavoriteController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/favorite-state/{bookId}")
+    @GetMapping("/state/{bookId}")
     public ResponseEntity<FavoriteStateResponse> getFavoriteState(@PathVariable String bookId) {
         FavoriteStateResponse favoriteStateResponse = favoriteService.getFavoriteState(bookId);
         return ResponseEntity.ok(favoriteStateResponse);
+    }
+
+    @GetMapping("/count/{bookId}")
+    public ResponseEntity<FavoriteCountResponse> getFavoriteCount(@PathVariable String bookId) {
+        FavoriteCountResponse favoriteCountResponse = favoriteService.getFavoriteCount(bookId);
+        return ResponseEntity.ok(favoriteCountResponse);
     }
 }

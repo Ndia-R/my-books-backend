@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.my_books_backend.dto.book.PaginatedBookResponse;
+import com.example.my_books_backend.dto.my_list.MyListCountResponse;
 import com.example.my_books_backend.dto.my_list.MyListRequest;
 import com.example.my_books_backend.dto.my_list.MyListResponse;
 import com.example.my_books_backend.dto.my_list.MyListStateResponse;
@@ -47,10 +48,15 @@ public class MyListController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/my-list-state/{bookId}")
+    @GetMapping("/state/{bookId}")
     public ResponseEntity<MyListStateResponse> getMyListState(@PathVariable String bookId) {
         MyListStateResponse myListStateResponse = myListService.getMyListState(bookId);
         return ResponseEntity.ok(myListStateResponse);
     }
 
+    @GetMapping("/count/{bookId}")
+    public ResponseEntity<MyListCountResponse> getMyListCount(@PathVariable String bookId) {
+        MyListCountResponse myListCountResponse = myListService.getMyListCount(bookId);
+        return ResponseEntity.ok(myListCountResponse);
+    }
 }
