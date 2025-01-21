@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import com.example.my_books_backend.dto.review.MyReviewResponse;
+import com.example.my_books_backend.dto.review.PaginatedMyReviewResponse;
 import com.example.my_books_backend.dto.review.PaginatedReviewResponse;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.entity.Book;
@@ -49,5 +50,13 @@ public class ReviewMapper {
 
     public List<MyReviewResponse> toMyReviewResponseList(List<Review> reviews) {
         return reviews.stream().map(review -> toMyReviewResponse(review)).toList();
+    }
+
+    public PaginatedMyReviewResponse toPaginatedMyReviewResponse(Page<Review> reviews) {
+        Integer page = reviews.getNumber();
+        Integer totalPages = reviews.getTotalPages();
+        Integer totalItems = (int) reviews.getTotalElements();
+        List<MyReviewResponse> myReviewResponseList = toMyReviewResponseList(reviews.getContent());
+        return new PaginatedMyReviewResponse(page, totalPages, totalItems, myReviewResponseList);
     }
 }

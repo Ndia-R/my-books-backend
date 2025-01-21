@@ -31,5 +31,5 @@ public interface UserService {
 
     void changePassword(ChangePasswordRequest request);
 
-    Boolean checkNameExists(String name);
+    Boolean checkUsernameExists(String name);
 }

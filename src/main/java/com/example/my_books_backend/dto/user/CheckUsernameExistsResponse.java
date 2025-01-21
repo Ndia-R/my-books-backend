@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CheckNameExistsResponse {
+public class CheckUsernameExistsResponse {
     @NotNull
     private Boolean exists;
 }

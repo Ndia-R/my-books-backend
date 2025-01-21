@@ -38,7 +38,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/v1/login", "/api/v1/signup", "/api/v1/logout").permitAll()
                 .requestMatchers("/api/v1/refresh-token", "/api/v1/validate-token").permitAll()
-                .requestMatchers("/api/v1/check-name-exists").permitAll()
+                .requestMatchers("/api/v1/users/exists").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/books/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/genres/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()

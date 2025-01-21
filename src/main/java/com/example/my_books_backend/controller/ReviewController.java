@@ -1,7 +1,6 @@
 package com.example.my_books_backend.controller;
 
 import java.net.URI;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.example.my_books_backend.dto.review.MyReviewResponse;
+import com.example.my_books_backend.dto.review.CheckMyReviewExistsResponse;
+import com.example.my_books_backend.dto.review.PaginatedMyReviewResponse;
 import com.example.my_books_backend.dto.review.PaginatedReviewResponse;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
@@ -35,16 +35,19 @@ public class ReviewController {
         return ResponseEntity.ok(reviews);
     }
 
-    @GetMapping("/book/{bookId}")
-    public ResponseEntity<List<ReviewResponse>> getReviewsByBookId(@PathVariable String bookId) {
-        List<ReviewResponse> reviews = reviewService.getReviewsByBookId(bookId);
-        return ResponseEntity.ok(reviews);
+    @GetMapping("/my-reviews")
+    public ResponseEntity<PaginatedMyReviewResponse> getMyReviews(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer maxResults) {
+        PaginatedMyReviewResponse myReviews = reviewService.getMyReviews(page, maxResults);
+        return ResponseEntity.ok(myReviews);
     }
 
-    @GetMapping("my-reviews")
-    public ResponseEntity<List<MyReviewResponse>> getMyReviews() {
-        List<MyReviewResponse> myReviews = reviewService.getMyReviews();
-        return ResponseEntity.ok(myReviews);
+    @GetMapping("/my-reviews/exists")
+    public ResponseEntity<CheckMyReviewExistsResponse> checkMyReviewExists(
+            @RequestParam String bookId) {
+        Boolean exists = reviewService.checkMyReviewExists(bookId);
+        return ResponseEntity.ok(new CheckMyReviewExistsResponse(exists));
     }
 
     @PostMapping("")

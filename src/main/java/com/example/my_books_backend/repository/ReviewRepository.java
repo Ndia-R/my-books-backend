@@ -1,6 +1,5 @@
 package com.example.my_books_backend.repository;
 
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,9 +15,7 @@ import com.example.my_books_backend.entity.ReviewId;
 public interface ReviewRepository extends JpaRepository<Review, ReviewId> {
     Page<Review> findByBookId(String bookId, Pageable pageable);
 
-    List<Review> findByUserIdOrderByUpdatedAtDesc(Long userId);
-
-    List<Review> findByBookIdOrderByUpdatedAtDesc(String bookId);
+    Page<Review> findByUserId(Long userId, Pageable pageable);
 
     void deleteById(@NonNull FavoriteId favoriteId);
 
@@ -28,4 +25,6 @@ public interface ReviewRepository extends JpaRepository<Review, ReviewId> {
 
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.book.id = :bookId")
     Double findAverageRatingByBookId(@Param("bookId") String bookId);
+
+    Boolean existsByUserIdAndBookId(Long userId, String bookId);
 }

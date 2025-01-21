@@ -1,6 +1,5 @@
 package com.example.my_books_backend.service.impl;
 
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -9,7 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.my_books_backend.dto.review.MyReviewResponse;
+import com.example.my_books_backend.dto.review.PaginatedMyReviewResponse;
 import com.example.my_books_backend.dto.review.PaginatedReviewResponse;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
@@ -32,8 +31,8 @@ public class ReviewServiceImpl implements ReviewService {
     private final BookRepository bookRepository;
 
     private static final Integer DEFAULT_START_PAGE = 0;
-    private static final Integer DEFAULT_MAX_RESULTS = 3;
-    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "updatedAt");
+    private static final Integer DEFAULT_MAX_RESULTS = 5;
+    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "createdAt");
 
     @Override
     public PaginatedReviewResponse getReviews(String bookId, Integer page, Integer maxResults) {
@@ -43,17 +42,19 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewResponse> getReviewsByBookId(String bookId) {
-        List<Review> reviews = reviewRepository.findByBookIdOrderByUpdatedAtDesc(bookId);
-        return reviewMapper.toReviewResponseList(reviews);
+    public PaginatedMyReviewResponse getMyReviews(Integer page, Integer maxResults) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        Pageable pageable = createPageable(page, maxResults);
+        Page<Review> reviews = reviewRepository.findByUserId(user.getId(), pageable);
+        return reviewMapper.toPaginatedMyReviewResponse(reviews);
     }
 
     @Override
-    public List<MyReviewResponse> getMyReviews() {
+    public Boolean checkMyReviewExists(String bookId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        List<Review> reviews = reviewRepository.findByUserIdOrderByUpdatedAtDesc(user.getId());
-        return reviewMapper.toMyReviewResponseList(reviews);
+        return reviewRepository.existsByUserIdAndBookId(user.getId(), bookId);
     }
 
     @Override

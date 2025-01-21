@@ -14,6 +14,7 @@ public class ReviewResponse {
     private ReviewId reviewId;
     private String comment;
     private Double rating;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private SimpleUserInfo user;
 }
