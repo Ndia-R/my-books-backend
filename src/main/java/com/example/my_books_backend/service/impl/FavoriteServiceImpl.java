@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,8 @@ import com.example.my_books_backend.dto.book.PaginatedBookResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
-import com.example.my_books_backend.dto.favorite.FavoriteStateResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteStatusResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteInfoResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Favorite;
 import com.example.my_books_backend.entity.FavoriteId;
@@ -70,23 +72,45 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
-    public FavoriteStateResponse getFavoriteState(String bookId) {
+    public FavoriteStatusResponse getFavoriteStatus(String bookId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Integer count = favoriteRepository.countByUserIdAndBookId(user.getId(), bookId);
 
-        FavoriteStateResponse favoriteStateResponse = new FavoriteStateResponse();
+        FavoriteStatusResponse favoriteStateResponse = new FavoriteStatusResponse();
+        favoriteStateResponse.setBookId(bookId);
         favoriteStateResponse.setIsFavorite(count > 0 ? true : false);
         return favoriteStateResponse;
     }
 
     @Override
     public FavoriteCountResponse getFavoriteCount(String bookId) {
-        Integer count = favoriteRepository.countByBookId(bookId);
+        Integer favoriteCount = favoriteRepository.countByBookId(bookId);
 
         FavoriteCountResponse favoriteCountResponse = new FavoriteCountResponse();
-        favoriteCountResponse.setCount(count);
+        favoriteCountResponse.setBookId(bookId);
+        favoriteCountResponse.setFavoriteCount(favoriteCount);
         return favoriteCountResponse;
+    }
+
+    @Override
+    public FavoriteInfoResponse getFavoriteInfo(String bookId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer count = 0;
+        // 認証済みであればユーザー情報取得（匿名ユーザーは未認証とする）
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            User user = (User) authentication.getPrincipal();
+            count = favoriteRepository.countByUserIdAndBookId(user.getId(), bookId);
+        }
+        Integer favoriteCount = favoriteRepository.countByBookId(bookId);
+
+        FavoriteInfoResponse favoriteInfoResponse = new FavoriteInfoResponse();
+        favoriteInfoResponse.setBookId(bookId);
+        favoriteInfoResponse.setIsFavorite(count > 0 ? true : false);
+        favoriteInfoResponse.setFavoriteCount(favoriteCount);
+
+        return favoriteInfoResponse;
     }
 
     private Pageable createPageable(Integer page, Integer maxResults) {

@@ -15,7 +15,8 @@ import com.example.my_books_backend.dto.book.PaginatedBookResponse;
 import com.example.my_books_backend.dto.my_list.MyListCountResponse;
 import com.example.my_books_backend.dto.my_list.MyListRequest;
 import com.example.my_books_backend.dto.my_list.MyListResponse;
-import com.example.my_books_backend.dto.my_list.MyListStateResponse;
+import com.example.my_books_backend.dto.my_list.MyListStatusResponse;
+import com.example.my_books_backend.dto.my_list.MyListInfoResponse;
 import com.example.my_books_backend.service.MyListService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -48,15 +49,21 @@ public class MyListController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/state/{bookId}")
-    public ResponseEntity<MyListStateResponse> getMyListState(@PathVariable String bookId) {
-        MyListStateResponse myListStateResponse = myListService.getMyListState(bookId);
+    @GetMapping("/{bookId}/status")
+    public ResponseEntity<MyListStatusResponse> getMyListStatus(@PathVariable String bookId) {
+        MyListStatusResponse myListStateResponse = myListService.getMyListStatus(bookId);
         return ResponseEntity.ok(myListStateResponse);
     }
 
-    @GetMapping("/count/{bookId}")
+    @GetMapping("/{bookId}/count")
     public ResponseEntity<MyListCountResponse> getMyListCount(@PathVariable String bookId) {
         MyListCountResponse myListCountResponse = myListService.getMyListCount(bookId);
         return ResponseEntity.ok(myListCountResponse);
+    }
+
+    @GetMapping("/{bookId}/info")
+    public ResponseEntity<MyListInfoResponse> getMyListInfo(@PathVariable String bookId) {
+        MyListInfoResponse myListInfoResponse = myListService.getMyListInfo(bookId);
+        return ResponseEntity.ok(myListInfoResponse);
     }
 }

@@ -8,5 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MyListCountResponse {
-    private Integer count;
+    private String bookId;
+    private Integer myListCount;
 }

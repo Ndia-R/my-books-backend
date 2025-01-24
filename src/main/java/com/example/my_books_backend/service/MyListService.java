@@ -4,7 +4,8 @@ import com.example.my_books_backend.dto.book.PaginatedBookResponse;
 import com.example.my_books_backend.dto.my_list.MyListCountResponse;
 import com.example.my_books_backend.dto.my_list.MyListRequest;
 import com.example.my_books_backend.dto.my_list.MyListResponse;
-import com.example.my_books_backend.dto.my_list.MyListStateResponse;
+import com.example.my_books_backend.dto.my_list.MyListStatusResponse;
+import com.example.my_books_backend.dto.my_list.MyListInfoResponse;
 
 public interface MyListService {
     PaginatedBookResponse getMyLists(Integer page, Integer maxResults);
@@ -13,7 +14,9 @@ public interface MyListService {
 
     void removeMyList(String bookId);
 
-    MyListStateResponse getMyListState(String bookId);
+    MyListStatusResponse getMyListStatus(String bookId);
 
     MyListCountResponse getMyListCount(String bookId);
+
+    MyListInfoResponse getMyListInfo(String bookId);
 }

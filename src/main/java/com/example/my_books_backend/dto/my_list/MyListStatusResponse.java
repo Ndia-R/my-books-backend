@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyListStateResponse {
+public class MyListStatusResponse {
+    private String bookId;
     private Boolean isMyList;
 }

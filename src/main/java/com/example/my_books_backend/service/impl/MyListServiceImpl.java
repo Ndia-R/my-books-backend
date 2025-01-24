@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,8 @@ import com.example.my_books_backend.dto.book.PaginatedBookResponse;
 import com.example.my_books_backend.dto.my_list.MyListCountResponse;
 import com.example.my_books_backend.dto.my_list.MyListRequest;
 import com.example.my_books_backend.dto.my_list.MyListResponse;
-import com.example.my_books_backend.dto.my_list.MyListStateResponse;
+import com.example.my_books_backend.dto.my_list.MyListStatusResponse;
+import com.example.my_books_backend.dto.my_list.MyListInfoResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.MyList;
 import com.example.my_books_backend.entity.MyListId;
@@ -70,23 +72,44 @@ public class MyListServiceImpl implements MyListService {
     }
 
     @Override
-    public MyListStateResponse getMyListState(String bookId) {
+    public MyListStatusResponse getMyListStatus(String bookId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Integer count = myListRepository.countByUserIdAndBookId(user.getId(), bookId);
 
-        MyListStateResponse myListStateResponse = new MyListStateResponse();
+        MyListStatusResponse myListStateResponse = new MyListStatusResponse();
+        myListStateResponse.setBookId(bookId);
         myListStateResponse.setIsMyList(count > 0 ? true : false);
         return myListStateResponse;
     }
 
     @Override
     public MyListCountResponse getMyListCount(String bookId) {
-        Integer count = myListRepository.countByBookId(bookId);
+        Integer myListCount = myListRepository.countByBookId(bookId);
 
         MyListCountResponse myListCountResponse = new MyListCountResponse();
-        myListCountResponse.setCount(count);
+        myListCountResponse.setBookId(bookId);
+        myListCountResponse.setMyListCount(myListCount);
         return myListCountResponse;
+    }
+
+    @Override
+    public MyListInfoResponse getMyListInfo(String bookId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer count = 0;
+        // 認証済みであればユーザー情報取得（匿名ユーザーは未認証とする）
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            User user = (User) authentication.getPrincipal();
+            count = myListRepository.countByUserIdAndBookId(user.getId(), bookId);
+        }
+        Integer myListCount = myListRepository.countByBookId(bookId);
+
+        MyListInfoResponse myListInfoResponse = new MyListInfoResponse();
+        myListInfoResponse.setBookId(bookId);
+        myListInfoResponse.setIsMyList(count > 0 ? true : false);
+        myListInfoResponse.setMyListCount(myListCount);
+        return myListInfoResponse;
     }
 
     private Pageable createPageable(Integer page, Integer maxResults) {

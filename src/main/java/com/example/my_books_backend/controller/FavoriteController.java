@@ -15,7 +15,8 @@ import com.example.my_books_backend.dto.book.PaginatedBookResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
-import com.example.my_books_backend.dto.favorite.FavoriteStateResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteStatusResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteInfoResponse;
 import com.example.my_books_backend.service.FavoriteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,15 +50,21 @@ public class FavoriteController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/state/{bookId}")
-    public ResponseEntity<FavoriteStateResponse> getFavoriteState(@PathVariable String bookId) {
-        FavoriteStateResponse favoriteStateResponse = favoriteService.getFavoriteState(bookId);
+    @GetMapping("/{bookId}/status")
+    public ResponseEntity<FavoriteStatusResponse> getFavoriteStatus(@PathVariable String bookId) {
+        FavoriteStatusResponse favoriteStateResponse = favoriteService.getFavoriteStatus(bookId);
         return ResponseEntity.ok(favoriteStateResponse);
     }
 
-    @GetMapping("/count/{bookId}")
+    @GetMapping("/{bookId}/count")
     public ResponseEntity<FavoriteCountResponse> getFavoriteCount(@PathVariable String bookId) {
         FavoriteCountResponse favoriteCountResponse = favoriteService.getFavoriteCount(bookId);
         return ResponseEntity.ok(favoriteCountResponse);
+    }
+
+    @GetMapping("/{bookId}/info")
+    public ResponseEntity<FavoriteInfoResponse> getFavoriteInfo(@PathVariable String bookId) {
+        FavoriteInfoResponse favoriteInfoResponse = favoriteService.getFavoriteInfo(bookId);
+        return ResponseEntity.ok(favoriteInfoResponse);
     }
 }
