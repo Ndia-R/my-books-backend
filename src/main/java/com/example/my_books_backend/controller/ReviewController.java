@@ -15,6 +15,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.my_books_backend.dto.review.CheckMyReviewExistsResponse;
 import com.example.my_books_backend.dto.review.PaginatedMyReviewResponse;
 import com.example.my_books_backend.dto.review.PaginatedReviewResponse;
+import com.example.my_books_backend.dto.review.ReviewRatingInfoResponse;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.service.ReviewService;
@@ -27,11 +28,18 @@ import lombok.RequiredArgsConstructor;
 public class ReviewController {
     private final ReviewService reviewService;
 
+    @GetMapping("/{bookId}/rating-info")
+    public ResponseEntity<ReviewRatingInfoResponse> getReviewRatingInfo(
+            @PathVariable String bookId) {
+        ReviewRatingInfoResponse reviews = reviewService.getReviewRatingInfo(bookId);
+        return ResponseEntity.ok(reviews);
+    }
+
     @GetMapping("/{bookId}")
-    public ResponseEntity<PaginatedReviewResponse> getReviews(@PathVariable String bookId,
+    public ResponseEntity<PaginatedReviewResponse> getReviewsById(@PathVariable String bookId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
-        PaginatedReviewResponse reviews = reviewService.getReviews(bookId, page, maxResults);
+        PaginatedReviewResponse reviews = reviewService.getReviewsById(bookId, page, maxResults);
         return ResponseEntity.ok(reviews);
     }
 

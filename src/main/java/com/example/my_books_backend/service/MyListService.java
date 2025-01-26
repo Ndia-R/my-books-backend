@@ -1,22 +1,16 @@
 package com.example.my_books_backend.service;
 
 import com.example.my_books_backend.dto.book.PaginatedBookResponse;
-import com.example.my_books_backend.dto.my_list.MyListCountResponse;
 import com.example.my_books_backend.dto.my_list.MyListRequest;
 import com.example.my_books_backend.dto.my_list.MyListResponse;
-import com.example.my_books_backend.dto.my_list.MyListStatusResponse;
 import com.example.my_books_backend.dto.my_list.MyListInfoResponse;
 
 public interface MyListService {
+    MyListInfoResponse getMyListInfo(String bookId);
+
     PaginatedBookResponse getMyLists(Integer page, Integer maxResults);
 
     MyListResponse addMyList(MyListRequest request);
 
     void removeMyList(String bookId);
-
-    MyListStatusResponse getMyListStatus(String bookId);
-
-    MyListCountResponse getMyListCount(String bookId);
-
-    MyListInfoResponse getMyListInfo(String bookId);
 }

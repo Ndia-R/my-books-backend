@@ -10,10 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.book.PaginatedBookResponse;
-import com.example.my_books_backend.dto.favorite.FavoriteCountResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
-import com.example.my_books_backend.dto.favorite.FavoriteStatusResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteInfoResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Favorite;
@@ -36,6 +34,26 @@ public class FavoriteServiceImpl implements FavoriteService {
     private static final Integer DEFAULT_START_PAGE = 0;
     private static final Integer DEFAULT_MAX_RESULTS = 20;
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "updatedAt");
+
+    @Override
+    public FavoriteInfoResponse getFavoriteInfo(String bookId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer count = 0;
+        // 認証済みであればユーザー情報取得（匿名ユーザーは未認証とする）
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            User user = (User) authentication.getPrincipal();
+            count = favoriteRepository.countByUserIdAndBookId(user.getId(), bookId);
+        }
+        Integer favoriteCount = favoriteRepository.countByBookId(bookId);
+
+        FavoriteInfoResponse favoriteInfoResponse = new FavoriteInfoResponse();
+        favoriteInfoResponse.setBookId(bookId);
+        favoriteInfoResponse.setIsFavorite(count > 0 ? true : false);
+        favoriteInfoResponse.setFavoriteCount(favoriteCount);
+
+        return favoriteInfoResponse;
+    }
 
     @Override
     public PaginatedBookResponse getFavorites(Integer page, Integer maxResults) {
@@ -69,48 +87,6 @@ public class FavoriteServiceImpl implements FavoriteService {
         User user = (User) authentication.getPrincipal();
         FavoriteId favoriteId = new FavoriteId(user.getId(), bookId);
         favoriteRepository.deleteById(favoriteId);
-    }
-
-    @Override
-    public FavoriteStatusResponse getFavoriteStatus(String bookId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        Integer count = favoriteRepository.countByUserIdAndBookId(user.getId(), bookId);
-
-        FavoriteStatusResponse favoriteStateResponse = new FavoriteStatusResponse();
-        favoriteStateResponse.setBookId(bookId);
-        favoriteStateResponse.setIsFavorite(count > 0 ? true : false);
-        return favoriteStateResponse;
-    }
-
-    @Override
-    public FavoriteCountResponse getFavoriteCount(String bookId) {
-        Integer favoriteCount = favoriteRepository.countByBookId(bookId);
-
-        FavoriteCountResponse favoriteCountResponse = new FavoriteCountResponse();
-        favoriteCountResponse.setBookId(bookId);
-        favoriteCountResponse.setFavoriteCount(favoriteCount);
-        return favoriteCountResponse;
-    }
-
-    @Override
-    public FavoriteInfoResponse getFavoriteInfo(String bookId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Integer count = 0;
-        // 認証済みであればユーザー情報取得（匿名ユーザーは未認証とする）
-        if (authentication != null && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken)) {
-            User user = (User) authentication.getPrincipal();
-            count = favoriteRepository.countByUserIdAndBookId(user.getId(), bookId);
-        }
-        Integer favoriteCount = favoriteRepository.countByBookId(bookId);
-
-        FavoriteInfoResponse favoriteInfoResponse = new FavoriteInfoResponse();
-        favoriteInfoResponse.setBookId(bookId);
-        favoriteInfoResponse.setIsFavorite(count > 0 ? true : false);
-        favoriteInfoResponse.setFavoriteCount(favoriteCount);
-
-        return favoriteInfoResponse;
     }
 
     private Pageable createPageable(Integer page, Integer maxResults) {

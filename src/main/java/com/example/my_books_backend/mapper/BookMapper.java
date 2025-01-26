@@ -5,7 +5,6 @@ import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-import com.example.my_books_backend.dto.book.BookDetailResponse;
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.book.PaginatedBookResponse;
 import com.example.my_books_backend.entity.Book;
@@ -38,11 +37,5 @@ public class BookMapper {
         Integer totalItems = (int) pageBook.getTotalElements();
         List<BookResponse> booksDto = toBookResponseList(pageBook.getContent());
         return new PaginatedBookResponse(page, totalPages, totalItems, booksDto);
-    }
-
-    public BookDetailResponse toBookDetailResponse(BookResponse bookResponse) {
-        BookDetailResponse bookDetailResponse =
-                modelMapper.map(bookResponse, BookDetailResponse.class);
-        return bookDetailResponse;
     }
 }

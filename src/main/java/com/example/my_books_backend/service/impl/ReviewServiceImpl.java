@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.review.PaginatedMyReviewResponse;
 import com.example.my_books_backend.dto.review.PaginatedReviewResponse;
+import com.example.my_books_backend.dto.review.ReviewRatingInfoResponse;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.entity.Book;
@@ -35,7 +36,24 @@ public class ReviewServiceImpl implements ReviewService {
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "createdAt");
 
     @Override
-    public PaginatedReviewResponse getReviews(String bookId, Integer page, Integer maxResults) {
+    public ReviewRatingInfoResponse getReviewRatingInfo(String bookId) {
+        Double rating = reviewRepository.findAverageRatingByBookId(bookId);
+        Integer reviewCount = reviewRepository.countByBookId(bookId);
+
+        if (rating == null) {
+            rating = 0.0;
+        }
+
+        ReviewRatingInfoResponse reviewRatingInfoResponse = new ReviewRatingInfoResponse();
+        reviewRatingInfoResponse.setBookId(bookId);
+        reviewRatingInfoResponse.setRating(rating);
+        reviewRatingInfoResponse.setReviewCount(reviewCount);
+
+        return reviewRatingInfoResponse;
+    }
+
+    @Override
+    public PaginatedReviewResponse getReviewsById(String bookId, Integer page, Integer maxResults) {
         Pageable pageable = createPageable(page, maxResults);
         Page<Review> reviews = reviewRepository.findByBookId(bookId, pageable);
         return reviewMapper.toPaginatedReviewResponse(reviews);
