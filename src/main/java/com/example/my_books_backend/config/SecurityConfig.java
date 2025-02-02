@@ -44,9 +44,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/favorites/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/my-lists/**").permitAll()
-                // .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                // .permitAll()
-                .anyRequest().authenticated());
+                .requestMatchers(HttpMethod.GET, "/api/v1/book-chapters/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/book-pages/**").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                .permitAll().anyRequest().authenticated());
 
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 

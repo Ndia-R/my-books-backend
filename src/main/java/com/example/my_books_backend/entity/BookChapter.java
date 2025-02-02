@@ -14,25 +14,17 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "book_chapters")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Review extends EntityBase {
+public class BookChapter extends EntityBase {
     @EmbeddedId
-    private ReviewId id;
+    private BookChapterId id;
 
-    @Column(name = "comment", nullable = false, columnDefinition = "TEXT")
-    private String comment;
-
-    @Column(name = "rating", nullable = false)
-    private Double rating;
-
-    @ManyToOne
-    @MapsId("userId")
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "title", nullable = false)
+    private String title;
 
     @ManyToOne
     @MapsId("bookId")
