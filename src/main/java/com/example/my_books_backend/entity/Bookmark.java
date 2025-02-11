@@ -14,17 +14,22 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "book_pages")
+@Table(name = "bookmarks")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookPage extends EntityBase {
+public class Bookmark extends EntityBase {
     @EmbeddedId
-    private BookPageId id;
+    private BookmarkId id;
 
-    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
-    private String content;
+    @Column(name = "page_number", nullable = false)
+    private Integer pageNumber;
+
+    @ManyToOne
+    @MapsId("userId")
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne
     @MapsId("bookId")

@@ -19,24 +19,24 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/genres")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class GenreController {
     private final GenreService genreService;
 
-    @GetMapping("")
+    @GetMapping("/genres")
     public ResponseEntity<List<GenreResponse>> getAllGenres() {
         List<GenreResponse> genres = genreService.getAllGenres();
         return ResponseEntity.ok(genres);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/genres/{id}")
     public ResponseEntity<GenreResponse> getGenreById(@PathVariable Long id) {
         GenreResponse genre = genreService.getGenreById(id);
         return ResponseEntity.ok(genre);
     }
 
-    @PostMapping("")
+    @PostMapping("/genres")
     public ResponseEntity<GenreResponse> createGenre(@Valid @RequestBody GenreRequest request) {
         GenreResponse genre = genreService.createGenre(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
@@ -44,14 +44,14 @@ public class GenreController {
         return ResponseEntity.created(location).body(genre);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/genres/{id}")
     public ResponseEntity<GenreResponse> updateGenre(@PathVariable Long id,
             @Valid @RequestBody GenreRequest request) {
         GenreResponse genre = genreService.updateGenre(id, request);
         return ResponseEntity.ok(genre);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/genres/{id}")
     public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
         genreService.deleteGenre(id);
         return ResponseEntity.noContent().build();

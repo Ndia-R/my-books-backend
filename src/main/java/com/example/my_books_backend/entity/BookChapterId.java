@@ -12,11 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookChapterId implements Serializable {
-
     @Column(name = "book_id")
     private String bookId;
 
     @Column(name = "chapter_number")
-    private Long chapterNumber;
+    private Integer chapterNumber;
 }
 

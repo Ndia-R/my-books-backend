@@ -1,4 +1,4 @@
-package com.example.my_books_backend.dto.review;
+package com.example.my_books_backend.dto.favorite;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaginatedReviewResponse {
+public class FavoritePageResponse {
     private Integer page;
     private Integer totalPages;
     private Integer totalItems;
-    private List<ReviewResponse> reviews;
+    private List<FavoriteResponse> favorites;
 }

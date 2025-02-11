@@ -4,15 +4,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.my_books_backend.dto.book.PaginatedBookResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
-import com.example.my_books_backend.dto.favorite.FavoriteInfoResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteCountResponse;
+import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Favorite;
 import com.example.my_books_backend.entity.FavoriteId;
@@ -29,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class FavoriteServiceImpl implements FavoriteService {
     private final FavoriteRepository favoriteRepository;
     private final FavoriteMapper favoriteMapper;
+
     private final BookRepository bookRepository;
 
     private static final Integer DEFAULT_START_PAGE = 0;
@@ -36,37 +36,38 @@ public class FavoriteServiceImpl implements FavoriteService {
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "updatedAt");
 
     @Override
-    public FavoriteInfoResponse getFavoriteInfo(String bookId) {
+    public FavoriteResponse getFavoriteByBookId(String bookId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Integer count = 0;
-        // 認証済みであればユーザー情報取得（匿名ユーザーは未認証とする）
-        if (authentication != null && authentication.isAuthenticated()
-                && !(authentication instanceof AnonymousAuthenticationToken)) {
-            User user = (User) authentication.getPrincipal();
-            count = favoriteRepository.countByUserIdAndBookId(user.getId(), bookId);
-        }
-        Integer favoriteCount = favoriteRepository.countByBookId(bookId);
-
-        FavoriteInfoResponse favoriteInfoResponse = new FavoriteInfoResponse();
-        favoriteInfoResponse.setBookId(bookId);
-        favoriteInfoResponse.setIsFavorite(count > 0 ? true : false);
-        favoriteInfoResponse.setFavoriteCount(favoriteCount);
-
-        return favoriteInfoResponse;
+        User user = (User) authentication.getPrincipal();
+        FavoriteId favoriteId = new FavoriteId(user.getId(), bookId);
+        Favorite favorite = favoriteRepository.findById(favoriteId)
+                .orElseThrow(() -> new NotFoundException("Favorite not found"));
+        return favoriteMapper.toFavoriteResponse(favorite);
     }
 
     @Override
-    public PaginatedBookResponse getFavorites(Integer page, Integer maxResults) {
+    public FavoritePageResponse getFavorites(Integer page, Integer maxResults) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Pageable pageable = createPageable(page, maxResults);
-        Page<Favorite> favorites = favoriteRepository.findByUserId(user.getId(), pageable);
-        return favoriteMapper.toPaginatedBookResponse(favorites);
+        Page<Favorite> favoritePage = favoriteRepository.findByUserId(user.getId(), pageable);
+        return favoriteMapper.toFavoritePageResponse(favoritePage);
+    }
+
+    @Override
+    public FavoriteCountResponse getFavoriteCount(String bookId) {
+        Integer favoriteCount = favoriteRepository.countByBookId(bookId);
+
+        FavoriteCountResponse favoriteCountResponse = new FavoriteCountResponse();
+        favoriteCountResponse.setBookId(bookId);
+        favoriteCountResponse.setFavoriteCount(favoriteCount);
+
+        return favoriteCountResponse;
     }
 
     @Override
     @Transactional
-    public FavoriteResponse addFavorite(FavoriteRequest request) {
+    public FavoriteResponse createFavorite(FavoriteRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         Book book = bookRepository.findById(request.getBookId())
@@ -82,7 +83,7 @@ public class FavoriteServiceImpl implements FavoriteService {
 
     @Override
     @Transactional
-    public void removeFavorite(String bookId) {
+    public void deleteFavorite(String bookId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         FavoriteId favoriteId = new FavoriteId(user.getId(), bookId);

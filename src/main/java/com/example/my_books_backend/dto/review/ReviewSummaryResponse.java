@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewRatingInfoResponse {
+public class ReviewSummaryResponse {
     private String bookId;
-    private Double rating;
     private Integer reviewCount;
+    private Double averageRating;
 }

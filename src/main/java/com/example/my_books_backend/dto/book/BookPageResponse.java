@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaginatedBookResponse {
+public class BookPageResponse {
     private Integer page;
     private Integer totalPages;
     private Integer totalItems;

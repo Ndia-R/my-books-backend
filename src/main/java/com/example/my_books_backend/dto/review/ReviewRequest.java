@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ReviewRequest {
     @NotNull
-    private String bookId;
-
-    @NotNull
     private String comment;
 
     @NotNull

@@ -1,23 +1,20 @@
 package com.example.my_books_backend.service;
 
-import com.example.my_books_backend.dto.review.PaginatedMyReviewResponse;
-import com.example.my_books_backend.dto.review.PaginatedReviewResponse;
-import com.example.my_books_backend.dto.review.ReviewRatingInfoResponse;
+import com.example.my_books_backend.dto.review.ReviewPageResponse;
+import com.example.my_books_backend.dto.review.ReviewSummaryResponse;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 
 public interface ReviewService {
-    ReviewRatingInfoResponse getReviewRatingInfo(String bookId);
+    ReviewResponse getReviewByUserId(String bookId, Long userId);
 
-    PaginatedReviewResponse getReviewsById(String bookId, Integer page, Integer maxResults);
+    ReviewPageResponse getReviews(String bookId, Integer page, Integer maxResults);
 
-    PaginatedMyReviewResponse getMyReviews(Integer page, Integer maxResults);
+    ReviewSummaryResponse getReviewSummary(String bookId);
 
-    Boolean checkMyReviewExists(String bookId);
+    ReviewResponse createReview(String bookId, ReviewRequest request);
 
-    ReviewResponse createReview(ReviewRequest request);
-
-    ReviewResponse updateReview(ReviewRequest request);
+    ReviewResponse updateReview(String bookId, ReviewRequest request);
 
     void deleteReview(String bookId);
 }

@@ -1,6 +1,7 @@
 package com.example.my_books_backend.entity;
 
 import com.example.my_books_backend.entity.shared.EntityBase;
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -13,19 +14,17 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "my_lists")
+@Table(name = "book_content_pages")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyList extends EntityBase {
+public class BookContentPage extends EntityBase {
     @EmbeddedId
-    private MyListId id;
+    private BookContentPageId id;
 
-    @ManyToOne
-    @MapsId("userId")
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    private String content;
 
     @ManyToOne
     @MapsId("bookId")

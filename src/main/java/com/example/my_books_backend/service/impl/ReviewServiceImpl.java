@@ -8,9 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.my_books_backend.dto.review.PaginatedMyReviewResponse;
-import com.example.my_books_backend.dto.review.PaginatedReviewResponse;
-import com.example.my_books_backend.dto.review.ReviewRatingInfoResponse;
+import com.example.my_books_backend.dto.review.ReviewPageResponse;
+import com.example.my_books_backend.dto.review.ReviewSummaryResponse;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.entity.Book;
@@ -29,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
+
     private final BookRepository bookRepository;
 
     private static final Integer DEFAULT_START_PAGE = 0;
@@ -36,51 +36,42 @@ public class ReviewServiceImpl implements ReviewService {
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "createdAt");
 
     @Override
-    public ReviewRatingInfoResponse getReviewRatingInfo(String bookId) {
-        Double rating = reviewRepository.findAverageRatingByBookId(bookId);
-        Integer reviewCount = reviewRepository.countByBookId(bookId);
+    public ReviewResponse getReviewByUserId(String bookId, Long userId) {
+        ReviewId reviewId = new ReviewId(userId, bookId);
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException("Review not found"));
+        return reviewMapper.toReviewResponse(review);
+    }
 
-        if (rating == null) {
-            rating = 0.0;
+    @Override
+    public ReviewPageResponse getReviews(String bookId, Integer page, Integer maxResults) {
+        Pageable pageable = createPageable(page, maxResults);
+        Page<Review> reviewPage = reviewRepository.findByBookId(bookId, pageable);
+        return reviewMapper.toReviewPageResponse(reviewPage);
+    }
+
+    @Override
+    public ReviewSummaryResponse getReviewSummary(String bookId) {
+        Integer reviewCount = reviewRepository.countByBookId(bookId);
+        Double averageRating = reviewRepository.findAverageRatingByBookId(bookId);
+        if (averageRating == null) {
+            averageRating = 0.0;
         }
 
-        ReviewRatingInfoResponse reviewRatingInfoResponse = new ReviewRatingInfoResponse();
-        reviewRatingInfoResponse.setBookId(bookId);
-        reviewRatingInfoResponse.setRating(rating);
-        reviewRatingInfoResponse.setReviewCount(reviewCount);
+        ReviewSummaryResponse reviewSummaryResponse = new ReviewSummaryResponse();
+        reviewSummaryResponse.setBookId(bookId);
+        reviewSummaryResponse.setReviewCount(reviewCount);
+        reviewSummaryResponse.setAverageRating(averageRating);
 
-        return reviewRatingInfoResponse;
-    }
-
-    @Override
-    public PaginatedReviewResponse getReviewsById(String bookId, Integer page, Integer maxResults) {
-        Pageable pageable = createPageable(page, maxResults);
-        Page<Review> reviews = reviewRepository.findByBookId(bookId, pageable);
-        return reviewMapper.toPaginatedReviewResponse(reviews);
-    }
-
-    @Override
-    public PaginatedMyReviewResponse getMyReviews(Integer page, Integer maxResults) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        Pageable pageable = createPageable(page, maxResults);
-        Page<Review> reviews = reviewRepository.findByUserId(user.getId(), pageable);
-        return reviewMapper.toPaginatedMyReviewResponse(reviews);
-    }
-
-    @Override
-    public Boolean checkMyReviewExists(String bookId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        return reviewRepository.existsByUserIdAndBookId(user.getId(), bookId);
+        return reviewSummaryResponse;
     }
 
     @Override
     @Transactional
-    public ReviewResponse createReview(ReviewRequest request) {
+    public ReviewResponse createReview(String bookId, ReviewRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        Book book = bookRepository.findById(request.getBookId())
+        Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new NotFoundException("Book not found"));
         ReviewId reviewId = new ReviewId(user.getId(), book.getId());
         Review review = new Review();
@@ -95,10 +86,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public ReviewResponse updateReview(ReviewRequest request) {
+    public ReviewResponse updateReview(String bookId, ReviewRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        ReviewId reviewId = new ReviewId(user.getId(), request.getBookId());
+        ReviewId reviewId = new ReviewId(user.getId(), bookId);
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException("Review not found"));
 

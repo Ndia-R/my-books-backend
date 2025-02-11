@@ -6,7 +6,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import com.example.my_books_backend.dto.book.BookResponse;
-import com.example.my_books_backend.dto.book.PaginatedBookResponse;
+import com.example.my_books_backend.dto.book.BookPageResponse;
 import com.example.my_books_backend.entity.Book;
 import lombok.RequiredArgsConstructor;
 
@@ -31,11 +31,11 @@ public class BookMapper {
         return books.stream().map(book -> toBookResponse(book)).toList();
     }
 
-    public PaginatedBookResponse toPaginatedBookResponse(Page<Book> pageBook) {
-        Integer page = pageBook.getNumber();
-        Integer totalPages = pageBook.getTotalPages();
-        Integer totalItems = (int) pageBook.getTotalElements();
-        List<BookResponse> booksDto = toBookResponseList(pageBook.getContent());
-        return new PaginatedBookResponse(page, totalPages, totalItems, booksDto);
+    public BookPageResponse toBookPageResponse(Page<Book> bookPage) {
+        Integer page = bookPage.getNumber();
+        Integer totalPages = bookPage.getTotalPages();
+        Integer totalItems = (int) bookPage.getTotalElements();
+        List<BookResponse> bookResponses = toBookResponseList(bookPage.getContent());
+        return new BookPageResponse(page, totalPages, totalItems, bookResponses);
     }
 }

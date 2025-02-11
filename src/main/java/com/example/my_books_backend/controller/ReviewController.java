@@ -12,10 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import com.example.my_books_backend.dto.review.CheckMyReviewExistsResponse;
-import com.example.my_books_backend.dto.review.PaginatedMyReviewResponse;
-import com.example.my_books_backend.dto.review.PaginatedReviewResponse;
-import com.example.my_books_backend.dto.review.ReviewRatingInfoResponse;
+import com.example.my_books_backend.dto.review.ReviewPageResponse;
+import com.example.my_books_backend.dto.review.ReviewSummaryResponse;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.service.ReviewService;
@@ -23,56 +21,49 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/reviews")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
 
-    @GetMapping("/{bookId}/rating-info")
-    public ResponseEntity<ReviewRatingInfoResponse> getReviewRatingInfo(
-            @PathVariable String bookId) {
-        ReviewRatingInfoResponse reviews = reviewService.getReviewRatingInfo(bookId);
-        return ResponseEntity.ok(reviews);
-    }
-
-    @GetMapping("/{bookId}")
-    public ResponseEntity<PaginatedReviewResponse> getReviewsById(@PathVariable String bookId,
+    @GetMapping("/books/{bookId}/reviews")
+    public ResponseEntity<ReviewPageResponse> getReviews(@PathVariable String bookId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
-        PaginatedReviewResponse reviews = reviewService.getReviewsById(bookId, page, maxResults);
-        return ResponseEntity.ok(reviews);
+        ReviewPageResponse reviewPageResponse = reviewService.getReviews(bookId, page, maxResults);
+        return ResponseEntity.ok(reviewPageResponse);
     }
 
-    @GetMapping("/my-reviews")
-    public ResponseEntity<PaginatedMyReviewResponse> getMyReviews(
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer maxResults) {
-        PaginatedMyReviewResponse myReviews = reviewService.getMyReviews(page, maxResults);
-        return ResponseEntity.ok(myReviews);
+    @GetMapping("/books/{bookId}/reviews/{userId}")
+    public ResponseEntity<ReviewResponse> getReviewByUserId(@PathVariable String bookId,
+            @PathVariable Long userId) {
+        ReviewResponse reviewResponse = reviewService.getReviewByUserId(bookId, userId);
+        return ResponseEntity.ok(reviewResponse);
     }
 
-    @GetMapping("/my-reviews/exists")
-    public ResponseEntity<CheckMyReviewExistsResponse> checkMyReviewExists(
-            @RequestParam String bookId) {
-        Boolean exists = reviewService.checkMyReviewExists(bookId);
-        return ResponseEntity.ok(new CheckMyReviewExistsResponse(exists));
+    @GetMapping("/books/{bookId}/reviews/summary")
+    public ResponseEntity<ReviewSummaryResponse> getReviewSummary(@PathVariable String bookId) {
+        ReviewSummaryResponse reviewSummaryResponse = reviewService.getReviewSummary(bookId);
+        return ResponseEntity.ok(reviewSummaryResponse);
     }
 
-    @PostMapping("")
-    public ResponseEntity<ReviewResponse> createReview(@Valid @RequestBody ReviewRequest request) {
-        ReviewResponse review = reviewService.createReview(request);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(review.getReviewId()).toUri();
+    @PostMapping("/books/{bookId}/reviews")
+    public ResponseEntity<ReviewResponse> createReview(@PathVariable String bookId,
+            @Valid @RequestBody ReviewRequest request) {
+        ReviewResponse review = reviewService.createReview(bookId, request);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{userId}")
+                .buildAndExpand(review.getUserId()).toUri();
         return ResponseEntity.created(location).body(review);
     }
 
-    @PutMapping("")
-    public ResponseEntity<ReviewResponse> updateReview(@Valid @RequestBody ReviewRequest request) {
-        ReviewResponse review = reviewService.updateReview(request);
+    @PutMapping("/books/{bookId}/reviews")
+    public ResponseEntity<ReviewResponse> updateReview(@PathVariable String bookId,
+            @Valid @RequestBody ReviewRequest request) {
+        ReviewResponse review = reviewService.updateReview(bookId, request);
         return ResponseEntity.ok(review);
     }
 
-    @DeleteMapping("/{bookId}")
+    @DeleteMapping("/books/{bookId}/reviews")
     public ResponseEntity<Void> deleteReview(@PathVariable String bookId) {
         reviewService.deleteReview(bookId);
         return ResponseEntity.noContent().build();

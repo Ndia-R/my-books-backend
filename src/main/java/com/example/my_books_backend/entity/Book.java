@@ -67,5 +67,5 @@ public class Book extends EntityBase {
     private List<Favorite> favorites;
 
     @OneToMany(mappedBy = "book")
-    private List<MyList> myLists;
+    private List<Bookmark> bookmarks;
 }

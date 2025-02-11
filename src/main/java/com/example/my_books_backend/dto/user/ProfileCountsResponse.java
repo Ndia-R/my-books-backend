@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProfileCountsResponse {
     private Integer favoriteCount;
-    private Integer myListCount;
+    private Integer bookmarkCount;
     private Integer reviewCount;
 }
 

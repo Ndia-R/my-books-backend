@@ -61,7 +61,7 @@ public class User extends EntityBase implements UserDetails {
     private List<Favorite> favorites;
 
     @OneToMany(mappedBy = "user")
-    private List<MyList> myLists;
+    private List<Bookmark> bookmarks;
 
     // 以下はUserDetailsインターフェースでOverrideする必要があるメソッド
 

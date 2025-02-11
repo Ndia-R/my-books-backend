@@ -41,11 +41,6 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/users/exists").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/books/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/genres/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/favorites/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/my-lists/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/book-chapters/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/book-pages/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                 .permitAll().anyRequest().authenticated());
 

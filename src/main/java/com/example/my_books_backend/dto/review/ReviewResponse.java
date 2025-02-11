@@ -2,7 +2,6 @@ package com.example.my_books_backend.dto.review;
 
 import java.time.LocalDateTime;
 import com.example.my_books_backend.dto.user.SimpleUserInfo;
-import com.example.my_books_backend.entity.ReviewId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewResponse {
-    private ReviewId reviewId;
+    private Long userId;
+    private String bookId;
     private String comment;
     private Double rating;
     private LocalDateTime createdAt;

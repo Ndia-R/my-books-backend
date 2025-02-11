@@ -23,8 +23,8 @@ import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.exception.UnauthorizedException;
 import com.example.my_books_backend.exception.ValidationException;
 import com.example.my_books_backend.mapper.UserMapper;
+import com.example.my_books_backend.repository.BookmarkRepository;
 import com.example.my_books_backend.repository.FavoriteRepository;
-import com.example.my_books_backend.repository.MyListRepository;
 import com.example.my_books_backend.repository.ReviewRepository;
 import com.example.my_books_backend.repository.RoleRepository;
 import com.example.my_books_backend.repository.UserRepository;
@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final FavoriteRepository favoriteRepository;
-    private final MyListRepository myListRepository;
+    private final BookmarkRepository bookmarkRepository;
     private final ReviewRepository reviewRepository;
 
     private final PasswordEncoder passwordEncoder;
@@ -61,7 +61,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserById(Long id) {
-        User user = findUserById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"));
         return userMapper.toUserResponse(user);
     }
 
@@ -103,11 +104,11 @@ public class UserServiceImpl implements UserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
 
-        Integer favoritesCount = favoriteRepository.countByUserId(user.getId());
-        Integer myListCount = myListRepository.countByUserId(user.getId());
+        Integer favoriteCount = favoriteRepository.countByUserId(user.getId());
+        Integer bookmarkCount = bookmarkRepository.countByUserId(user.getId());
         Integer reviewCount = reviewRepository.countByUserId(user.getId());
 
-        return new ProfileCountsResponse(favoritesCount, myListCount, reviewCount);
+        return new ProfileCountsResponse(favoriteCount, bookmarkCount, reviewCount);
     }
 
     @Override
@@ -178,18 +179,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(Long id) {
-        User user = findUserById(id);
-        userRepository.delete(user);
+        userRepository.deleteById(id);
     }
 
     @Override
     public Boolean checkUsernameExists(String name) {
         return userRepository.existsByName(name);
-    }
-
-    private User findUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("見つかりませんでした。 ID: " + id));
-        return user;
     }
 }

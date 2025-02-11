@@ -32,7 +32,8 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Cacheable(value = "getRoleById", key = "#p0")
     public RoleResponse getRoleById(Long id) {
-        Role role = findRoleById(id);
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Role not found"));
         return roleMapper.toRoleResponse(role);
     }
 
@@ -52,7 +53,8 @@ public class RoleServiceImpl implements RoleService {
     @Caching(evict = {@CacheEvict(value = "getRoleById", key = "#p0"),
             @CacheEvict(value = "getAllRoles", allEntries = true)})
     public RoleResponse updateRole(Long id, RoleRequest request) {
-        Role role = findRoleById(id);
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Role not found"));
 
         RoleName name = request.getName();
         String description = request.getDescription();
@@ -73,13 +75,6 @@ public class RoleServiceImpl implements RoleService {
     @Caching(evict = {@CacheEvict(value = "getRoleById", key = "#p0"),
             @CacheEvict(value = "getAllRoles", allEntries = true)})
     public void deleteRole(Long id) {
-        Role role = findRoleById(id);
-        roleRepository.delete(role);
-    }
-
-    private Role findRoleById(Long id) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("見つかりませんでした。 ID: " + id));
-        return role;
+        roleRepository.deleteById(id);
     }
 }

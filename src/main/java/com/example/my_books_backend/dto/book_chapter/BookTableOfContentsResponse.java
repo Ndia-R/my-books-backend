@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookChapterResponse {
-    private Integer chapterNumber;
-    private String chapterTitle;
-    private List<Integer> pageNumbers;
+public class BookTableOfContentsResponse {
+    private String bookId;
+    private List<BookChapterResponse> chapters;
 }

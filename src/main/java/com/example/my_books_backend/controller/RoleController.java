@@ -19,24 +19,24 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/roles")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class RoleController {
     private final RoleService roleService;
 
-    @GetMapping("")
+    @GetMapping("/roles")
     public ResponseEntity<List<RoleResponse>> getAllRoles() {
         List<RoleResponse> roles = roleService.getAllRoles();
         return ResponseEntity.ok(roles);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/roles/{id}")
     public ResponseEntity<RoleResponse> getRoleById(@PathVariable Long id) {
         RoleResponse role = roleService.getRoleById(id);
         return ResponseEntity.ok(role);
     }
 
-    @PostMapping("")
+    @PostMapping("/roles")
     public ResponseEntity<RoleResponse> createRole(@Valid @RequestBody RoleRequest request) {
         RoleResponse role = roleService.createRole(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
@@ -44,14 +44,14 @@ public class RoleController {
         return ResponseEntity.created(location).body(role);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/roles/{id}")
     public ResponseEntity<RoleResponse> updateRole(@PathVariable Long id,
             @Valid @RequestBody RoleRequest request) {
         RoleResponse role = roleService.updateRole(id, request);
         return ResponseEntity.ok(role);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/roles/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
         roleService.deleteRole(id);
         return ResponseEntity.noContent().build();

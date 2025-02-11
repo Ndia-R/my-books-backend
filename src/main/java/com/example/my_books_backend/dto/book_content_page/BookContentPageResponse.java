@@ -1,6 +1,5 @@
-package com.example.my_books_backend.dto.book_chapter;
+package com.example.my_books_backend.dto.book_content_page;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,8 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookChapterResponse {
+public class BookContentPageResponse {
+    private String bookId;
     private Integer chapterNumber;
     private String chapterTitle;
-    private List<Integer> pageNumbers;
+    private Integer pageNumber;
+    private String content;
 }
