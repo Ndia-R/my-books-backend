@@ -50,17 +50,17 @@ public class ReviewController {
     @PostMapping("/books/{bookId}/reviews")
     public ResponseEntity<ReviewResponse> createReview(@PathVariable String bookId,
             @Valid @RequestBody ReviewRequest request) {
-        ReviewResponse review = reviewService.createReview(bookId, request);
+        ReviewResponse reviewResponse = reviewService.createReview(bookId, request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{userId}")
-                .buildAndExpand(review.getUserId()).toUri();
-        return ResponseEntity.created(location).body(review);
+                .buildAndExpand(reviewResponse.getUserId()).toUri();
+        return ResponseEntity.created(location).body(reviewResponse);
     }
 
     @PutMapping("/books/{bookId}/reviews")
     public ResponseEntity<ReviewResponse> updateReview(@PathVariable String bookId,
             @Valid @RequestBody ReviewRequest request) {
-        ReviewResponse review = reviewService.updateReview(bookId, request);
-        return ResponseEntity.ok(review);
+        ReviewResponse reviewResponse = reviewService.updateReview(bookId, request);
+        return ResponseEntity.ok(reviewResponse);
     }
 
     @DeleteMapping("/books/{bookId}/reviews")

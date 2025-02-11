@@ -30,15 +30,15 @@ public class UserController {
     @GetMapping("/users")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
-        List<UserResponse> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        List<UserResponse> userResponses = userService.getAllUsers();
+        return ResponseEntity.ok(userResponses);
     }
 
     @GetMapping("/users/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
-        UserResponse user = userService.getUserById(id);
-        return ResponseEntity.ok(user);
+        UserResponse userResponse = userService.getUserById(id);
+        return ResponseEntity.ok(userResponse);
     }
 
     @DeleteMapping("/users/{id}")
@@ -50,14 +50,14 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser() {
-        UserResponse user = userService.getCurrentUser();
-        return ResponseEntity.ok(user);
+        UserResponse userResponse = userService.getCurrentUser();
+        return ResponseEntity.ok(userResponse);
     }
 
     @GetMapping("/me/profile-counts")
     public ResponseEntity<ProfileCountsResponse> getProfileCounts() {
-        ProfileCountsResponse profileCounts = userService.getProfileCounts();
-        return ResponseEntity.ok(profileCounts);
+        ProfileCountsResponse profileCountsResponse = userService.getProfileCounts();
+        return ResponseEntity.ok(profileCountsResponse);
     }
 
     @PutMapping("/me")

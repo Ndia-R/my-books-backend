@@ -26,29 +26,29 @@ public class RoleController {
 
     @GetMapping("/roles")
     public ResponseEntity<List<RoleResponse>> getAllRoles() {
-        List<RoleResponse> roles = roleService.getAllRoles();
-        return ResponseEntity.ok(roles);
+        List<RoleResponse> roleResponses = roleService.getAllRoles();
+        return ResponseEntity.ok(roleResponses);
     }
 
     @GetMapping("/roles/{id}")
     public ResponseEntity<RoleResponse> getRoleById(@PathVariable Long id) {
-        RoleResponse role = roleService.getRoleById(id);
-        return ResponseEntity.ok(role);
+        RoleResponse roleResponse = roleService.getRoleById(id);
+        return ResponseEntity.ok(roleResponse);
     }
 
     @PostMapping("/roles")
     public ResponseEntity<RoleResponse> createRole(@Valid @RequestBody RoleRequest request) {
-        RoleResponse role = roleService.createRole(request);
+        RoleResponse roleResponse = roleService.createRole(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(role.getId()).toUri();
-        return ResponseEntity.created(location).body(role);
+                .buildAndExpand(roleResponse.getId()).toUri();
+        return ResponseEntity.created(location).body(roleResponse);
     }
 
     @PutMapping("/roles/{id}")
     public ResponseEntity<RoleResponse> updateRole(@PathVariable Long id,
             @Valid @RequestBody RoleRequest request) {
-        RoleResponse role = roleService.updateRole(id, request);
-        return ResponseEntity.ok(role);
+        RoleResponse roleResponse = roleService.updateRole(id, request);
+        return ResponseEntity.ok(roleResponse);
     }
 
     @DeleteMapping("/roles/{id}")

@@ -26,29 +26,29 @@ public class GenreController {
 
     @GetMapping("/genres")
     public ResponseEntity<List<GenreResponse>> getAllGenres() {
-        List<GenreResponse> genres = genreService.getAllGenres();
-        return ResponseEntity.ok(genres);
+        List<GenreResponse> genreResponses = genreService.getAllGenres();
+        return ResponseEntity.ok(genreResponses);
     }
 
     @GetMapping("/genres/{id}")
     public ResponseEntity<GenreResponse> getGenreById(@PathVariable Long id) {
-        GenreResponse genre = genreService.getGenreById(id);
-        return ResponseEntity.ok(genre);
+        GenreResponse genreResponse = genreService.getGenreById(id);
+        return ResponseEntity.ok(genreResponse);
     }
 
     @PostMapping("/genres")
     public ResponseEntity<GenreResponse> createGenre(@Valid @RequestBody GenreRequest request) {
-        GenreResponse genre = genreService.createGenre(request);
+        GenreResponse genreResponse = genreService.createGenre(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(genre.getId()).toUri();
-        return ResponseEntity.created(location).body(genre);
+                .buildAndExpand(genreResponse.getId()).toUri();
+        return ResponseEntity.created(location).body(genreResponse);
     }
 
     @PutMapping("/genres/{id}")
     public ResponseEntity<GenreResponse> updateGenre(@PathVariable Long id,
             @Valid @RequestBody GenreRequest request) {
-        GenreResponse genre = genreService.updateGenre(id, request);
-        return ResponseEntity.ok(genre);
+        GenreResponse genreResponse = genreService.updateGenre(id, request);
+        return ResponseEntity.ok(genreResponse);
     }
 
     @DeleteMapping("/genres/{id}")

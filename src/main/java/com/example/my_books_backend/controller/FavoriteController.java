@@ -29,8 +29,8 @@ public class FavoriteController {
     public ResponseEntity<FavoritePageResponse> getFavorites(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
-        FavoritePageResponse favorites = favoriteService.getFavorites(page, maxResults);
-        return ResponseEntity.ok(favorites);
+        FavoritePageResponse favoritePage = favoriteService.getFavorites(page, maxResults);
+        return ResponseEntity.ok(favoritePage);
     }
 
     @GetMapping("/me/favorites/{bookId}")
@@ -48,10 +48,10 @@ public class FavoriteController {
     @PostMapping("/me/favorites")
     public ResponseEntity<FavoriteResponse> addFavorite(
             @Valid @RequestBody FavoriteRequest request) {
-        FavoriteResponse favorite = favoriteService.createFavorite(request);
+        FavoriteResponse favoriteResponse = favoriteService.createFavorite(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{bookId}")
-                .buildAndExpand(favorite.getBookId()).toUri();
-        return ResponseEntity.created(location).body(favorite);
+                .buildAndExpand(favoriteResponse.getBookId()).toUri();
+        return ResponseEntity.created(location).body(favoriteResponse);
     }
 
     @DeleteMapping("/me/favorites/{bookId}")
