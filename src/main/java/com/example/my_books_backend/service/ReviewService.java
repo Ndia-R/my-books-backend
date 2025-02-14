@@ -6,9 +6,9 @@ import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 
 public interface ReviewService {
-    ReviewResponse getReviewByUserId(String bookId, Long userId);
+    ReviewResponse getReviewById(String bookId, Long userId);
 
-    ReviewPageResponse getReviews(String bookId, Integer page, Integer maxResults);
+    ReviewPageResponse getReviewPage(String bookId, Integer page, Integer maxResults);
 
     ReviewSummaryResponse getReviewSummary(String bookId);
 

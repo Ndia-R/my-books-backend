@@ -26,16 +26,17 @@ public class BookmarkController {
     private final BookmarkService bookmarkService;
 
     @GetMapping("/me/bookmarks")
-    public ResponseEntity<BookmarkPageResponse> getBookmarks(
+    public ResponseEntity<BookmarkPageResponse> getBookmarkPage(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
-        BookmarkPageResponse bookmarkPageResponse = bookmarkService.getBookmarks(page, maxResults);
+        BookmarkPageResponse bookmarkPageResponse =
+                bookmarkService.getBookmarkPage(page, maxResults);
         return ResponseEntity.ok(bookmarkPageResponse);
     }
 
     @GetMapping("/me/bookmarks/{bookId}")
-    public ResponseEntity<BookmarkResponse> getBookmarkByBookId(@PathVariable String bookId) {
-        BookmarkResponse bookmarkResponse = bookmarkService.getBookmarkByBookId(bookId);
+    public ResponseEntity<BookmarkResponse> getBookmarkById(@PathVariable String bookId) {
+        BookmarkResponse bookmarkResponse = bookmarkService.getBookmarkById(bookId);
         return ResponseEntity.ok(bookmarkResponse);
     }
 

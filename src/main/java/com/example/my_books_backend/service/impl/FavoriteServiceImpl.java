@@ -1,7 +1,7 @@
 package com.example.my_books_backend.service.impl;
 
+import java.util.List;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
-import com.example.my_books_backend.dto.favorite.FavoriteCountResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteInfoResponse;
 import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Favorite;
@@ -21,6 +21,7 @@ import com.example.my_books_backend.mapper.FavoriteMapper;
 import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.repository.FavoriteRepository;
 import com.example.my_books_backend.service.FavoriteService;
+import com.example.my_books_backend.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,13 +31,12 @@ public class FavoriteServiceImpl implements FavoriteService {
     private final FavoriteMapper favoriteMapper;
 
     private final BookRepository bookRepository;
+    private final PaginationUtil paginationUtil;
 
-    private static final Integer DEFAULT_START_PAGE = 0;
-    private static final Integer DEFAULT_MAX_RESULTS = 20;
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "updatedAt");
 
     @Override
-    public FavoriteResponse getFavoriteByBookId(String bookId) {
+    public FavoriteResponse getFavoriteById(String bookId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         FavoriteId favoriteId = new FavoriteId(user.getId(), bookId);
@@ -46,23 +46,26 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
-    public FavoritePageResponse getFavorites(Integer page, Integer maxResults) {
+    public FavoritePageResponse getFavoritePage(Integer page, Integer maxResults) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        Pageable pageable = createPageable(page, maxResults);
+        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
         Page<Favorite> favoritePage = favoriteRepository.findByUserId(user.getId(), pageable);
         return favoriteMapper.toFavoritePageResponse(favoritePage);
     }
 
     @Override
-    public FavoriteCountResponse getFavoriteCount(String bookId) {
-        Integer favoriteCount = favoriteRepository.countByBookId(bookId);
+    public FavoriteInfoResponse getFavoriteInfo(String bookId, Long userId) {
+        List<Favorite> favorites = favoriteRepository.findByBookId(bookId);
 
-        FavoriteCountResponse favoriteCountResponse = new FavoriteCountResponse();
-        favoriteCountResponse.setBookId(bookId);
-        favoriteCountResponse.setFavoriteCount(favoriteCount);
+        boolean isFavorite = favorites.stream()
+                .anyMatch(favorite -> favorite.getId().getUserId().equals(userId));
 
-        return favoriteCountResponse;
+        FavoriteInfoResponse favoriteInfoResponse = new FavoriteInfoResponse();
+        favoriteInfoResponse.setIsFavorite(isFavorite);
+        favoriteInfoResponse.setFavoriteCount(favorites.size());
+
+        return favoriteInfoResponse;
     }
 
     @Override
@@ -88,11 +91,5 @@ public class FavoriteServiceImpl implements FavoriteService {
         User user = (User) authentication.getPrincipal();
         FavoriteId favoriteId = new FavoriteId(user.getId(), bookId);
         favoriteRepository.deleteById(favoriteId);
-    }
-
-    private Pageable createPageable(Integer page, Integer maxResults) {
-        page = (page != null) ? page : DEFAULT_START_PAGE;
-        maxResults = (maxResults != null) ? maxResults : DEFAULT_MAX_RESULTS;
-        return PageRequest.of(page, maxResults, DEFAULT_SORT);
     }
 }

@@ -23,6 +23,9 @@ public class Bookmark extends EntityBase {
     @EmbeddedId
     private BookmarkId id;
 
+    @Column(name = "chapter_number", nullable = false)
+    private Integer chapterNumber;
+
     @Column(name = "page_number", nullable = false)
     private Integer pageNumber;
 

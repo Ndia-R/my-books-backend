@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -15,6 +14,7 @@ import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.BookMapper;
 import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.service.BookService;
+import com.example.my_books_backend.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,8 +23,8 @@ public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
 
-    private static final Integer DEFAULT_START_PAGE = 0;
-    private static final Integer DEFAULT_MAX_RESULTS = 20;
+    private final PaginationUtil paginationUtil;
+
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "publishedDate");
 
     @Override
@@ -41,15 +41,15 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookPageResponse searchByTitle(String q, Integer page, Integer maxResults) {
-        Pageable pageable = createPageable(page, maxResults);
+    public BookPageResponse getBookPageByTitle(String q, Integer page, Integer maxResults) {
+        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
         Page<Book> bookPage = bookRepository.findByTitleContaining(q, pageable);
         return bookMapper.toBookPageResponse(bookPage);
     }
 
     @Override
-    public BookPageResponse searchByGenreId(String genreId, Integer page, Integer maxResults) {
-        Pageable pageable = createPageable(page, maxResults);
+    public BookPageResponse getBookPageByGenreId(String genreId, Integer page, Integer maxResults) {
+        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
 
         Boolean isAndSearch = genreId.contains(",");
 
@@ -64,11 +64,5 @@ public class BookServiceImpl implements BookService {
                         : bookRepository.findByGenreIds(genreIds, pageable);
 
         return bookMapper.toBookPageResponse(bookPage);
-    }
-
-    private Pageable createPageable(Integer page, Integer maxResults) {
-        page = (page != null) ? page : DEFAULT_START_PAGE;
-        maxResults = (maxResults != null) ? maxResults : DEFAULT_MAX_RESULTS;
-        return PageRequest.of(page, maxResults, DEFAULT_SORT);
     }
 }

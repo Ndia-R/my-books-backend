@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FavoriteCountResponse {
-    private String bookId;
+public class FavoriteInfoResponse {
+    private Boolean isFavorite;
     private Integer favoriteCount;
 }

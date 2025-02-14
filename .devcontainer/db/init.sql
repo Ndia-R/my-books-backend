@@ -3,7 +3,6 @@ CREATE DATABASE `my-books-db`;
 
 USE `my-books-db`;
 
-
 DROP TABLE IF EXISTS `books`;
 DROP TABLE IF EXISTS `genres`;
 DROP TABLE IF EXISTS `book_genres`;
@@ -12,7 +11,6 @@ DROP TABLE IF EXISTS `roles`;
 DROP TABLE IF EXISTS `user_roles`;
 DROP TABLE IF EXISTS `reviews`;
 DROP TABLE IF EXISTS `favorites`;
-DROP TABLE IF EXISTS `my_lists`;
 DROP TABLE IF EXISTS `bookmarks`;
 DROP TABLE IF EXISTS `book_chapters`;
 DROP TABLE IF EXISTS `book_content_pages`;
@@ -103,20 +101,10 @@ CREATE TABLE `favorites` (
   FOREIGN KEY (`book_id`) REFERENCES `books`(`id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `my_lists` (
-  `user_id` BIGINT NOT NULL,
-  `book_id` VARCHAR(255) NOT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `is_deleted` TINYINT(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`user_id`, `book_id`),
-  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`book_id`) REFERENCES `books`(`id`) ON DELETE CASCADE
-);
-
 CREATE TABLE `bookmarks` (
   `user_id` BIGINT NOT NULL,
   `book_id` VARCHAR(255) NOT NULL,
+  `chapter_number` INT NOT NULL,
   `page_number` INT NOT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -241,15 +229,10 @@ INSERT INTO `favorites` (`user_id`, `book_id`) VALUES
 (3, '9UizZw491wye'),
 (3, 'ln5NiMJq02V7');
 
-INSERT INTO `my_lists` (`user_id`, `book_id`) VALUES
-(4, '3BndPAiEFnjB'),
-(4, '3gNJnRcrwrUH'),
-(3, 'v21pjIlzDua1');
-
-INSERT INTO `bookmarks` (`user_id`, `book_id`, `page_number`) VALUES
-(1, 'afcIMuetDuzj', 1),
-(3, 'afcIMuetDuzj', 5),
-(4, 'afcIMuetDuzj', 10);
+INSERT INTO `bookmarks` (`user_id`, `book_id`, `chapter_number`, `page_number`) VALUES
+(1, 'afcIMuetDuzj', 1, 1),
+(3, 'afcIMuetDuzj', 3, 3),
+(4, 'afcIMuetDuzj', 5, 4);
 
 INSERT INTO `book_chapters` (`book_id`, `chapter_number`, `title`) VALUES
 ('afcIMuetDuzj', 0, 'プロローグ'),

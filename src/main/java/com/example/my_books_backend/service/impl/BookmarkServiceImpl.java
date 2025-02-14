@@ -1,7 +1,6 @@
 package com.example.my_books_backend.service.impl;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
@@ -20,6 +19,7 @@ import com.example.my_books_backend.mapper.BookmarkMapper;
 import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.repository.BookmarkRepository;
 import com.example.my_books_backend.service.BookmarkService;
+import com.example.my_books_backend.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,13 +29,12 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final BookmarkMapper bookmarkMapper;
 
     private final BookRepository bookRepository;
+    private final PaginationUtil paginationUtil;
 
-    private static final Integer DEFAULT_START_PAGE = 0;
-    private static final Integer DEFAULT_MAX_RESULTS = 20;
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "updatedAt");
 
     @Override
-    public BookmarkResponse getBookmarkByBookId(String bookId) {
+    public BookmarkResponse getBookmarkById(String bookId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
         BookmarkId bookmarkId = new BookmarkId(user.getId(), bookId);
@@ -45,10 +44,10 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public BookmarkPageResponse getBookmarks(Integer page, Integer maxResults) {
+    public BookmarkPageResponse getBookmarkPage(Integer page, Integer maxResults) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        Pageable pageable = createPageable(page, maxResults);
+        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
         Page<Bookmark> bookmarkPage = bookmarkRepository.findByUserId(user.getId(), pageable);
         return bookmarkMapper.toBookmarkPageResponse(bookmarkPage);
     }
@@ -65,6 +64,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         bookmark.setId(bookmarkId);
         bookmark.setUser(user);
         bookmark.setBook(book);
+        bookmark.setChapterNumber(request.getChapterNumber());
         bookmark.setPageNumber(request.getPageNumber());
         Bookmark savedBookmark = bookmarkRepository.save(bookmark);
         return bookmarkMapper.toBookmarkResponse(savedBookmark);
@@ -79,7 +79,12 @@ public class BookmarkServiceImpl implements BookmarkService {
         Bookmark bookmark = bookmarkRepository.findById(bookmarkId)
                 .orElseThrow(() -> new NotFoundException("Bookmark not found"));
 
+        Integer chapterNumber = request.getChapterNumber();
         Integer pageNumber = request.getPageNumber();
+
+        if (chapterNumber != null) {
+            bookmark.setChapterNumber(chapterNumber);
+        }
 
         if (pageNumber != null) {
             bookmark.setPageNumber(pageNumber);
@@ -96,11 +101,5 @@ public class BookmarkServiceImpl implements BookmarkService {
         User user = (User) authentication.getPrincipal();
         BookmarkId bookmarkId = new BookmarkId(user.getId(), bookId);
         bookmarkRepository.deleteById(bookmarkId);
-    }
-
-    private Pageable createPageable(Integer page, Integer maxResults) {
-        page = (page != null) ? page : DEFAULT_START_PAGE;
-        maxResults = (maxResults != null) ? maxResults : DEFAULT_MAX_RESULTS;
-        return PageRequest.of(page, maxResults, DEFAULT_SORT);
     }
 }

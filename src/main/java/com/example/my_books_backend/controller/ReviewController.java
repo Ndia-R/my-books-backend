@@ -27,17 +27,18 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/books/{bookId}/reviews")
-    public ResponseEntity<ReviewPageResponse> getReviews(@PathVariable String bookId,
+    public ResponseEntity<ReviewPageResponse> getReviewPage(@PathVariable String bookId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
-        ReviewPageResponse reviewPageResponse = reviewService.getReviews(bookId, page, maxResults);
+        ReviewPageResponse reviewPageResponse =
+                reviewService.getReviewPage(bookId, page, maxResults);
         return ResponseEntity.ok(reviewPageResponse);
     }
 
     @GetMapping("/books/{bookId}/reviews/{userId}")
-    public ResponseEntity<ReviewResponse> getReviewByUserId(@PathVariable String bookId,
+    public ResponseEntity<ReviewResponse> getReviewById(@PathVariable String bookId,
             @PathVariable Long userId) {
-        ReviewResponse reviewResponse = reviewService.getReviewByUserId(bookId, userId);
+        ReviewResponse reviewResponse = reviewService.getReviewById(bookId, userId);
         return ResponseEntity.ok(reviewResponse);
     }
 

@@ -13,5 +13,8 @@ public class BookmarkRequest {
     private String bookId;
 
     @NotNull
+    private Integer chapterNumber;
+
+    @NotNull
     private Integer pageNumber;
 }

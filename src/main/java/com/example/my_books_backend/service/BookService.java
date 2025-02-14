@@ -9,7 +9,7 @@ public interface BookService {
 
     List<BookResponse> getNewBooks();
 
-    BookPageResponse searchByTitle(String q, Integer page, Integer maxResults);
+    BookPageResponse getBookPageByTitle(String q, Integer page, Integer maxResults);
 
-    BookPageResponse searchByGenreId(String genreId, Integer page, Integer maxResults);
+    BookPageResponse getBookPageByGenreId(String genreId, Integer page, Integer maxResults);
 }

@@ -1,7 +1,7 @@
 package com.example.my_books_backend.service.impl;
 
+import java.util.List;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
@@ -21,6 +21,7 @@ import com.example.my_books_backend.mapper.ReviewMapper;
 import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.repository.ReviewRepository;
 import com.example.my_books_backend.service.ReviewService;
+import com.example.my_books_backend.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,13 +31,12 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewMapper reviewMapper;
 
     private final BookRepository bookRepository;
+    private final PaginationUtil paginationUtil;
 
-    private static final Integer DEFAULT_START_PAGE = 0;
-    private static final Integer DEFAULT_MAX_RESULTS = 5;
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "createdAt");
 
     @Override
-    public ReviewResponse getReviewByUserId(String bookId, Long userId) {
+    public ReviewResponse getReviewById(String bookId, Long userId) {
         ReviewId reviewId = new ReviewId(userId, bookId);
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException("Review not found"));
@@ -44,23 +44,21 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ReviewPageResponse getReviews(String bookId, Integer page, Integer maxResults) {
-        Pageable pageable = createPageable(page, maxResults);
+    public ReviewPageResponse getReviewPage(String bookId, Integer page, Integer maxResults) {
+        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
         Page<Review> reviewPage = reviewRepository.findByBookId(bookId, pageable);
         return reviewMapper.toReviewPageResponse(reviewPage);
     }
 
     @Override
     public ReviewSummaryResponse getReviewSummary(String bookId) {
-        Integer reviewCount = reviewRepository.countByBookId(bookId);
-        Double averageRating = reviewRepository.findAverageRatingByBookId(bookId);
-        if (averageRating == null) {
-            averageRating = 0.0;
-        }
+        List<Review> reviews = reviewRepository.findByBookId(bookId);
+        Double averageRating =
+                reviews.stream().mapToDouble(Review::getRating).average().orElse(0.0);
 
         ReviewSummaryResponse reviewSummaryResponse = new ReviewSummaryResponse();
         reviewSummaryResponse.setBookId(bookId);
-        reviewSummaryResponse.setReviewCount(reviewCount);
+        reviewSummaryResponse.setReviewCount(reviews.size());
         reviewSummaryResponse.setAverageRating(averageRating);
 
         return reviewSummaryResponse;
@@ -114,11 +112,5 @@ public class ReviewServiceImpl implements ReviewService {
         User user = (User) authentication.getPrincipal();
         ReviewId reviewId = new ReviewId(user.getId(), bookId);
         reviewRepository.deleteById(reviewId);
-    }
-
-    private Pageable createPageable(Integer page, Integer maxResults) {
-        page = (page != null) ? page : DEFAULT_START_PAGE;
-        maxResults = (maxResults != null) ? maxResults : DEFAULT_MAX_RESULTS;
-        return PageRequest.of(page, maxResults, DEFAULT_SORT);
     }
 }

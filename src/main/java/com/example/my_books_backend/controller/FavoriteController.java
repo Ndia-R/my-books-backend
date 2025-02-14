@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
-import com.example.my_books_backend.dto.favorite.FavoriteCountResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteInfoResponse;
 import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
 import com.example.my_books_backend.service.FavoriteService;
 import jakarta.validation.Valid;
@@ -26,27 +26,29 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     @GetMapping("/me/favorites")
-    public ResponseEntity<FavoritePageResponse> getFavorites(
+    public ResponseEntity<FavoritePageResponse> getFavoritePage(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
-        FavoritePageResponse favoritePage = favoriteService.getFavorites(page, maxResults);
-        return ResponseEntity.ok(favoritePage);
+        FavoritePageResponse favoritePageResponse =
+                favoriteService.getFavoritePage(page, maxResults);
+        return ResponseEntity.ok(favoritePageResponse);
     }
 
     @GetMapping("/me/favorites/{bookId}")
-    public ResponseEntity<FavoriteResponse> getFavoriteByBookId(@PathVariable String bookId) {
-        FavoriteResponse favoriteResponse = favoriteService.getFavoriteByBookId(bookId);
+    public ResponseEntity<FavoriteResponse> getFavoriteById(@PathVariable String bookId) {
+        FavoriteResponse favoriteResponse = favoriteService.getFavoriteById(bookId);
         return ResponseEntity.ok(favoriteResponse);
     }
 
-    @GetMapping("/books/{bookId}/favorites/count")
-    public ResponseEntity<FavoriteCountResponse> getFavoriteCount(@PathVariable String bookId) {
-        FavoriteCountResponse favoriteCountResponse = favoriteService.getFavoriteCount(bookId);
-        return ResponseEntity.ok(favoriteCountResponse);
+    @GetMapping("/books/{bookId}/favorites")
+    public ResponseEntity<FavoriteInfoResponse> getFavoriteInfo(@PathVariable String bookId,
+            @RequestParam(required = false) Long userId) {
+        FavoriteInfoResponse favoriteInfoResponse = favoriteService.getFavoriteInfo(bookId, userId);
+        return ResponseEntity.ok(favoriteInfoResponse);
     }
 
     @PostMapping("/me/favorites")
-    public ResponseEntity<FavoriteResponse> addFavorite(
+    public ResponseEntity<FavoriteResponse> createFavorite(
             @Valid @RequestBody FavoriteRequest request) {
         FavoriteResponse favoriteResponse = favoriteService.createFavorite(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{bookId}")
@@ -55,7 +57,7 @@ public class FavoriteController {
     }
 
     @DeleteMapping("/me/favorites/{bookId}")
-    public ResponseEntity<Void> removeFavorite(@PathVariable String bookId) {
+    public ResponseEntity<Void> deleteFavorite(@PathVariable String bookId) {
         favoriteService.deleteFavorite(bookId);
         return ResponseEntity.noContent().build();
     }

@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 public class BookmarkResponse {
     private Long userId;
     private String bookId;
+    private Integer chapterNumber;
     private Integer pageNumber;
-    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private BookResponse book;
 }

@@ -31,18 +31,19 @@ public class BookController {
     }
 
     @GetMapping("/books/search")
-    public ResponseEntity<BookPageResponse> searchByTitle(@RequestParam String q,
+    public ResponseEntity<BookPageResponse> getBookPageByTitle(@RequestParam String q,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
-        BookPageResponse bookPageResponse = bookService.searchByTitle(q, page, maxResults);
+        BookPageResponse bookPageResponse = bookService.getBookPageByTitle(q, page, maxResults);
         return ResponseEntity.ok(bookPageResponse);
     }
 
     @GetMapping("/books/discover")
-    public ResponseEntity<BookPageResponse> searchByGenreId(@RequestParam String genreId,
+    public ResponseEntity<BookPageResponse> getBookPageByGenreId(@RequestParam String genreId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
-        BookPageResponse bookPageResponse = bookService.searchByGenreId(genreId, page, maxResults);
+        BookPageResponse bookPageResponse =
+                bookService.getBookPageByGenreId(genreId, page, maxResults);
         return ResponseEntity.ok(bookPageResponse);
     }
 }

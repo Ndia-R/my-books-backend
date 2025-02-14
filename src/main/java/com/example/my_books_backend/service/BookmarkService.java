@@ -5,9 +5,9 @@ import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
 
 public interface BookmarkService {
-    BookmarkResponse getBookmarkByBookId(String bookId);
+    BookmarkResponse getBookmarkById(String bookId);
 
-    BookmarkPageResponse getBookmarks(Integer page, Integer maxResults);
+    BookmarkPageResponse getBookmarkPage(Integer page, Integer maxResults);
 
     BookmarkResponse createBookmark(BookmarkRequest request);
 
