@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.book.BookResponse;
+import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookPageResponse;
 import com.example.my_books_backend.service.BookService;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +20,9 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping("/books/{bookId}")
-    public ResponseEntity<BookResponse> getBookById(@PathVariable String bookId) {
-        BookResponse bookResponse = bookService.getBookById(bookId);
-        return ResponseEntity.ok(bookResponse);
+    public ResponseEntity<BookDetailsResponse> getBookDetailsById(@PathVariable String bookId) {
+        BookDetailsResponse bookDetailsResponse = bookService.getBookDetailsById(bookId);
+        return ResponseEntity.ok(bookDetailsResponse);
     }
 
     @GetMapping("/books/new-books")

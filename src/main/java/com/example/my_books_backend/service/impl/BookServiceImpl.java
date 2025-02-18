@@ -8,12 +8,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.example.my_books_backend.dto.book.BookResponse;
+import com.example.my_books_backend.dto.genre.GenreResponse;
+import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookPageResponse;
 import com.example.my_books_backend.entity.Book;
+import com.example.my_books_backend.entity.Genre;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.BookMapper;
 import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.service.BookService;
+import com.example.my_books_backend.service.GenreService;
 import com.example.my_books_backend.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 
@@ -24,14 +28,29 @@ public class BookServiceImpl implements BookService {
     private final BookMapper bookMapper;
 
     private final PaginationUtil paginationUtil;
+    private final GenreService genreService;
 
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "publishedDate");
 
     @Override
-    public BookResponse getBookById(String id) {
+    public BookDetailsResponse getBookDetailsById(String id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Book not found"));
-        return bookMapper.toBookResponse(book);
+
+        List<GenreResponse> genreResponses = genreService.getAllGenres();
+
+        List<Long> bookGenreIds =
+                book.getGenres().stream().map(Genre::getId).collect(Collectors.toList());
+
+        List<GenreResponse> filteredGenres = genreResponses.stream()
+                .filter(genreResponse -> bookGenreIds.contains(genreResponse.getId()))
+                .collect(Collectors.toList());
+
+        BookDetailsResponse bookDetailsResponse = bookMapper.toBookDetailsResponse(book);
+
+        bookDetailsResponse.setGenres(filteredGenres);
+
+        return bookDetailsResponse;
     }
 
     @Override
