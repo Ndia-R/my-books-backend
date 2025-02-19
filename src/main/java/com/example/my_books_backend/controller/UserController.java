@@ -3,6 +3,7 @@ package com.example.my_books_backend.controller;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import com.example.my_books_backend.dto.user.ProfileCountsResponse;
 import com.example.my_books_backend.dto.user.ChangeEmailRequest;
 import com.example.my_books_backend.dto.user.ChangePasswordRequest;
 import com.example.my_books_backend.dto.user.UserResponse;
+import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.dto.user.UpdateUserRequest;
 import com.example.my_books_backend.service.UserService;
 import jakarta.validation.Valid;
@@ -49,32 +51,36 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getCurrentUser() {
-        UserResponse userResponse = userService.getCurrentUser();
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal User user) {
+        UserResponse userResponse = userService.getCurrentUser(user);
         return ResponseEntity.ok(userResponse);
     }
 
     @GetMapping("/me/profile-counts")
-    public ResponseEntity<ProfileCountsResponse> getProfileCounts() {
-        ProfileCountsResponse profileCountsResponse = userService.getProfileCounts();
+    public ResponseEntity<ProfileCountsResponse> getProfileCounts(
+            @AuthenticationPrincipal User user) {
+        ProfileCountsResponse profileCountsResponse = userService.getProfileCounts(user);
         return ResponseEntity.ok(profileCountsResponse);
     }
 
     @PutMapping("/me")
-    public ResponseEntity<Void> updateCurrentUser(@Valid @RequestBody UpdateUserRequest request) {
-        userService.updateCurrentUser(request);
+    public ResponseEntity<Void> updateCurrentUser(@Valid @RequestBody UpdateUserRequest request,
+            @AuthenticationPrincipal User user) {
+        userService.updateCurrentUser(request, user);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/me/email")
-    public ResponseEntity<Void> changeEmail(@Valid @RequestBody ChangeEmailRequest request) {
-        userService.changeEmail(request);
+    public ResponseEntity<Void> changeEmail(@Valid @RequestBody ChangeEmailRequest request,
+            @AuthenticationPrincipal User user) {
+        userService.changeEmail(request, user);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/me/password")
-    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
-        userService.changePassword(request);
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request,
+            @AuthenticationPrincipal User user) {
+        userService.changePassword(request, user);
         return ResponseEntity.noContent().build();
     }
 

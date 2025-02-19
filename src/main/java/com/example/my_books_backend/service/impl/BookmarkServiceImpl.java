@@ -1,19 +1,20 @@
 package com.example.my_books_backend.service.impl;
 
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
-import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Bookmark;
-import com.example.my_books_backend.entity.BookmarkId;
 import com.example.my_books_backend.entity.User;
+import com.example.my_books_backend.exception.ConflictException;
+import com.example.my_books_backend.exception.ForbiddenException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.BookmarkMapper;
 import com.example.my_books_backend.repository.BookRepository;
@@ -31,63 +32,62 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final BookRepository bookRepository;
     private final PaginationUtil paginationUtil;
 
-    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "updatedAt");
+    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "createdAt");
 
     @Override
-    public BookmarkResponse getBookmarkById(String bookId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        BookmarkId bookmarkId = new BookmarkId(user.getId(), bookId);
-        Bookmark bookmark = bookmarkRepository.findById(bookmarkId)
-                .orElseThrow(() -> new NotFoundException("Bookmark not found"));
-        return bookmarkMapper.toBookmarkResponse(bookmark);
+    public List<BookmarkResponse> getBookmarksByBookId(String bookId, User user) {
+        List<Bookmark> bookmarks =
+                bookmarkRepository.findByBookIdAndUserAndIsDeletedFalse(bookId, user);
+        return bookmarkMapper.toBookmarkResponseList(bookmarks);
     }
 
     @Override
-    public BookmarkPageResponse getBookmarkPage(Integer page, Integer maxResults) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+    public BookmarkPageResponse getBookmarkPageByUser(Integer page, Integer maxResults, User user) {
         Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
-        Page<Bookmark> bookmarkPage = bookmarkRepository.findByUserId(user.getId(), pageable);
+        Page<Bookmark> bookmarkPage =
+                bookmarkRepository.findByUserAndIsDeletedFalse(user, pageable);
         return bookmarkMapper.toBookmarkPageResponse(bookmarkPage);
     }
 
     @Override
     @Transactional
-    public BookmarkResponse createBookmark(BookmarkRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+    public BookmarkResponse createBookmark(BookmarkRequest request, User user) {
         Book book = bookRepository.findById(request.getBookId())
                 .orElseThrow(() -> new NotFoundException("Book not found"));
-        BookmarkId bookmarkId = new BookmarkId(user.getId(), request.getBookId());
+
+        Optional<Bookmark> existingBookmark =
+                bookmarkRepository.findByUserAndBookAndChapterNumberAndPageNumberAndIsDeletedFalse(
+                        user, book, request.getChapterNumber(), request.getPageNumber());
+
+        if (existingBookmark.isPresent()) {
+            throw new ConflictException("すでにこのページにはブックマークが登録されています。");
+        }
+
         Bookmark bookmark = new Bookmark();
-        bookmark.setId(bookmarkId);
         bookmark.setUser(user);
         bookmark.setBook(book);
         bookmark.setChapterNumber(request.getChapterNumber());
         bookmark.setPageNumber(request.getPageNumber());
+        bookmark.setNote(request.getNote());
+
         Bookmark savedBookmark = bookmarkRepository.save(bookmark);
         return bookmarkMapper.toBookmarkResponse(savedBookmark);
     }
 
     @Override
     @Transactional
-    public BookmarkResponse updateBookmark(BookmarkRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        BookmarkId bookmarkId = new BookmarkId(user.getId(), request.getBookId());
-        Bookmark bookmark = bookmarkRepository.findById(bookmarkId)
+    public BookmarkResponse updateBookmark(Long id, BookmarkRequest request, User user) {
+        Bookmark bookmark = bookmarkRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Bookmark not found"));
 
-        Integer chapterNumber = request.getChapterNumber();
-        Integer pageNumber = request.getPageNumber();
-
-        if (chapterNumber != null) {
-            bookmark.setChapterNumber(chapterNumber);
+        if (!bookmark.getUser().getId().equals(user.getId())) {
+            throw new ForbiddenException("このブックマークを編集する権限がありません。");
         }
 
-        if (pageNumber != null) {
-            bookmark.setPageNumber(pageNumber);
+        String note = request.getNote();
+
+        if (note != null) {
+            bookmark.setNote(note);
         }
 
         Bookmark savedBookmark = bookmarkRepository.save(bookmark);
@@ -96,10 +96,15 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @Transactional
-    public void deleteBookmark(String bookId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        BookmarkId bookmarkId = new BookmarkId(user.getId(), bookId);
-        bookmarkRepository.deleteById(bookmarkId);
+    public void deleteBookmark(Long id, User user) {
+        Bookmark bookmark = bookmarkRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Bookmark not found"));
+
+        if (!bookmark.getUser().getId().equals(user.getId())) {
+            throw new ForbiddenException("このブックマークを削除する権限がありません");
+        }
+
+        bookmark.setIsDeleted(true);
+        bookmarkRepository.save(bookmark);
     }
 }

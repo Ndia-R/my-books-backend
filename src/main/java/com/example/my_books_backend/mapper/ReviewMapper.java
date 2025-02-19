@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import com.example.my_books_backend.dto.review.ReviewPageResponse;
 import com.example.my_books_backend.dto.review.ReviewResponse;
+import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Review;
 import com.example.my_books_backend.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +15,15 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReviewMapper {
     private final ModelMapper modelMapper;
-    private final UserMapper userMapper;
+    private final BookMapper bookMapper;
 
     public ReviewResponse toReviewResponse(Review review) {
         ReviewResponse reviewResponse = modelMapper.map(review, ReviewResponse.class);
         User user = modelMapper.map(review.getUser(), User.class);
-        reviewResponse.setUser(userMapper.toSimpleUserInfo(user));
+        Book book = modelMapper.map(review.getBook(), Book.class);
+        reviewResponse.setName(user.getName());
+        reviewResponse.setAvatarUrl(user.getAvatarUrl());
+        reviewResponse.setBook(bookMapper.toBookResponse(book));
         return reviewResponse;
     }
 

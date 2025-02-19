@@ -44,8 +44,8 @@ public class RoleServiceImpl implements RoleService {
         Role role = new Role();
         role.setName(request.getName());
         role.setDescription(request.getDescription());
-        Role saveRole = roleRepository.save(role);
-        return roleMapper.toRoleResponse(saveRole);
+        Role savedRole = roleRepository.save(role);
+        return roleMapper.toRoleResponse(savedRole);
     }
 
     @Override

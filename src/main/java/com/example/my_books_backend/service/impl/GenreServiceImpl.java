@@ -43,8 +43,8 @@ public class GenreServiceImpl implements GenreService {
         Genre genre = new Genre();
         genre.setName(request.getName());
         genre.setDescription(request.getDescription());
-        Genre saveGenre = genreRepository.save(genre);
-        return genreMapper.toGenreResponse(saveGenre);
+        Genre savedGenre = genreRepository.save(genre);
+        return genreMapper.toGenreResponse(savedGenre);
     }
 
     @Override

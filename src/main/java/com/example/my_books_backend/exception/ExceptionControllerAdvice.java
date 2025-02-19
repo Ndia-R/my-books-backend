@@ -51,6 +51,14 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
                                 HttpStatus.UNAUTHORIZED, request);
         }
 
+        @ExceptionHandler({ForbiddenException.class})
+        public ResponseEntity<Object> handleForbidden(ForbiddenException ex, WebRequest request) {
+                ErrorResponse errorResponse = new ErrorResponse(Arrays.asList(ex.getMessage()),
+                                HttpStatus.FORBIDDEN);
+                return this.handleExceptionInternal(ex, errorResponse, new HttpHeaders(),
+                                HttpStatus.FORBIDDEN, request);
+        }
+
         @Override
         protected ResponseEntity<Object> handleMethodArgumentNotValid(
                         @NonNull MethodArgumentNotValidException ex, @NonNull HttpHeaders headers,

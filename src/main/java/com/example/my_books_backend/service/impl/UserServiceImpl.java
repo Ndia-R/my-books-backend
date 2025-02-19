@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,35 +86,27 @@ public class UserServiceImpl implements UserService {
             user.setAvatarUrl(avatarUrl);
         }
 
-        User saveUser = userRepository.save(user);
-        return userMapper.toUserResponse(saveUser);
+        User savedUser = userRepository.save(user);
+        return userMapper.toUserResponse(savedUser);
     }
 
     @Override
-    public UserResponse getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+    public UserResponse getCurrentUser(User user) {
         return userMapper.toUserResponse(user);
     }
 
     @Override
-    public ProfileCountsResponse getProfileCounts() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-
+    public ProfileCountsResponse getProfileCounts(User user) {
         Integer favoriteCount = favoriteRepository.countByUserId(user.getId());
-        Integer bookmarkCount = bookmarkRepository.countByUserId(user.getId());
-        Integer reviewCount = reviewRepository.countByUserId(user.getId());
+        Integer bookmarkCount = bookmarkRepository.countByUserIdAndIsDeletedFalse(user.getId());
+        Integer reviewCount = reviewRepository.countByUserIdAndIsDeletedFalse(user.getId());
 
         return new ProfileCountsResponse(favoriteCount, bookmarkCount, reviewCount);
     }
 
     @Override
     @Transactional
-    public void updateCurrentUser(UpdateUserRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-
+    public void updateCurrentUser(UpdateUserRequest request, User user) {
         String name = request.getName();
         String avatarUrl = request.getAvatarUrl();
 
@@ -131,10 +121,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void changeEmail(ChangeEmailRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-
+    public void changeEmail(ChangeEmailRequest request, User user) {
         String email = request.getEmail();
         String password = request.getPassword();
 
@@ -156,10 +143,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void changePassword(ChangePasswordRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-
+    public void changePassword(ChangePasswordRequest request, User user) {
         String newPassword = request.getNewPassword();
         String confirmNewPassword = request.getConfirmNewPassword();
         String currentPassword = request.getCurrentPassword();

@@ -21,15 +21,15 @@ public interface UserService {
 
     UserResponse createUser(CreateUserRequest request);
 
-    UserResponse getCurrentUser();
+    UserResponse getCurrentUser(User user);
 
-    ProfileCountsResponse getProfileCounts();
+    ProfileCountsResponse getProfileCounts(User user);
 
-    void updateCurrentUser(UpdateUserRequest request);
+    void updateCurrentUser(UpdateUserRequest request, User user);
 
-    void changeEmail(ChangeEmailRequest request);
+    void changeEmail(ChangeEmailRequest request, User user);
 
-    void changePassword(ChangePasswordRequest request);
+    void changePassword(ChangePasswordRequest request, User user);
 
     Boolean checkUsernameExists(String name);
 }

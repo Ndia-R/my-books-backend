@@ -18,6 +18,7 @@ import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.exception.BadRequestException;
 import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.UnauthorizedException;
+import com.example.my_books_backend.exception.ValidationException;
 import com.example.my_books_backend.repository.UserRepository;
 import com.example.my_books_backend.service.impl.UserDetailsServiceImpl;
 import com.example.my_books_backend.util.JwtUtil;
@@ -87,7 +88,7 @@ public class AuthService {
 
         if (refreshToken == null || !jwtUtil.validateToken(refreshToken)
                 || jwtUtil.isTokenInvalid(refreshToken)) {
-            throw new UnauthorizedException("トークンが無効です。");
+            throw new ValidationException("トークンが無効です。");
         }
 
         String email = jwtUtil.getSubjectFromToken(refreshToken);
@@ -105,11 +106,11 @@ public class AuthService {
     public void validateToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-            throw new UnauthorizedException("トークンが無効です。");
+            throw new ValidationException("トークンが無効です。");
         }
         String accessToken = bearerToken.substring(7);
         if (!jwtUtil.validateToken(accessToken)) {
-            throw new UnauthorizedException("トークンが無効です。");
+            throw new ValidationException("トークンが無効です。");
         }
     }
 

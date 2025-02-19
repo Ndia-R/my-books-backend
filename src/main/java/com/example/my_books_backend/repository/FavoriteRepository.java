@@ -7,12 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import com.example.my_books_backend.entity.Favorite;
 import com.example.my_books_backend.entity.FavoriteId;
+import com.example.my_books_backend.entity.User;
 
 @Repository
 public interface FavoriteRepository extends JpaRepository<Favorite, FavoriteId> {
-    List<Favorite> findByBookId(String bookId);
+    Page<Favorite> findByUser(User user, Pageable pageable);
 
-    Page<Favorite> findByUserId(Long userId, Pageable pageable);
+    List<Favorite> findByBookId(String bookId);
 
     Integer countByUserId(Long userId);
 }

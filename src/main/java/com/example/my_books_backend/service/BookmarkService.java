@@ -1,17 +1,19 @@
 package com.example.my_books_backend.service;
 
+import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
-import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
+import com.example.my_books_backend.entity.User;
+import java.util.List;
 
 public interface BookmarkService {
-    BookmarkResponse getBookmarkById(String bookId);
+    List<BookmarkResponse> getBookmarksByBookId(String bookId, User user);
 
-    BookmarkPageResponse getBookmarkPage(Integer page, Integer maxResults);
+    BookmarkPageResponse getBookmarkPageByUser(Integer page, Integer maxResults, User user);
 
-    BookmarkResponse createBookmark(BookmarkRequest request);
+    BookmarkResponse createBookmark(BookmarkRequest request, User user);
 
-    BookmarkResponse updateBookmark(BookmarkRequest request);
+    BookmarkResponse updateBookmark(Long id, BookmarkRequest request, User user);
 
-    void deleteBookmark(String bookId);
+    void deleteBookmark(Long id, User user);
 }

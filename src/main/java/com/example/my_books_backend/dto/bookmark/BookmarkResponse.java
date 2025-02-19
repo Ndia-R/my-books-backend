@@ -10,10 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookmarkResponse {
+    private Long id;
     private Long userId;
     private String bookId;
     private Integer chapterNumber;
     private Integer pageNumber;
+    private String note;
     private LocalDateTime updatedAt;
     private BookResponse book;
 }
