@@ -32,7 +32,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final BookRepository bookRepository;
     private final PaginationUtil paginationUtil;
 
-    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "createdAt");
+    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "updatedAt");
 
     @Override
     public List<BookmarkResponse> getBookmarksByBookId(String bookId, User user) {
@@ -59,11 +59,15 @@ public class BookmarkServiceImpl implements BookmarkService {
                 bookmarkRepository.findByUserAndBookAndChapterNumberAndPageNumberAndIsDeletedFalse(
                         user, book, request.getChapterNumber(), request.getPageNumber());
 
-        if (existingBookmark.isPresent()) {
-            throw new ConflictException("すでにこのページにはブックマークが登録されています。");
-        }
-
         Bookmark bookmark = new Bookmark();
+        if (existingBookmark.isPresent()) {
+            bookmark = existingBookmark.get();
+            if (bookmark.getIsDeleted()) {
+                bookmark.setIsDeleted(false);
+            } else {
+                throw new ConflictException("すでにこのページにはブックマークが登録されています。");
+            }
+        }
         bookmark.setUser(user);
         bookmark.setBook(book);
         bookmark.setChapterNumber(request.getChapterNumber());

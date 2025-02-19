@@ -33,7 +33,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final BookRepository bookRepository;
     private final PaginationUtil paginationUtil;
 
-    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "createdAt");
+    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "updatedAt");
 
     @Override
     public ReviewPageResponse getReviewPage(String bookId, Integer page, Integer maxResults) {
@@ -76,14 +76,17 @@ public class ReviewServiceImpl implements ReviewService {
         Book book = bookRepository.findById(request.getBookId())
                 .orElseThrow(() -> new NotFoundException("Book not found"));
 
-        Optional<Review> existingReview =
-                reviewRepository.findByUserAndBookAndIsDeletedFalse(user, book);
-
-        if (existingReview.isPresent()) {
-            throw new ConflictException("すでにこの書籍にはレビューが登録されています。");
-        }
+        Optional<Review> existingReview = reviewRepository.findByUserAndBook(user, book);
 
         Review review = new Review();
+        if (existingReview.isPresent()) {
+            review = existingReview.get();
+            if (review.getIsDeleted()) {
+                review.setIsDeleted(false);
+            } else {
+                throw new ConflictException("すでにこの書籍にはレビューが登録されています。");
+            }
+        }
         review.setUser(user);
         review.setBook(book);
         review.setRating(request.getRating());

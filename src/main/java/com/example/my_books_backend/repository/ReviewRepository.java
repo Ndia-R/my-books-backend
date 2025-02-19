@@ -20,7 +20,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByBookIdAndIsDeletedFalse(String bookId);
 
-    Optional<Review> findByUserAndBookAndIsDeletedFalse(User user, Book book);
+    Optional<Review> findByUserAndBook(User user, Book book);
 
     Integer countByUserIdAndIsDeletedFalse(Long userId);
 }
