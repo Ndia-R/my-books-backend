@@ -5,16 +5,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import com.example.my_books_backend.entity.User;
 import io.jsonwebtoken.Claims;
@@ -42,9 +38,6 @@ public class JwtUtil {
 
     private static final String REFRESH_TOKEN_KEY = "refreshToken";
 
-    // リフレッシュトークンの失効リスト（jtiをキー、トークンの有効期限（エポックタイム）を値とする）
-    private Map<String, Long> invalidatedTokens = new ConcurrentHashMap<>();
-
     // アクセストークン生成
     public String generateAccessToken(User user) {
         String email = user.getEmail();
@@ -61,9 +54,8 @@ public class JwtUtil {
     // リフレッシュトークン生成
     public String generateRefreshToken(User user) {
         String email = user.getEmail();
-        String jti = UUID.randomUUID().toString(); // 一意のトークンID（失効リストで使用）
 
-        return Jwts.builder().subject(email).id(jti).issuedAt(new Date())
+        return Jwts.builder().subject(email).issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + refreshExpiration * 1000))
                 .signWith(key()).compact();
     }
@@ -77,39 +69,6 @@ public class JwtUtil {
         cookie.setSecure(true);
         cookie.setMaxAge(refreshExpiration);
         return cookie;
-    }
-
-    // リフレッシュトークンを失効リストに追加
-    public void addInvalidatedTokens(String refreshToken) {
-        String jti = getJtiFromToken(refreshToken);
-        Long expiryTime = getExpiryTimeFromToken(refreshToken).getTime();
-        invalidatedTokens.put(jti, expiryTime);
-
-        for (Map.Entry<String, Long> entry : invalidatedTokens.entrySet()) {
-            String key = entry.getKey();
-            Long time = entry.getValue();
-            logger.info("expiryTime: " + time + " key: " + key);
-        }
-    }
-
-    // リフレッシュトークンが失効リストに含まれているか
-    public boolean isTokenInvalid(String refreshToken) {
-        String jti = getJtiFromToken(refreshToken);
-        Long expiryTime = invalidatedTokens.get(jti);
-        if (expiryTime == null) {
-            return false;
-        }
-
-        // 現在時刻が有効期限を過ぎている場合も無効
-        return System.currentTimeMillis() > expiryTime;
-    }
-
-    // リフレッシュトークン失効リストの定期クリーンアップ
-    @Scheduled(cron = "${spring.app.deleteInvalidRefreshTokens.schedule.cron}", zone = "Asia/Tokyo")
-    public void cleanupInvalidatedTokens() {
-        long currentTime = System.currentTimeMillis();
-        invalidatedTokens.entrySet().removeIf(entry -> entry.getValue() < currentTime);
-        logger.info("リフレッシュトークン失効リストをクリーンアップしました。");
     }
 
     // リフレッシュトークンを無効にしたCookieを取得

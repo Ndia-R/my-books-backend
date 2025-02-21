@@ -26,8 +26,16 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
                                 HttpStatus.NOT_FOUND, request);
         }
 
-        @ExceptionHandler({BadRequestException.class, ValidationException.class})
+        @ExceptionHandler({BadRequestException.class})
         public ResponseEntity<Object> handleBadRequest(BadRequestException ex, WebRequest request) {
+                ErrorResponse errorResponse = new ErrorResponse(Arrays.asList(ex.getMessage()),
+                                HttpStatus.BAD_REQUEST);
+                return this.handleExceptionInternal(ex, errorResponse, new HttpHeaders(),
+                                HttpStatus.BAD_REQUEST, request);
+        }
+
+        @ExceptionHandler({ValidationException.class})
+        public ResponseEntity<Object> handleBadRequest(ValidationException ex, WebRequest request) {
                 ErrorResponse errorResponse = new ErrorResponse(Arrays.asList(ex.getMessage()),
                                 HttpStatus.BAD_REQUEST);
                 return this.handleExceptionInternal(ex, errorResponse, new HttpHeaders(),

@@ -1,6 +1,6 @@
 package com.example.my_books_backend.dto.auth;
 
-import java.util.List;
+import com.example.my_books_backend.dto.user.UserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginResponse {
     private String accessToken;
-    private String name;
-    private List<String> roles;
+    private UserResponse user;
 }
