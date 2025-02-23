@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
@@ -13,11 +15,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.example.my_books_backend.service.impl.UserDetailsServiceImpl;
 import com.example.my_books_backend.util.JwtUtil;
-
-import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
@@ -26,11 +27,29 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtUtil jwtUtil;
+    private final SecurityEndpointsConfig securityEndpointsConfig;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
+
+        String requestURI = request.getRequestURI();
+        String method = request.getMethod();
+
+        List<String> fullyPublicEndpoints = securityEndpointsConfig.getFullyPublicEndpoints();
+        List<String> publicGetEndpoints = securityEndpointsConfig.getPublicGetEndpoints();
+
+        // `permitAll()` のエンドポイントならフィルターをスキップ
+        if (fullyPublicEndpoints.stream()
+                .anyMatch(endpoint -> pathMatcher.match(endpoint, requestURI))
+                || ("GET".equals(method) && publicGetEndpoints.stream()
+                        .anyMatch(endpoint -> pathMatcher.match(endpoint, requestURI)))) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             String token = getTokenFromHeader(request);
             if (token != null && jwtUtil.validateToken(token)) {

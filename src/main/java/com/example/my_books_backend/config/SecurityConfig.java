@@ -1,6 +1,6 @@
 package com.example.my_books_backend.config;
 
-import java.util.Arrays;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     private final AuthTokenFilter authTokenFilter;
+    private final SecurityEndpointsConfig securityEndpointsConfig;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -35,12 +36,12 @@ public class SecurityConfig {
         http.sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+        List<String> fullyPublicEndpoints = securityEndpointsConfig.getFullyPublicEndpoints();
+        List<String> publicGetEndpoints = securityEndpointsConfig.getPublicGetEndpoints();
+
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/v1/login", "/api/v1/signup", "/api/v1/logout").permitAll()
-                .requestMatchers("/api/v1/refresh-token", "/api/v1/users/exists").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/books/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/genres/**").permitAll()
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                .requestMatchers(fullyPublicEndpoints.toArray(new String[0])).permitAll()
+                .requestMatchers(HttpMethod.GET, publicGetEndpoints.toArray(new String[0]))
                 .permitAll().anyRequest().authenticated());
 
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
@@ -62,9 +63,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("https://localhost:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setAllowedOrigins(List.of("https://localhost:5173"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
