@@ -66,9 +66,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponse createUser(CreateUserRequest request) {
-        User user = userMapper.toUserEntity(request);
-
+    public User createUser(CreateUserRequest request) {
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         if (user.getRoles() == null) {
@@ -87,7 +88,13 @@ public class UserServiceImpl implements UserService {
         }
 
         User savedUser = userRepository.save(user);
-        return userMapper.toUserResponse(savedUser);
+        return savedUser;
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 
     @Override
@@ -158,16 +165,5 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-    }
-
-    @Override
-    @Transactional
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
-    }
-
-    @Override
-    public Boolean checkUsernameExists(String name) {
-        return userRepository.existsByName(name);
     }
 }

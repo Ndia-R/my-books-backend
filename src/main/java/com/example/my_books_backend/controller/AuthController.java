@@ -6,10 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.auth.LoginRequest;
-import com.example.my_books_backend.dto.auth.LoginResponse;
 import com.example.my_books_backend.dto.auth.SignupRequest;
 import com.example.my_books_backend.dto.auth.AccessTokenResponse;
-import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,15 +21,16 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request,
+    public ResponseEntity<AccessTokenResponse> login(@Valid @RequestBody LoginRequest request,
             HttpServletResponse response) {
-        LoginResponse loginResponse = authService.login(request, response);
+        AccessTokenResponse loginResponse = authService.login(request, response);
         return ResponseEntity.ok(loginResponse);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<UserResponse> signup(@Valid @RequestBody SignupRequest request) {
-        UserResponse userResponse = authService.signup(request);
+    public ResponseEntity<AccessTokenResponse> signup(@Valid @RequestBody SignupRequest request,
+            HttpServletResponse response) {
+        AccessTokenResponse userResponse = authService.signup(request, response);
         return ResponseEntity.ok(userResponse);
     }
 
@@ -39,12 +38,6 @@ public class AuthController {
     public ResponseEntity<AccessTokenResponse> refreshToken(HttpServletRequest request) {
         AccessTokenResponse accessTokenResponse = authService.refreshAccessToken(request);
         return ResponseEntity.ok(accessTokenResponse);
-    }
-
-    @PostMapping("/validate-token")
-    public ResponseEntity<Void> validateToken(HttpServletRequest request) {
-        authService.validateToken(request);
-        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/logout")

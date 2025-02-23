@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.my_books_backend.dto.user.CheckUsernameExistsResponse;
 import com.example.my_books_backend.dto.user.ProfileCountsResponse;
 import com.example.my_books_backend.dto.user.ChangeEmailRequest;
 import com.example.my_books_backend.dto.user.ChangePasswordRequest;
@@ -82,12 +80,5 @@ public class UserController {
             @AuthenticationPrincipal User user) {
         userService.changePassword(request, user);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/users/exists")
-    public ResponseEntity<CheckUsernameExistsResponse> checkUsernameExists(
-            @RequestParam String name) {
-        Boolean exists = userService.checkUsernameExists(name);
-        return ResponseEntity.ok(new CheckUsernameExistsResponse(exists));
     }
 }

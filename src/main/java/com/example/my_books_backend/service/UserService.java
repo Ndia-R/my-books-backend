@@ -17,9 +17,9 @@ public interface UserService {
 
     UserResponse getUserById(Long id);
 
-    void deleteUser(Long id);
+    User createUser(CreateUserRequest request);
 
-    UserResponse createUser(CreateUserRequest request);
+    void deleteUser(Long id);
 
     UserResponse getCurrentUser(User user);
 
@@ -30,6 +30,4 @@ public interface UserService {
     void changeEmail(ChangeEmailRequest request, User user);
 
     void changePassword(ChangePasswordRequest request, User user);
-
-    Boolean checkUsernameExists(String name);
 }

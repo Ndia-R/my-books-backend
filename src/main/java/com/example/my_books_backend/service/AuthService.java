@@ -8,16 +8,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import com.example.my_books_backend.dto.auth.LoginRequest;
-import com.example.my_books_backend.dto.auth.LoginResponse;
 import com.example.my_books_backend.dto.auth.SignupRequest;
 import com.example.my_books_backend.dto.auth.AccessTokenResponse;
 import com.example.my_books_backend.dto.user.CreateUserRequest;
-import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.UnauthorizedException;
 import com.example.my_books_backend.exception.ValidationException;
-import com.example.my_books_backend.mapper.UserMapper;
 import com.example.my_books_backend.repository.UserRepository;
 import com.example.my_books_backend.service.impl.UserDetailsServiceImpl;
 import com.example.my_books_backend.util.JwtUtil;
@@ -33,10 +30,9 @@ public class AuthService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final UserDetailsServiceImpl userDetailsService;
-    private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
 
-    public LoginResponse login(LoginRequest request, HttpServletResponse response) {
+    public AccessTokenResponse login(LoginRequest request, HttpServletResponse response) {
         Authentication authentication;
         try {
             authentication =
@@ -55,12 +51,10 @@ public class AuthService {
         Cookie refreshTokenCookie = jwtUtil.createRefreshTokenCookie(refreshToken);
         response.addCookie(refreshTokenCookie);
 
-        UserResponse userResponse = userMapper.toUserResponse(user);
-
-        return new LoginResponse(accessToken, userResponse);
+        return new AccessTokenResponse(accessToken);
     }
 
-    public UserResponse signup(SignupRequest request) {
+    public AccessTokenResponse signup(SignupRequest request, HttpServletResponse response) {
         String name = request.getName();
         String email = request.getEmail();
         String password = request.getPassword();
@@ -78,7 +72,15 @@ public class AuthService {
         createUserRequest.setEmail(email);
         createUserRequest.setPassword(password);
 
-        return userService.createUser(createUserRequest);
+        User user = userService.createUser(createUserRequest);
+
+        String accessToken = jwtUtil.generateAccessToken(user);
+        String refreshToken = jwtUtil.generateRefreshToken(user);
+
+        Cookie refreshTokenCookie = jwtUtil.createRefreshTokenCookie(refreshToken);
+        response.addCookie(refreshTokenCookie);
+
+        return new AccessTokenResponse(accessToken);
     }
 
     public AccessTokenResponse refreshAccessToken(HttpServletRequest request) {
@@ -98,17 +100,6 @@ public class AuthService {
 
         String accessToken = jwtUtil.generateAccessToken(user);
         return new AccessTokenResponse(accessToken);
-    }
-
-    public void validateToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-            throw new ValidationException("アクセストークンが無効です。");
-        }
-        String accessToken = bearerToken.substring(7);
-        if (!jwtUtil.validateToken(accessToken)) {
-            throw new ValidationException("アクセストークンが無効です。");
-        }
     }
 
     public void logout(HttpServletResponse response) {
