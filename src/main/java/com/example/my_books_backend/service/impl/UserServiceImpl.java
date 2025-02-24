@@ -68,9 +68,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User createUser(CreateUserRequest request) {
         User user = new User();
-        user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setName(request.getName());
+        user.setAvatarUrl(request.getAvatarUrl());
 
         if (user.getRoles() == null) {
             Role role = roleRepository.findByName(RoleName.ROLE_USER);

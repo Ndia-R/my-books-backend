@@ -13,10 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SignupRequest {
     @NotNull
-    @NotBlank(message = "ユーザー名は必須です")
-    private String name;
-
-    @NotNull
     @NotBlank(message = "メールアドレスは必須です")
     @Email(message = "有効なメールアドレスを入力してください")
     private String email;
@@ -26,4 +22,11 @@ public class SignupRequest {
     @Size(min = 4, message = "パスワードは4文字以上で入力してください")
     private String password;
 
+    @NotNull
+    @NotBlank(message = "ユーザー名は必須です")
+    private String name;
+
+    @NotNull
+    @NotBlank(message = "アバターURLは必須です")
+    private String avatarUrl;
 }

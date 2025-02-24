@@ -55,22 +55,20 @@ public class AuthService {
     }
 
     public AccessTokenResponse signup(SignupRequest request, HttpServletResponse response) {
-        String name = request.getName();
         String email = request.getEmail();
         String password = request.getPassword();
-
-        if (userRepository.existsByName(name)) {
-            throw new ConflictException("サインアップに失敗しました。このユーザー名は既に登録されています。: " + name);
-        }
+        String name = request.getName();
+        String avatarUrl = request.getAvatarUrl();
 
         if (userRepository.existsByEmail(email)) {
             throw new ConflictException("サインアップに失敗しました。このメールアドレスは既に登録されています。: " + email);
         }
 
         CreateUserRequest createUserRequest = new CreateUserRequest();
-        createUserRequest.setName(name);
         createUserRequest.setEmail(email);
         createUserRequest.setPassword(password);
+        createUserRequest.setName(name);
+        createUserRequest.setAvatarUrl(avatarUrl);
 
         User user = userService.createUser(createUserRequest);
 
