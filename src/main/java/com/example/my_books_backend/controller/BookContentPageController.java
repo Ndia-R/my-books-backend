@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class BookContentPageController {
     private final BookContentPageService bookContentPageService;
 
-    @GetMapping("/books/{bookId}/chapters/{chapterNumber}/pages/{pageNumber}")
+    @GetMapping("/read/books/{bookId}/chapters/{chapterNumber}/pages/{pageNumber}")
     public ResponseEntity<BookContentPageResponse> getBookContentPage(@PathVariable String bookId,
             @PathVariable Integer chapterNumber, @PathVariable Integer pageNumber) {
         BookContentPageResponse bookContentPageResponse =
