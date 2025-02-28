@@ -16,8 +16,8 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
     List<Bookmark> findByBookIdAndUserAndIsDeletedFalse(String bookId, User user);
 
-    Optional<Bookmark> findByUserAndBookAndChapterNumberAndPageNumberAndIsDeletedFalse(User user,
-            Book book, Integer chapterNumber, Integer pageNumber);
+    Optional<Bookmark> findByUserAndBookAndChapterNumberAndPageNumber(User user, Book book,
+            Integer chapterNumber, Integer pageNumber);
 
     Integer countByUserIdAndIsDeletedFalse(Long userId);
 }

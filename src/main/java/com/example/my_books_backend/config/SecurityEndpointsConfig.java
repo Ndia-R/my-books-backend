@@ -9,8 +9,7 @@ public class SecurityEndpointsConfig {
 
     public List<String> getFullyPublicEndpoints() {
         return Arrays.asList("/api/v1/login", "/api/v1/signup", "/api/v1/logout",
-                "/api/v1/refresh-token", "/api/v1/users/exists", "/v3/api-docs/**",
-                "/swagger-ui/**", "/swagger-ui.html");
+                "/api/v1/refresh-token", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html");
     }
 
     public List<String> getPublicGetEndpoints() {

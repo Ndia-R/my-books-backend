@@ -239,18 +239,18 @@ INSERT INTO `bookmarks` (`user_id`, `book_id`, `chapter_number`, `page_number`, 
 
 INSERT INTO `book_chapters` (`book_id`, `chapter_number`, `title`) VALUES
 ('afcIMuetDuzj', 1, 'プロローグ'),
-('afcIMuetDuzj', 2, '第一章：湖畔の招待状'),
-('afcIMuetDuzj', 3, '第二章：運命の出会い'),
-('afcIMuetDuzj', 4, '第三章：舞踏会の奇跡'),
-('afcIMuetDuzj', 5, '第四章：消えゆく光'),
-('afcIMuetDuzj', 6, '第五章：新たな誓い'),
-('aBcDeFgHiJkL', 1, '第1章：ドラゴンとは何か？'),
-('aBcDeFgHiJkL', 2, '第2章：世界のドラゴン伝承'),
-('aBcDeFgHiJkL', 3, '第3章：ドラゴンと人類の歴史'),
-('aBcDeFgHiJkL', 4, '第4章：ドラゴンの姿と能力'),
-('aBcDeFgHiJkL', 5, '第5章：ドラゴンと文化・信仰'),
-('aBcDeFgHiJkL', 6, '第6章：ドラゴンの科学的解釈と実在の可能性'),
-('aBcDeFgHiJkL', 7, '第7章：現代社会におけるドラゴンの影響');
+('afcIMuetDuzj', 2, '湖畔の招待状'),
+('afcIMuetDuzj', 3, '運命の出会い'),
+('afcIMuetDuzj', 4, '舞踏会の奇跡'),
+('afcIMuetDuzj', 5, '消えゆく光'),
+('afcIMuetDuzj', 6, '新たな誓い'),
+('aBcDeFgHiJkL', 1, 'ドラゴンとは何か？'),
+('aBcDeFgHiJkL', 2, '世界のドラゴン伝承'),
+('aBcDeFgHiJkL', 3, 'ドラゴンと人類の歴史'),
+('aBcDeFgHiJkL', 4, 'ドラゴンの姿と能力'),
+('aBcDeFgHiJkL', 5, 'ドラゴンと文化・信仰'),
+('aBcDeFgHiJkL', 6, 'ドラゴンの科学的解釈と実在の可能性'),
+('aBcDeFgHiJkL', 7, '現代社会におけるドラゴンの影響');
 
 LOAD DATA INFILE '/docker-entrypoint-initdb.d/book_content_pages.csv'
 INTO TABLE book_content_pages

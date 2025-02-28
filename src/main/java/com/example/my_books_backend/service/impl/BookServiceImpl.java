@@ -7,12 +7,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.genre.GenreResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookPageResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Genre;
+import com.example.my_books_backend.exception.BadRequestException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.BookMapper;
 import com.example.my_books_backend.repository.BookRepository;
@@ -54,29 +54,33 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookResponse> getNewBooks() {
-        List<Book> books = bookRepository.findTop10ByOrderByPublishedDateDesc();
-        return bookMapper.toBookResponseList(books);
-    }
-
-    @Override
-    public BookPageResponse getBookPageByTitle(String q, Integer page, Integer maxResults) {
+    public BookPageResponse getNewBooks(Integer page, Integer maxResults) {
         Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
-        Page<Book> bookPage = bookRepository.findByTitleContaining(q, pageable);
+        Page<Book> bookPage = bookRepository.findTop10ByOrderByPublishedDateDesc(pageable);
         return bookMapper.toBookPageResponse(bookPage);
     }
 
     @Override
-    public BookPageResponse getBookPageByGenreId(String genreId, Integer page, Integer maxResults) {
+    public BookPageResponse getBookPageByTitle(String query, Integer page, Integer maxResults) {
+        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
+        Page<Book> bookPage = bookRepository.findByTitleContaining(query, pageable);
+        return bookMapper.toBookPageResponse(bookPage);
+    }
+
+    @Override
+    public BookPageResponse getBookPageByGenreId(String genreIdsQuery, String conditionQuery,
+            Integer page, Integer maxResults) {
+        if (!(conditionQuery.equals("SINGLE") || conditionQuery.equals("AND")
+                || conditionQuery.equals("OR"))) {
+            throw new BadRequestException("検索条件が不正です。");
+        }
+
         Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
 
-        Boolean isAndSearch = genreId.contains(",");
-
-        // split()で、"|"を正規表現として解釈されないようにエスケープ
-        String splitStr = isAndSearch ? "," : "\\|";
-
-        List<Long> genreIds = Arrays.stream(genreId.split(splitStr)).map(Long::parseLong)
+        List<Long> genreIds = Arrays.stream(genreIdsQuery.split(",")).map(Long::parseLong)
                 .collect(Collectors.toList());
+
+        Boolean isAndSearch = conditionQuery.equals("AND");
 
         Page<Book> bookPage =
                 isAndSearch ? bookRepository.findByAllGenreIds(genreIds, genreIds.size(), pageable)

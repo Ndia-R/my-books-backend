@@ -18,6 +18,7 @@ import com.example.my_books_backend.dto.review.ReviewSummaryResponse;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
+import com.example.my_books_backend.dto.review.SelfReviewExistsResponse;
 import com.example.my_books_backend.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,13 @@ public class ReviewController {
     public ResponseEntity<ReviewSummaryResponse> getReviewSummary(@PathVariable String bookId) {
         ReviewSummaryResponse reviewSummaryResponse = reviewService.getReviewSummary(bookId);
         return ResponseEntity.ok(reviewSummaryResponse);
+    }
+
+    @GetMapping("/reviews/self-review-exists/{bookId}")
+    public ResponseEntity<SelfReviewExistsResponse> getSelfReviewExistsByBookId(
+            @PathVariable String bookId, @AuthenticationPrincipal User user) {
+        Boolean exists = reviewService.getSelfReviewExistsByBookId(bookId, user);
+        return ResponseEntity.ok(new SelfReviewExistsResponse(exists));
     }
 
     @GetMapping("/reviews/{bookId}")

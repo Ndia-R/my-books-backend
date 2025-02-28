@@ -152,11 +152,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void changePassword(ChangePasswordRequest request, User user) {
-        String newPassword = request.getNewPassword();
-        String confirmNewPassword = request.getConfirmNewPassword();
         String currentPassword = request.getCurrentPassword();
+        String newPassword = request.getNewPassword();
+        String confirmPassword = request.getConfirmPassword();
 
-        if (!newPassword.equals(confirmNewPassword)) {
+        if (!newPassword.equals(confirmPassword)) {
             throw new ValidationException("新しいパスワードと確認用パスワードが一致していません。");
         }
 

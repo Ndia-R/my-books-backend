@@ -81,6 +81,11 @@ public class AuthService {
         return new AccessTokenResponse(accessToken);
     }
 
+    public void logout(HttpServletResponse response) {
+        Cookie cookie = jwtUtil.getInvalidateRefreshTokenCookie();
+        response.addCookie(cookie);
+    }
+
     public AccessTokenResponse refreshAccessToken(HttpServletRequest request) {
         String refreshToken = jwtUtil.getRefreshTokenFromCookie(request);
 
@@ -98,10 +103,5 @@ public class AuthService {
 
         String accessToken = jwtUtil.generateAccessToken(user);
         return new AccessTokenResponse(accessToken);
-    }
-
-    public void logout(HttpServletResponse response) {
-        Cookie cookie = jwtUtil.getInvalidateRefreshTokenCookie();
-        response.addCookie(cookie);
     }
 }

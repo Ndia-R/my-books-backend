@@ -57,6 +57,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public Boolean getSelfReviewExistsByBookId(String bookId, User user) {
+        Optional<Review> review =
+                reviewRepository.findByBookIdAndUserAndIsDeletedFalse(bookId, user);
+        return review.isPresent();
+    }
+
+    @Override
     public ReviewResponse getReviewByBookId(String bookId, User user) {
         Review review = reviewRepository.findByBookIdAndUserAndIsDeletedFalse(bookId, user)
                 .orElseThrow(() -> new NotFoundException("Review not found"));

@@ -14,5 +14,5 @@ public class ChangePasswordRequest {
     private String newPassword;
 
     @NotBlank(message = "確認用パスワードは必須です")
-    private String confirmNewPassword;
+    private String confirmPassword;
 }

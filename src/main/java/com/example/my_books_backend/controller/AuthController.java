@@ -34,15 +34,15 @@ public class AuthController {
         return ResponseEntity.ok(userResponse);
     }
 
-    @PostMapping("/refresh-token")
-    public ResponseEntity<AccessTokenResponse> refreshToken(HttpServletRequest request) {
-        AccessTokenResponse accessTokenResponse = authService.refreshAccessToken(request);
-        return ResponseEntity.ok(accessTokenResponse);
-    }
-
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         authService.logout(response);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<AccessTokenResponse> refreshToken(HttpServletRequest request) {
+        AccessTokenResponse accessTokenResponse = authService.refreshAccessToken(request);
+        return ResponseEntity.ok(accessTokenResponse);
     }
 }

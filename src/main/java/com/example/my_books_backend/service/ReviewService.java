@@ -11,6 +11,8 @@ public interface ReviewService {
 
     ReviewSummaryResponse getReviewSummary(String bookId);
 
+    Boolean getSelfReviewExistsByBookId(String bookId, User user);
+
     ReviewResponse getReviewByBookId(String bookId, User user);
 
     ReviewPageResponse getReviewPageByUser(Integer page, Integer maxResults, User user);
