@@ -24,69 +24,70 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
-    private final BookRepository bookRepository;
-    private final BookMapper bookMapper;
+        private final BookRepository bookRepository;
+        private final BookMapper bookMapper;
 
-    private final PaginationUtil paginationUtil;
-    private final GenreService genreService;
+        private final PaginationUtil paginationUtil;
+        private final GenreService genreService;
 
-    private static final Sort DEFAULT_SORT =
-            Sort.by(Sort.Order.asc("id"), Sort.Order.desc("publishedDate"));
+        private static final Sort DEFAULT_SORT =
+                        Sort.by(Sort.Order.desc("publishedDate"), Sort.Order.asc("id"));
 
-    @Override
-    public BookDetailsResponse getBookDetailsById(String id) {
-        Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Book not found"));
+        @Override
+        public BookDetailsResponse getBookDetailsById(String id) {
+                Book book = bookRepository.findById(id)
+                                .orElseThrow(() -> new NotFoundException("Book not found"));
 
-        List<GenreResponse> genreResponses = genreService.getAllGenres();
+                List<GenreResponse> genreResponses = genreService.getAllGenres();
 
-        List<Long> bookGenreIds =
-                book.getGenres().stream().map(Genre::getId).collect(Collectors.toList());
+                List<Long> bookGenreIds = book.getGenres().stream().map(Genre::getId)
+                                .collect(Collectors.toList());
 
-        List<GenreResponse> filteredGenres = genreResponses.stream()
-                .filter(genreResponse -> bookGenreIds.contains(genreResponse.getId()))
-                .collect(Collectors.toList());
+                List<GenreResponse> filteredGenres = genreResponses.stream().filter(
+                                genreResponse -> bookGenreIds.contains(genreResponse.getId()))
+                                .collect(Collectors.toList());
 
-        BookDetailsResponse bookDetailsResponse = bookMapper.toBookDetailsResponse(book);
+                BookDetailsResponse bookDetailsResponse = bookMapper.toBookDetailsResponse(book);
 
-        bookDetailsResponse.setGenres(filteredGenres);
+                bookDetailsResponse.setGenres(filteredGenres);
 
-        return bookDetailsResponse;
-    }
-
-    @Override
-    public BookPageResponse getNewBooks(Integer page, Integer maxResults) {
-        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
-        Page<Book> bookPage = bookRepository.findTop10ByOrderByPublishedDateDesc(pageable);
-        return bookMapper.toBookPageResponse(bookPage);
-    }
-
-    @Override
-    public BookPageResponse getBookPageByTitle(String query, Integer page, Integer maxResults) {
-        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
-        Page<Book> bookPage = bookRepository.findByTitleContaining(query, pageable);
-        return bookMapper.toBookPageResponse(bookPage);
-    }
-
-    @Override
-    public BookPageResponse getBookPageByGenreId(String genreIdsQuery, String conditionQuery,
-            Integer page, Integer maxResults) {
-        if (!(conditionQuery.equals("SINGLE") || conditionQuery.equals("AND")
-                || conditionQuery.equals("OR"))) {
-            throw new BadRequestException("検索条件が不正です。");
+                return bookDetailsResponse;
         }
 
-        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
+        @Override
+        public BookPageResponse getNewBooks(Integer page, Integer maxResults) {
+                Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
+                Page<Book> bookPage = bookRepository.findTop10ByOrderByPublishedDateDesc(pageable);
+                return bookMapper.toBookPageResponse(bookPage);
+        }
 
-        List<Long> genreIds = Arrays.stream(genreIdsQuery.split(",")).map(Long::parseLong)
-                .collect(Collectors.toList());
+        @Override
+        public BookPageResponse getBookPageByTitle(String query, Integer page, Integer maxResults) {
+                Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
+                Page<Book> bookPage = bookRepository.findByTitleContaining(query, pageable);
+                return bookMapper.toBookPageResponse(bookPage);
+        }
 
-        Boolean isAndSearch = conditionQuery.equals("AND");
+        @Override
+        public BookPageResponse getBookPageByGenreId(String genreIdsQuery, String conditionQuery,
+                        Integer page, Integer maxResults) {
+                if (!(conditionQuery.equals("SINGLE") || conditionQuery.equals("AND")
+                                || conditionQuery.equals("OR"))) {
+                        throw new BadRequestException("検索条件が不正です。");
+                }
 
-        Page<Book> bookPage =
-                isAndSearch ? bookRepository.findByAllGenreIds(genreIds, genreIds.size(), pageable)
-                        : bookRepository.findByGenreIds(genreIds, pageable);
+                Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
 
-        return bookMapper.toBookPageResponse(bookPage);
-    }
+                List<Long> genreIds = Arrays.stream(genreIdsQuery.split(",")).map(Long::parseLong)
+                                .collect(Collectors.toList());
+
+                Boolean isAndSearch = conditionQuery.equals("AND");
+
+                Page<Book> bookPage = isAndSearch
+                                ? bookRepository.findByAllGenreIds(genreIds, genreIds.size(),
+                                                pageable)
+                                : bookRepository.findByGenreIds(genreIds, pageable);
+
+                return bookMapper.toBookPageResponse(bookPage);
+        }
 }

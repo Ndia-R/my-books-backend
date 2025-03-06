@@ -34,7 +34,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final PaginationUtil paginationUtil;
 
     private static final Sort DEFAULT_SORT =
-            Sort.by(Sort.Order.asc("id"), Sort.Order.desc("updatedAt"));
+            Sort.by(Sort.Order.desc("updatedAt"), Sort.Order.asc("id"));
 
     @Override
     public ReviewPageResponse getReviewPage(String bookId, Integer page, Integer maxResults) {
