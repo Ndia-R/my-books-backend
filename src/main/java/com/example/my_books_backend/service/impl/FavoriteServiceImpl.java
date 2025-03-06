@@ -31,7 +31,8 @@ public class FavoriteServiceImpl implements FavoriteService {
     private final BookRepository bookRepository;
     private final PaginationUtil paginationUtil;
 
-    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "updatedAt");
+    private static final Sort DEFAULT_SORT =
+            Sort.by(Sort.Order.asc("id"), Sort.Order.desc("updatedAt"));
 
     @Override
     public FavoritePageResponse getFavoritePageByUser(Integer page, Integer maxResults, User user) {

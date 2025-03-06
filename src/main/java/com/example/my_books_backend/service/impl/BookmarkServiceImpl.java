@@ -39,7 +39,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final BookChapterRepository bookChapterRepository;
     private final PaginationUtil paginationUtil;
 
-    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "updatedAt");
+    private static final Sort DEFAULT_SORT =
+            Sort.by(Sort.Order.asc("id"), Sort.Order.desc("updatedAt"));
 
     @Override
     public List<BookmarkResponse> getBookmarksByBookId(String bookId, User user) {

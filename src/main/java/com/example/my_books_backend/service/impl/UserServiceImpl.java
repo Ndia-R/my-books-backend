@@ -3,7 +3,6 @@ package com.example.my_books_backend.service.impl;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,8 +42,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final RandomStringUtil randomStringUtil;
 
-    @Value("${spring.app.defaultAvatarUrl}")
-    private String DEFAULT_AVATAR_URL;
+    private String DEFAULT_AVATAR_URL = "";
 
     @Override
     public Optional<User> findByEmail(String email) {

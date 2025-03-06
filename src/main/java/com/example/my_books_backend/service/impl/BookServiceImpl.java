@@ -30,7 +30,8 @@ public class BookServiceImpl implements BookService {
     private final PaginationUtil paginationUtil;
     private final GenreService genreService;
 
-    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "publishedDate");
+    private static final Sort DEFAULT_SORT =
+            Sort.by(Sort.Order.asc("id"), Sort.Order.desc("publishedDate"));
 
     @Override
     public BookDetailsResponse getBookDetailsById(String id) {
