@@ -10,7 +10,7 @@ import com.example.my_books_backend.service.BookContentPageService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("")
 @RequiredArgsConstructor
 public class BookContentPageController {
     private final BookContentPageService bookContentPageService;

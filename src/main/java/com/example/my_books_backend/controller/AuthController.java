@@ -15,7 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
@@ -34,6 +34,9 @@ public class AuthController {
         return ResponseEntity.ok(userResponse);
     }
 
+    // Controllerクラスで"/logout"のエンドポイントを用意しても、Spring Securityのデフォルトの
+    // "/logout"が呼ばれるので、このエンドポイントは意味がなくなる
+    // ログアウト処理は「SecurityConfig.java」に実装している
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         authService.logout(response);
