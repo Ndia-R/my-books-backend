@@ -22,7 +22,7 @@ public class ReviewMapper {
         User user = modelMapper.map(review.getUser(), User.class);
         Book book = modelMapper.map(review.getBook(), Book.class);
         reviewResponse.setName(user.getName());
-        reviewResponse.setAvatarUrl(user.getAvatarUrl());
+        reviewResponse.setAvatarPath(user.getAvatarPath());
         reviewResponse.setBook(bookMapper.toBookResponse(book));
         return reviewResponse;
     }

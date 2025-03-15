@@ -21,7 +21,7 @@ public class BookDetailsResponse {
     private Integer price;
     private Integer pageCount;
     private String isbn;
-    private String imageUrl;
+    private String imagePath;
     private Integer reviewCount;
     private Double averageRating;
 }

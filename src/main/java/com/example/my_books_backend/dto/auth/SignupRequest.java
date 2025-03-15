@@ -27,6 +27,6 @@ public class SignupRequest {
     private String name;
 
     @NotNull
-    @NotBlank(message = "アバターURLは必須です")
-    private String avatarUrl;
+    @NotBlank(message = "アバターは必須です")
+    private String avatarPath;
 }

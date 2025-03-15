@@ -58,7 +58,7 @@ public class AuthService {
         String email = request.getEmail();
         String password = request.getPassword();
         String name = request.getName();
-        String avatarUrl = request.getAvatarUrl();
+        String avatarPath = request.getAvatarPath();
 
         if (userRepository.existsByEmail(email)) {
             throw new ConflictException("サインアップに失敗しました。このメールアドレスは既に登録されています。: " + email);
@@ -68,7 +68,7 @@ public class AuthService {
         createUserRequest.setEmail(email);
         createUserRequest.setPassword(password);
         createUserRequest.setName(name);
-        createUserRequest.setAvatarUrl(avatarUrl);
+        createUserRequest.setAvatarPath(avatarPath);
 
         User user = userService.createUser(createUserRequest);
 

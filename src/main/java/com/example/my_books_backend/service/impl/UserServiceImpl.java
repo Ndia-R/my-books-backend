@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final RandomStringUtil randomStringUtil;
 
-    private String DEFAULT_AVATAR_URL = "";
+    private String DEFAULT_AVATAR_PATH = "";
 
     @Override
     public Optional<User> findByEmail(String email) {
@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName());
-        user.setAvatarUrl(request.getAvatarUrl());
+        user.setAvatarPath(request.getAvatarPath());
 
         if (user.getRoles() == null) {
             Role role = roleRepository.findByName(RoleName.ROLE_USER);
@@ -81,9 +81,9 @@ public class UserServiceImpl implements UserService {
             user.setName(name);
         }
 
-        if (user.getAvatarUrl() == null) {
-            String avatarUrl = DEFAULT_AVATAR_URL;
-            user.setAvatarUrl(avatarUrl);
+        if (user.getAvatarPath() == null) {
+            String avatarPath = DEFAULT_AVATAR_PATH;
+            user.setAvatarPath(avatarPath);
         }
 
         User savedUser = userRepository.save(user);
@@ -114,13 +114,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateCurrentUser(UpdateUserRequest request, User user) {
         String name = request.getName();
-        String avatarUrl = request.getAvatarUrl();
+        String avatarPath = request.getAvatarPath();
 
         if (name != null) {
             user.setName(name);
         }
-        if (avatarUrl != null) {
-            user.setAvatarUrl(avatarUrl);
+        if (avatarPath != null) {
+            user.setAvatarPath(avatarPath);
         }
         userRepository.save(user);
     }

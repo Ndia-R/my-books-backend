@@ -21,5 +21,5 @@ public class CreateUserRequest {
 
     private List<Role> roles;
     private String name;
-    private String avatarUrl;
+    private String avatarPath;
 }

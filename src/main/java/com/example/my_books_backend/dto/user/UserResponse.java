@@ -13,5 +13,5 @@ public class UserResponse {
     private String email;
     private List<String> roles;
     private String name;
-    private String avatarUrl;
+    private String avatarPath;
 }

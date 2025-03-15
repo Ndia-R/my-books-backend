@@ -51,8 +51,8 @@ public class User extends EntityBase implements UserDetails {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "avatar_url")
-    private String avatarUrl;
+    @Column(name = "avatar_path")
+    private String avatarPath;
 
     @OneToMany(mappedBy = "user")
     private List<Review> reviews;

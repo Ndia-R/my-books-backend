@@ -16,7 +16,7 @@ public class BookResponse {
     private List<Long> genreIds;
     private List<String> authors;
     private Date publishedDate;
-    private String imageUrl;
+    private String imagePath;
     private Integer reviewCount;
     private Double averageRating;
 }

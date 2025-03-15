@@ -14,7 +14,7 @@ public class ReviewResponse {
     private Long userId;
     private String bookId;
     private String name;
-    private String avatarUrl;
+    private String avatarPath;
     private String comment;
     private Double rating;
     private LocalDateTime createdAt;

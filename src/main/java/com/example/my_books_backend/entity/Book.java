@@ -57,8 +57,8 @@ public class Book extends EntityBase {
     @Column(name = "isbn", nullable = false)
     private String isbn;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Column(name = "image_path")
+    private String imagePath;
 
     @OneToMany(mappedBy = "book")
     private List<Review> reviews;

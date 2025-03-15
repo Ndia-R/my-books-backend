@@ -26,7 +26,7 @@ CREATE TABLE `books` (
   `price` INT NOT NULL DEFAULT 0,
   `page_count` INT NOT NULL DEFAULT 0,
   `isbn` VARCHAR(255) NOT NULL DEFAULT '',
-  `image_url` VARCHAR(255) DEFAULT NULL,
+  `image_path` VARCHAR(255) DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `is_deleted` BOOLEAN NOT NULL DEFAULT FALSE
@@ -54,7 +54,7 @@ CREATE TABLE `users` (
   `email` VARCHAR(255) NOT NULL UNIQUE,
   `password` VARCHAR(255) NOT NULL DEFAULT '',
   `name` VARCHAR(255) NOT NULL DEFAULT '',
-  `avatar_url` VARCHAR(255) DEFAULT NULL,
+  `avatar_path` VARCHAR(255) DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `is_deleted` BOOLEAN NOT NULL DEFAULT FALSE
@@ -146,7 +146,7 @@ INTO TABLE books
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
-(`id`, `title`, `description`, `authors`, `publisher`, `published_date`, `price`, `page_count`, `isbn`, `image_url`);
+(`id`, `title`, `description`, `authors`, `publisher`, `published_date`, `price`, `page_count`, `isbn`, `image_path`);
 
 INSERT INTO `genres` (`name`, `description`) VALUES
 ('ミステリー', '謎解きや推理をテーマにした作品'),
@@ -174,17 +174,17 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 (`book_id`, `genre_id`);
 
-INSERT INTO `users` (`name`, `email`, `password`, `avatar_url`) VALUES
-('Lars', 'lars@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', 'https://localhost/images/avatars/avatar01.png'),
-('Nina', 'nina@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', 'https://localhost/images/avatars/avatar02.png'),
-('Paul', 'paul@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', 'https://localhost/images/avatars/avatar03.png'),
-('Julia', 'julia@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', 'https://localhost/images/avatars/avatar04.png'),
-('Lee', 'lee@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', 'https://localhost/images/avatars/avatar05.png'),
-('Lili', 'lili@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', 'https://localhost/images/avatars/avatar06.png'),
-('Steve', 'steve@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', 'https://localhost/images/avatars/avatar07.png'),
-('Anna', 'anna@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', 'https://localhost/images/avatars/avatar08.png'),
-('Law', 'law@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', 'https://localhost/images/avatars/avatar09.png'),
-('Alisa', 'alisa@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', 'https://localhost/images/avatars/avatar10.png');
+INSERT INTO `users` (`name`, `email`, `password`, `avatar_path`) VALUES
+('Lars', 'lars@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', '/avatar01.png'),
+('Nina', 'nina@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', '/avatar40.png'),
+('Paul', 'paul@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', '/avatar09.png'),
+('Julia', 'julia@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', '/avatar04.png'),
+('Eddy', 'lee@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', '/avatar05.png'),
+('Lili', 'lili@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', '/avatar28.png'),
+('Steve', 'steve@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', '/avatar37.png'),
+('Anna', 'anna@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', '/avatar12.png'),
+('Law', 'law@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', '/avatar07.png'),
+('Alisa', 'alisa@gmail.com', '$2a$10$E7FzFP73ImXXFHUmUUmXtuDrJnp0gZ3Zb3XJluLEW7tfnVmh5FLwC', '/avatar10.png');
 
 INSERT INTO `roles` (`name`, `description`) VALUES
 ('ROLE_ADMIN', '管理者権限'),
@@ -209,8 +209,8 @@ INSERT INTO `reviews` (`user_id`, `book_id`, `comment`, `rating`) VALUES
 (2, 'afcIMuetDuzj', '人生観が変わるほどの深い洞察が詰まっていました。', 3.0),
 (3, 'afcIMuetDuzj', '読む手が止まらないほど引き込まれた。', 3.5),
 (4, 'afcIMuetDuzj', '心に響く言葉が何度も胸を打った。', 5.0),
-(5, 'afcIMuetDuzj', '言葉の美しさに何度もページをめくり直した。', 4.0),
-(6, 'afcIMuetDuzj', '想像力をかき立てられる素晴らしいストーリーだった。', 4.5),
+(5, 'afcIMuetDuzj', '言葉の美しさに何度もページをめくり直した。', 3.5),
+(6, 'afcIMuetDuzj', '想像力をかき立てられる素晴らしいストーリーだった。', 3.5),
 (7, 'afcIMuetDuzj', '感動しました。何度も読み直したいと思いました。', 3.0),
 (8, 'afcIMuetDuzj', '登場人物に感情移入しすぎて泣いてしまった。', 5.0),
 (9, 'afcIMuetDuzj', '終わるのが惜しいほど楽しかった。', 4.5),
@@ -238,13 +238,13 @@ INSERT INTO `reviews` (`user_id`, `book_id`, `comment`, `rating`) VALUES
 (7, 'C4hD3jZ8rK6e', 'フラミンゴの羽の謎が解明される過程が面白かった！セレブたちの秘密が絡むことで、単なる殺人事件以上の深みが出ていたと思います。', 4.0),
 (8, 'C4hD3jZ8rK6e', '期待していたほどの緊張感がなく、ストーリーの進行が少し遅く感じました。後半の展開は良かったので、序盤がもう少しテンポよければ…。', 2.5),
 (9, 'C4hD3jZ8rK6e', '一見バラバラに見えた手がかりが、最後にひとつの真実へと収束する流れが見事。フラミンゴの羽に隠された意味が明かされた瞬間は鳥肌もの！', 4.5),
-(1, 'Hh5r4Kj9Tb8v', '音楽と自然、そして恋愛が美しく絡み合った作品でした。ツルの舞から生まれる旋律の描写が繊細で、読んでいるだけで音が聞こえてくるようでした。', 4.5),
-(2, 'Hh5r4Kj9Tb8v', 'サキの芸術への情熱とハヤトとの恋の狭間で揺れる心情が丁寧に描かれていて、とても共感できました。ラストの余韻が素晴らしかったです。', 4.5),
-(3, 'Hh5r4Kj9Tb8v', 'ツルの美しさと音楽の表現が見事でした。ただ、恋愛パートがもう少し深掘りされていたら、もっと感情移入できたかもしれません。', 4.0),
+(1, 'Hh5r4Kj9Tb8v', '音楽と自然、そして恋愛が美しく絡み合った作品でした。ツルの舞から生まれる旋律の描写が繊細で、読んでいるだけで音が聞こえてくるようでした。', 5.0),
+(2, 'Hh5r4Kj9Tb8v', 'サキの芸術への情熱とハヤトとの恋の狭間で揺れる心情が丁寧に描かれていて、とても共感できました。ラストの余韻が素晴らしかったです。', 5.0),
+(3, 'Hh5r4Kj9Tb8v', 'ツルの美しさと音楽の表現が見事でした。ただ、恋愛パートがもう少し深掘りされていたら、もっと感情移入できたかもしれません。', 4.5),
 (4, 'Hh5r4Kj9Tb8v', '自然の美しさと芸術の力が融合した、心に響く物語。サキの成長が丁寧に描かれていて、彼女の決断に胸が熱くなりました。', 5.0),
-(7, 'Hh5r4Kj9Tb8v', 'ツルの舞からインスピレーションを得るという設定がユニークで印象的でした。芸術に生きる人の葛藤がリアルに描かれていたのが良かったです。', 4.0),
-(9, 'Hh5r4Kj9Tb8v', '音楽と恋愛のバランスが絶妙で、読んでいて心が温かくなりました。ツルの存在が象徴的で、幻想的な雰囲気を醸し出していたのも素敵。', 4.5),
-(10, 'Hh5r4Kj9Tb8v', '芸術家としてのサキの成長が描かれているのは良かったけど、ハヤトのキャラクターがもう少し掘り下げられていたら、恋愛要素にももっと深みが出たと思う。', 3.0),
+(7, 'Hh5r4Kj9Tb8v', 'ツルの舞からインスピレーションを得るという設定がユニークで印象的でした。芸術に生きる人の葛藤がリアルに描かれていたのが良かったです。', 4.5),
+(9, 'Hh5r4Kj9Tb8v', '音楽と恋愛のバランスが絶妙で、読んでいて心が温かくなりました。ツルの存在が象徴的で、幻想的な雰囲気を醸し出していたのも素敵。', 5.0),
+(10, 'Hh5r4Kj9Tb8v', '芸術家としてのサキの成長が描かれているのは良かったけど、ハヤトのキャラクターがもう少し掘り下げられていたら、恋愛要素にももっと深みが出たと思う。', 4.0),
 (2, 'dJ4fLnQ2ZcR3', '画家の残した絵が謎解きの手がかりになっているのが面白かった！ヤギが単なるペットではなく、物語の核心に関わる存在だったのが意外で良かったです。', 4.5),
 (3, 'dJ4fLnQ2ZcR3', '美術ミステリーとして楽しめる一冊。もう少し探偵のキャラクターに深みがあると、もっと感情移入できたかも。', 4.0),
 (4, 'dJ4fLnQ2ZcR3', 'アイデアは魅力的だけど、途中の展開がややゆっくりで、もう少しテンポよく進んでほしかった。ただ、結末には驚かされました！', 3.5),
@@ -252,7 +252,17 @@ INSERT INTO `reviews` (`user_id`, `book_id`, `comment`, `rating`) VALUES
 (6, 'dJ4fLnQ2ZcR3', 'ヤギがここまでストーリーに絡んでくるとは思わなかった！芸術と動物を絡めたユニークな設定が新鮮で、非常に楽しめました。', 5.0),
 (7, 'dJ4fLnQ2ZcR3', '絵画に込められた意味を探るミステリーとして秀逸。ヤギの行動に注目すると、序盤からヒントが散りばめられていて、再読したくなる作品でした。', 4.0),
 (8, 'dJ4fLnQ2ZcR3', '画家の失踪の謎には興味を惹かれたけど、全体的に展開がゆったりしていて、もう少し緊迫感が欲しかった。', 2.5),
-(10, 'dJ4fLnQ2ZcR3', '山小屋の描写や画家の背景など、雰囲気は抜群。ただ、結末が少しあっさりしていて、もう少し余韻が欲しかった。', 3.5);
+(10, 'dJ4fLnQ2ZcR3', '山小屋の描写や画家の背景など、雰囲気は抜群。ただ、結末が少しあっさりしていて、もう少し余韻が欲しかった。', 3.5),
+(1, 'bU4W2hM7x9D5', '宙を旅するマンドリルという設定が斬新で、ワクワクしながら読み進めました！未知の生物との出会いがスリリングで、最後まで飽きさせません。', 5.0),
+(2, 'bU4W2hM7x9D5', 'マンドリルたちの個性がしっかり描かれていて、仲間との絆に感動しました。もう少し科学的な説明があると、さらにリアリティが増したかも？', 4.5),
+(3, 'bU4W2hM7x9D5', '宇宙探検と友情の要素がバランスよく描かれていて楽しかった！特に異星人とのやりとりがユーモラスで、読んでいてニヤリとしてしまう場面も。', 4.5),
+(4, 'bU4W2hM7x9D5', 'まさかマンドリルが宇宙に行くなんて…！設定の意外性だけでなく、ストーリーも練られていて、熱い冒険譚として大満足の一冊でした。', 5.0),
+(5, 'bU4W2hM7x9D5', 'ストーリーは面白かったけど、もう少しキャラクターの掘り下げが欲しかったかも。特に敵キャラの背景が薄く感じました。', 3.5),
+(6, 'bU4W2hM7x9D5', '設定はユニークだけど、展開が王道すぎて予想の範囲内だったかな。でも、宇宙の描写は美しくて雰囲気は最高でした！', 3.0),
+(7, 'bU4W2hM7x9D5', 'SFとしての魅力もしっかりありつつ、マンドリルたちのユーモラスな掛け合いが楽しかった！続編があるならぜひ読みたいです。', 4.5),
+(8, 'bU4W2hM7x9D5', 'マンドリルという設定がユニークすぎて、個人的には感情移入が難しかった…。でも、宇宙の冒険シーンは迫力があって良かったです。', 2.5),
+(9, 'bU4W2hM7x9D5', '宇宙の神秘と冒険のワクワク感がたっぷり詰まった一冊！マンドリルたちの成長も丁寧に描かれていて、読み終わった後に爽やかな余韻が残りました。', 5.0),
+(10, 'bU4W2hM7x9D5', 'アイデアは素晴らしいけど、物語の後半が少し駆け足に感じました。もっとじっくり惑星探査のシーンを描いてほしかったです。', 3.5);
 
 INSERT INTO `favorites` (`user_id`, `book_id`) VALUES
 (1, 'afcIMuetDuzj'),
@@ -289,7 +299,48 @@ INSERT INTO `favorites` (`user_id`, `book_id`) VALUES
 INSERT INTO `bookmarks` (`user_id`, `book_id`, `chapter_number`, `page_number`, `note`) VALUES
 (1, 'afcIMuetDuzj', 1, 1, 'もう一度読み直す'),
 (3, 'afcIMuetDuzj', 3, 3, 'このページのフレーズが好き'),
-(4, 'afcIMuetDuzj', 6, 4, 'この感動を誰かに伝える');
+(4, 'afcIMuetDuzj', 6, 4, 'この感動を誰かに伝える'),
+(4, 'aBcDeFgHiJkL', 1, 1, 'わかりやすい解説だった'),
+(3, 'aBcDeFgHiJkL', 1, 1, 'よいね'),
+(1, 'aBcDeFgHiJkL', 1, 1, 'ドラゴン謎過ぎる'),
+(7, 'aBcDeFgHiJkL', 1, 1, 'かっこいい'),
+(8, 'aBcDeFgHiJkL', 1, 1, '神秘的'),
+(9, 'aBcDeFgHiJkL', 1, 1, '現代に存在したらどうなっていた'),
+(10, 'aBcDeFgHiJkL', 1, 1, '架空の生き物だがかっこいい'),
+(1, 'Hh5r4Kj9Tb8v', 1, 1, '春の訪れとともに'),
+(2, 'Hh5r4Kj9Tb8v', 2, 1, 'インスピレーションの源'),
+(3, 'Hh5r4Kj9Tb8v', 3, 1, '出会いは運命？'),
+(4, 'Hh5r4Kj9Tb8v', 4, 1, '音楽か、恋か'),
+(5, 'Hh5r4Kj9Tb8v', 5, 1, 'ハヤトの描く世界'),
+(6, 'Hh5r4Kj9Tb8v', 6, 1, 'ツルの舞う夜'),
+(7, 'Hh5r4Kj9Tb8v', 7, 1, '衝突と迷い'),
+(8, 'Hh5r4Kj9Tb8v', 8, 1, 'ツルが導く答え'),
+(9, 'Hh5r4Kj9Tb8v', 9, 1, '愛と芸術の融合'),
+(10, 'Hh5r4Kj9Tb8v', 10, 1, '旋律は続く'),
+(10, 'dJ4fLnQ2ZcR3', 1, 1, '画家の謎の失踪'),
+(9, 'dJ4fLnQ2ZcR3', 2, 1, '手がかりは絵の中に？'),
+(8, 'dJ4fLnQ2ZcR3', 3, 1, '探偵、動き出す'),
+(7, 'dJ4fLnQ2ZcR3', 4, 1, 'ヤギの行動がカギ？'),
+(6, 'dJ4fLnQ2ZcR3', 5, 1, '隠されたメッセージ'),
+(5, 'dJ4fLnQ2ZcR3', 6, 1, '山小屋の秘密'),
+(4, 'dJ4fLnQ2ZcR3', 7, 1, 'ヤギの導く先に…'),
+(3, 'dJ4fLnQ2ZcR3', 8, 1, '衝撃の発見！'),
+(2, 'dJ4fLnQ2ZcR3', 9, 1, '真実へのラストスパート'),
+(1, 'dJ4fLnQ2ZcR3', 10, 1, '最後の一筆'),
+(6, 'C4hD3jZ8rK6e', 1, 1, '華やかな幕開け'),
+(7, 'C4hD3jZ8rK6e', 2, 1, 'フラミンゴの羽の謎'),
+(10, 'C4hD3jZ8rK6e', 3, 1, '刑事ジェイク登場'),
+(3, 'C4hD3jZ8rK6e', 4, 1, 'セレブたちの仮面'),
+(2, 'C4hD3jZ8rK6e', 5, 1, '証言の食い違い'),
+(1, 'C4hD3jZ8rK6e', 6, 1, 'フラミンゴが見ていた？'),
+(4, 'C4hD3jZ8rK6e', 7, 1, '隠されたメッセージ'),
+(5, 'C4hD3jZ8rK6e', 8, 1, '疑惑のリゾートオーナー'),
+(9, 'C4hD3jZ8rK6e', 9, 1, '決定的な証拠'),
+(8, 'bU4W2hM7x9D5', 3, 1, '迫られた選択'),
+(1, 'bU4W2hM7x9D5', 4, 1, '新たな発見'),
+(4, 'bU4W2hM7x9D5', 5, 1, '隠されたメッセージ'),
+(5, 'bU4W2hM7x9D5', 6, 1, '絶体絶命'),
+(9, 'bU4W2hM7x9D5', 7, 1, '銀河の旅');
 
 INSERT INTO `book_chapters` (`book_id`, `chapter_number`, `title`) VALUES
 ('afcIMuetDuzj', 1, 'プロローグ'),
@@ -334,7 +385,14 @@ INSERT INTO `book_chapters` (`book_id`, `chapter_number`, `title`) VALUES
 ('dJ4fLnQ2ZcR3', 7, '境界の絵'),
 ('dJ4fLnQ2ZcR3', 8, '扉が開く時'),
 ('dJ4fLnQ2ZcR3', 9, '芸術家の選択'),
-('dJ4fLnQ2ZcR3', 10, '残された絵');
+('dJ4fLnQ2ZcR3', 10, '残された絵'),
+('bU4W2hM7x9D5', 1, '覚醒'),
+('bU4W2hM7x9D5', 2, '宇宙への出発'),
+('bU4W2hM7x9D5', 3, '異星の生命体'),
+('bU4W2hM7x9D5', 4, '神殿の秘密'),
+('bU4W2hM7x9D5', 5, 'クリスタルの探索'),
+('bU4W2hM7x9D5', 6, '最後の決断'),
+('bU4W2hM7x9D5', 7, '帰還と新たな旅立ち');
 
 LOAD DATA INFILE '/docker-entrypoint-initdb.d/book_content_pages.csv'
 INTO TABLE book_content_pages
