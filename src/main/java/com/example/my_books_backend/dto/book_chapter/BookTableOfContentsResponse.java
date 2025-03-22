@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BookTableOfContentsResponse {
     private String bookId;
+    private String title;
     private List<BookChapterResponse> chapters;
 }
