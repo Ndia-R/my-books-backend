@@ -34,6 +34,9 @@ public class ReviewServiceImpl implements ReviewService {
     private final PaginationUtil paginationUtil;
 
     private static final Sort DEFAULT_SORT =
+            Sort.by(Sort.Order.desc("updatedAt"), Sort.Order.asc("id"));
+
+    private static final Sort DEFAULT_SORT_MY_REVIEW =
             Sort.by(Sort.Order.desc("createdAt"), Sort.Order.asc("id"));
 
     @Override
@@ -73,7 +76,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewPageResponse getReviewPageByUser(Integer page, Integer maxResults, User user) {
-        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
+        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT_MY_REVIEW);
         Page<Review> reviewPage = reviewRepository.findByUserAndIsDeletedFalse(user, pageable);
         return reviewMapper.toReviewPageResponse(reviewPage);
     }
