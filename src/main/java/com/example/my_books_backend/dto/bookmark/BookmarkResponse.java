@@ -17,6 +17,7 @@ public class BookmarkResponse {
     private Integer pageNumber;
     private String note;
     private String chapterTitle;
+    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private BookResponse book;
 }
