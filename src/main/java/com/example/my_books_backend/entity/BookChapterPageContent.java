@@ -14,14 +14,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "book_content_pages")
+@Table(name = "book_chapter_page_contents")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookContentPage extends EntityBase {
+public class BookChapterPageContent extends EntityBase {
     @EmbeddedId
-    private BookContentPageId id;
+    private BookChapterPageContentId id;
 
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;

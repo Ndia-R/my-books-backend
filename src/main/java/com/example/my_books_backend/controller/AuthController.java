@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
     private final AuthService authService;
 
+    // ログイン
     @PostMapping("/login")
     public ResponseEntity<AccessTokenResponse> login(@Valid @RequestBody LoginRequest request,
             HttpServletResponse response) {
@@ -27,6 +28,7 @@ public class AuthController {
         return ResponseEntity.ok(loginResponse);
     }
 
+    // サインアップ
     @PostMapping("/signup")
     public ResponseEntity<AccessTokenResponse> signup(@Valid @RequestBody SignupRequest request,
             HttpServletResponse response) {
@@ -34,6 +36,7 @@ public class AuthController {
         return ResponseEntity.ok(userResponse);
     }
 
+    // ログアウト
     // Controllerクラスで"/logout"のエンドポイントを用意しても、Spring Securityのデフォルトの
     // "/logout"が呼ばれるので、このエンドポイントは意味がなくなる
     // ログアウト処理は「SecurityConfig.java」に実装している
@@ -43,6 +46,7 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    // リフレッシュトークンからアクセストークンを取得
     @PostMapping("/refresh-token")
     public ResponseEntity<AccessTokenResponse> refreshToken(HttpServletRequest request) {
         AccessTokenResponse accessTokenResponse = authService.refreshAccessToken(request);

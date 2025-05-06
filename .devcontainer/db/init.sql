@@ -13,7 +13,7 @@ DROP TABLE IF EXISTS `reviews`;
 DROP TABLE IF EXISTS `favorites`;
 DROP TABLE IF EXISTS `bookmarks`;
 DROP TABLE IF EXISTS `book_chapters`;
-DROP TABLE IF EXISTS `book_content_pages`;
+DROP TABLE IF EXISTS `book_chapter_page_contents`;
 
 
 CREATE TABLE `books` (
@@ -22,7 +22,7 @@ CREATE TABLE `books` (
   `description` TEXT NOT NULL,
   `authors` VARCHAR(255) NOT NULL DEFAULT '',
   `publisher` VARCHAR(255) NOT NULL DEFAULT '',
-  `published_date` DATE NOT NULL,
+  `publication_date` DATE NOT NULL,
   `price` INT NOT NULL DEFAULT 0,
   `page_count` INT NOT NULL DEFAULT 0,
   `isbn` VARCHAR(255) NOT NULL DEFAULT '',
@@ -128,7 +128,7 @@ CREATE TABLE `book_chapters` (
   FOREIGN KEY (`book_id`) REFERENCES `books`(`id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `book_content_pages` (
+CREATE TABLE `book_chapter_page_contents` (
   `book_id` VARCHAR(255) NOT NULL,
   `chapter_number` INT NOT NULL,
   `page_number` INT NOT NULL,
@@ -146,7 +146,7 @@ INTO TABLE books
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
-(`id`, `title`, `description`, `authors`, `publisher`, `published_date`, `price`, `page_count`, `isbn`, `image_path`);
+(`id`, `title`, `description`, `authors`, `publisher`, `publication_date`, `price`, `page_count`, `isbn`, `image_path`);
 
 INSERT INTO `genres` (`name`, `description`) VALUES
 ('ミステリー', '謎解きや推理をテーマにした作品'),
@@ -394,8 +394,8 @@ INSERT INTO `book_chapters` (`book_id`, `chapter_number`, `title`) VALUES
 ('bU4W2hM7x9D5', 6, '最後の決断'),
 ('bU4W2hM7x9D5', 7, '帰還と新たな旅立ち');
 
-LOAD DATA INFILE '/docker-entrypoint-initdb.d/book_content_pages.csv'
-INTO TABLE book_content_pages
+LOAD DATA INFILE '/docker-entrypoint-initdb.d/book_chapter_page_contents.csv'
+INTO TABLE book_chapter_page_contents
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'

@@ -8,7 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.review.ReviewPageResponse;
-import com.example.my_books_backend.dto.review.ReviewSummaryResponse;
+import com.example.my_books_backend.dto.review.ReviewCountsResponse;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.entity.Book;
@@ -33,54 +33,66 @@ public class ReviewServiceImpl implements ReviewService {
     private final BookRepository bookRepository;
     private final PaginationUtil paginationUtil;
 
-    private static final Sort DEFAULT_SORT =
-            Sort.by(Sort.Order.desc("updatedAt"), Sort.Order.asc("id"));
-
-    private static final Sort DEFAULT_SORT_MY_REVIEW =
+    /** ユーザーが投稿したすべてのレビュー情報のデフォルトソート（作成日） */
+    private static final Sort USER_REVIEWS_DEFAULT_SORT =
             Sort.by(Sort.Order.desc("createdAt"), Sort.Order.asc("id"));
 
+    /** 書籍に対するレビュー一覧のデフォルトソート（更新日） */
+    private static final Sort BOOK_REVIEWS_DEFAULT_SORT =
+            Sort.by(Sort.Order.desc("updatedAt"), Sort.Order.asc("id"));
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public ReviewPageResponse getReviewPage(String bookId, Integer page, Integer maxResults) {
-        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
-        Page<Review> reviewPage = reviewRepository.findByBookIdAndIsDeletedFalse(bookId, pageable);
-        return reviewMapper.toReviewPageResponse(reviewPage);
-    }
-
-    @Override
-    public ReviewSummaryResponse getReviewSummary(String bookId) {
-        List<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(bookId);
-        Double averageRating =
-                reviews.stream().mapToDouble(Review::getRating).average().orElse(0.0);
-
-        ReviewSummaryResponse reviewSummaryResponse = new ReviewSummaryResponse();
-        reviewSummaryResponse.setBookId(bookId);
-        reviewSummaryResponse.setReviewCount(reviews.size());
-        reviewSummaryResponse.setAverageRating(averageRating);
-
-        return reviewSummaryResponse;
-    }
-
-    @Override
-    public Boolean getSelfReviewExistsByBookId(String bookId, User user) {
-        Optional<Review> review =
-                reviewRepository.findByBookIdAndUserAndIsDeletedFalse(bookId, user);
-        return review.isPresent();
-    }
-
-    @Override
-    public ReviewResponse getReviewByBookId(String bookId, User user) {
+    public ReviewResponse getUserReviewForBook(String bookId, User user) {
         Review review = reviewRepository.findByBookIdAndUserAndIsDeletedFalse(bookId, user)
                 .orElseThrow(() -> new NotFoundException("Review not found"));
         return reviewMapper.toReviewResponse(review);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public ReviewPageResponse getReviewPageByUser(Integer page, Integer maxResults, User user) {
-        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT_MY_REVIEW);
-        Page<Review> reviewPage = reviewRepository.findByUserAndIsDeletedFalse(user, pageable);
-        return reviewMapper.toReviewPageResponse(reviewPage);
+    public ReviewPageResponse getUserReviews(Integer page, Integer maxResults, User user) {
+        Pageable pageable =
+                paginationUtil.createPageable(page, maxResults, USER_REVIEWS_DEFAULT_SORT);
+        Page<Review> reviews = reviewRepository.findByUserAndIsDeletedFalse(user, pageable);
+        return reviewMapper.toReviewPageResponse(reviews);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ReviewPageResponse getBookReviews(String bookId, Integer page, Integer maxResults) {
+        Pageable pageable =
+                paginationUtil.createPageable(page, maxResults, BOOK_REVIEWS_DEFAULT_SORT);
+        Page<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(bookId, pageable);
+        return reviewMapper.toReviewPageResponse(reviews);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ReviewCountsResponse getBookReviewCounts(String bookId) {
+        List<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(bookId);
+        Double averageRating =
+                reviews.stream().mapToDouble(Review::getRating).average().orElse(0.0);
+
+        ReviewCountsResponse response = new ReviewCountsResponse();
+        response.setBookId(bookId);
+        response.setReviewCount(reviews.size());
+        response.setAverageRating(averageRating);
+
+        return response;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     public ReviewResponse createReview(ReviewRequest request, User user) {
@@ -107,6 +119,9 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewMapper.toReviewResponse(savedReview);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     public ReviewResponse updateReview(Long id, ReviewRequest request, User user) {
@@ -131,6 +146,9 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewMapper.toReviewResponse(savedReview);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     public void deleteReview(Long id, User user) {

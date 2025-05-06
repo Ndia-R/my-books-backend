@@ -11,20 +11,19 @@ import com.example.my_books_backend.entity.Book;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, String> {
-        Page<Book> findTop10ByOrderByPublishedDateDesc(Pageable pageable);
+    Page<Book> findTop10ByOrderByPublicationDateDesc(Pageable pageable);
 
-        Page<Book> findByTitleContaining(String q, Pageable pageable);
+    Page<Book> findByTitleContaining(String keyword, Pageable pageable);
 
-        @Query("SELECT DISTINCT b FROM Book b JOIN b.genres g WHERE g.id IN :genreIds")
-        Page<Book> findByGenreIds(@Param("genreIds") List<Long> genreIds, Pageable pageable);
+    Page<Book> findDistinctByGenres_IdIn(List<Long> genreIds, Pageable pageable);
 
-        @Query("""
-                        SELECT b FROM Book b
-                        JOIN b.genres bg
-                        WHERE bg.id IN :genreIds
-                        GROUP BY b.id
-                        HAVING COUNT(DISTINCT bg.id) = :size
-                        """)
-        Page<Book> findByAllGenreIds(@Param("genreIds") List<Long> genreIds,
-                        @Param("size") long size, Pageable pageable);
+    @Query("""
+            SELECT b FROM Book b
+            JOIN b.genres bg
+            WHERE bg.id IN :genreIds
+            GROUP BY b.id
+            HAVING COUNT(DISTINCT bg.id) = :size
+            """)
+    Page<Book> findByAllGenreIds(@Param("genreIds") List<Long> genreIds, @Param("size") long size,
+            Pageable pageable);
 }

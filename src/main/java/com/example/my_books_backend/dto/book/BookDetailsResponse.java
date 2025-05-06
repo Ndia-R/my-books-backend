@@ -17,7 +17,7 @@ public class BookDetailsResponse {
     private List<GenreResponse> genres;
     private List<String> authors;
     private String publisher;
-    private Date publishedDate;
+    private Date publicationDate;
     private Integer price;
     private Integer pageCount;
     private String isbn;

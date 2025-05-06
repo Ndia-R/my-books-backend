@@ -21,6 +21,9 @@ public class GenreServiceImpl implements GenreService {
     private final GenreRepository genreRepository;
     private final GenreMapper genreMapper;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Cacheable("getAllGenres")
     public List<GenreResponse> getAllGenres() {
@@ -28,6 +31,9 @@ public class GenreServiceImpl implements GenreService {
         return genreMapper.toGenreResponseList(genres);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Cacheable(value = "getGenreById", key = "#p0")
     public GenreResponse getGenreById(Long id) {
@@ -36,6 +42,9 @@ public class GenreServiceImpl implements GenreService {
         return genreMapper.toGenreResponse(genre);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     @CacheEvict(value = "getAllGenres", allEntries = true)
@@ -47,6 +56,9 @@ public class GenreServiceImpl implements GenreService {
         return genreMapper.toGenreResponse(savedGenre);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     @Caching(evict = {@CacheEvict(value = "getGenreById", key = "#p0"),
@@ -69,6 +81,9 @@ public class GenreServiceImpl implements GenreService {
         return genreMapper.toGenreResponse(savedGenre);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     @Caching(evict = {@CacheEvict(value = "getGenreById", key = "#p0"),

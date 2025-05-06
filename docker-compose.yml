@@ -29,7 +29,7 @@ services:
       - ./.devcontainer/db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./.devcontainer/db/books.csv:/docker-entrypoint-initdb.d/books.csv
       - ./.devcontainer/db/book_genres.csv:/docker-entrypoint-initdb.d/book_genres.csv
-      - ./.devcontainer/db/book_content_pages.csv:/docker-entrypoint-initdb.d/book_content_pages.csv
+      - ./.devcontainer/db/book_chapter_page_contents.csv:/docker-entrypoint-initdb.d/book_chapter_page_contents.csv
       - ./.devcontainer/db/my.cnf:/etc/mysql/conf.d/my.cnf
       - db_data:/var/lib/mysql
     command: --secure-file-priv=/docker-entrypoint-initdb.d

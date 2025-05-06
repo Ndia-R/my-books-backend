@@ -12,9 +12,9 @@ import com.example.my_books_backend.entity.User;
 
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
-    Page<Bookmark> findByUserAndIsDeletedFalse(User user, Pageable pageable);
-
     List<Bookmark> findByBookIdAndUserAndIsDeletedFalse(String bookId, User user);
+
+    Page<Bookmark> findByUserAndIsDeletedFalse(User user, Pageable pageable);
 
     Optional<Bookmark> findByUserAndBookAndChapterNumberAndPageNumber(User user, Book book,
             Integer chapterNumber, Integer pageNumber);

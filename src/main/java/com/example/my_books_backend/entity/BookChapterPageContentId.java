@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookContentPageId implements Serializable {
+public class BookChapterPageContentId implements Serializable {
     @Column(name = "book_id")
     private String bookId;
 

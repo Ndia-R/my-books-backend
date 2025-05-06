@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProfileCountsResponse {
-    private Integer favoriteCount;
-    private Integer bookmarkCount;
-    private Integer reviewCount;
+public class UpdateUserProfileRequest {
+    private String name;
+    private String avatarPath;
 }
-

@@ -22,6 +22,9 @@ public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Cacheable("getAllRoles")
     public List<RoleResponse> getAllRoles() {
@@ -29,6 +32,9 @@ public class RoleServiceImpl implements RoleService {
         return roleMapper.toRoleResponseList(roles);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Cacheable(value = "getRoleById", key = "#p0")
     public RoleResponse getRoleById(Long id) {
@@ -37,6 +43,9 @@ public class RoleServiceImpl implements RoleService {
         return roleMapper.toRoleResponse(role);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     @CacheEvict(value = "getAllRoles", allEntries = true)
@@ -48,6 +57,9 @@ public class RoleServiceImpl implements RoleService {
         return roleMapper.toRoleResponse(savedRole);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     @Caching(evict = {@CacheEvict(value = "getRoleById", key = "#p0"),
@@ -70,6 +82,9 @@ public class RoleServiceImpl implements RoleService {
         return roleMapper.toRoleResponse(savedRole);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     @Caching(evict = {@CacheEvict(value = "getRoleById", key = "#p0"),

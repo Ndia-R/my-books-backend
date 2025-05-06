@@ -20,47 +20,47 @@ public class BookMapper {
     private final ReviewRepository reviewRepository;
 
     public BookResponse toBookResponse(Book book) {
-        BookResponse bookResponse = modelMapper.map(book, BookResponse.class);
+        BookResponse response = modelMapper.map(book, BookResponse.class);
 
         List<Long> genres = book.getGenres().stream().map(genre -> genre.getId()).toList();
-        bookResponse.setGenreIds(genres);
+        response.setGenreIds(genres);
 
         List<String> authors = Arrays.asList(book.getAuthors().split(","));
-        bookResponse.setAuthors(authors);
+        response.setAuthors(authors);
 
         List<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(book.getId());
         Double averageRating =
                 reviews.stream().mapToDouble(Review::getRating).average().orElse(0.0);
-        bookResponse.setReviewCount(reviews.size());
-        bookResponse.setAverageRating(averageRating);
+        response.setReviewCount(reviews.size());
+        response.setAverageRating(averageRating);
 
-        return bookResponse;
+        return response;
     }
 
     public List<BookResponse> toBookResponseList(List<Book> books) {
         return books.stream().map(book -> toBookResponse(book)).toList();
     }
 
-    public BookPageResponse toBookPageResponse(Page<Book> bookPage) {
-        Integer page = bookPage.getNumber();
-        Integer totalPages = bookPage.getTotalPages();
-        Integer totalItems = (int) bookPage.getTotalElements();
-        List<BookResponse> bookResponses = toBookResponseList(bookPage.getContent());
-        return new BookPageResponse(page, totalPages, totalItems, bookResponses);
+    public BookPageResponse toBookPageResponse(Page<Book> books) {
+        Integer page = books.getNumber();
+        Integer totalPages = books.getTotalPages();
+        Integer totalItems = (int) books.getTotalElements();
+        List<BookResponse> responses = toBookResponseList(books.getContent());
+        return new BookPageResponse(page, totalPages, totalItems, responses);
     }
 
     public BookDetailsResponse toBookDetailsResponse(Book book) {
-        BookDetailsResponse bookDetailsResponse = modelMapper.map(book, BookDetailsResponse.class);
+        BookDetailsResponse response = modelMapper.map(book, BookDetailsResponse.class);
 
         List<String> authors = Arrays.asList(book.getAuthors().split(","));
-        bookDetailsResponse.setAuthors(authors);
+        response.setAuthors(authors);
 
         List<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(book.getId());
         Double averageRating =
                 reviews.stream().mapToDouble(Review::getRating).average().orElse(0.0);
-        bookDetailsResponse.setReviewCount(reviews.size());
-        bookDetailsResponse.setAverageRating(averageRating);
+        response.setReviewCount(reviews.size());
+        response.setAverageRating(averageRating);
 
-        return bookDetailsResponse;
+        return response;
     }
 }

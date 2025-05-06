@@ -19,39 +19,44 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("/genres")
 @RequiredArgsConstructor
 public class GenreController {
     private final GenreService genreService;
 
-    @GetMapping("/genres")
+    // すべてのジャンル取得
+    @GetMapping("")
     public ResponseEntity<List<GenreResponse>> getAllGenres() {
-        List<GenreResponse> genreResponses = genreService.getAllGenres();
-        return ResponseEntity.ok(genreResponses);
+        List<GenreResponse> response = genreService.getAllGenres();
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/genres/{id}")
+    // 特定のジャンル取得
+    @GetMapping("/{id}")
     public ResponseEntity<GenreResponse> getGenreById(@PathVariable Long id) {
-        GenreResponse genreResponse = genreService.getGenreById(id);
-        return ResponseEntity.ok(genreResponse);
+        GenreResponse response = genreService.getGenreById(id);
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/genres")
+    // ジャンル作成
+    @PostMapping("")
     public ResponseEntity<GenreResponse> createGenre(@Valid @RequestBody GenreRequest request) {
-        GenreResponse genreResponse = genreService.createGenre(request);
+        GenreResponse response = genreService.createGenre(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(genreResponse.getId()).toUri();
-        return ResponseEntity.created(location).body(genreResponse);
+                .buildAndExpand(response.getId()).toUri();
+        return ResponseEntity.created(location).body(response);
     }
 
-    @PutMapping("/genres/{id}")
+    // ジャンル更新
+    @PutMapping("/{id}")
     public ResponseEntity<GenreResponse> updateGenre(@PathVariable Long id,
             @Valid @RequestBody GenreRequest request) {
-        GenreResponse genreResponse = genreService.updateGenre(id, request);
-        return ResponseEntity.ok(genreResponse);
+        GenreResponse respons = genreService.updateGenre(id, request);
+        return ResponseEntity.ok(respons);
     }
 
-    @DeleteMapping("/genres/{id}")
+    // ジャンル削除
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
         genreService.deleteGenre(id);
         return ResponseEntity.noContent().build();

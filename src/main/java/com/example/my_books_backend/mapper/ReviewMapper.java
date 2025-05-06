@@ -18,24 +18,24 @@ public class ReviewMapper {
     private final BookMapper bookMapper;
 
     public ReviewResponse toReviewResponse(Review review) {
-        ReviewResponse reviewResponse = modelMapper.map(review, ReviewResponse.class);
+        ReviewResponse response = modelMapper.map(review, ReviewResponse.class);
         User user = modelMapper.map(review.getUser(), User.class);
         Book book = modelMapper.map(review.getBook(), Book.class);
-        reviewResponse.setName(user.getName());
-        reviewResponse.setAvatarPath(user.getAvatarPath());
-        reviewResponse.setBook(bookMapper.toBookResponse(book));
-        return reviewResponse;
+        response.setName(user.getName());
+        response.setAvatarPath(user.getAvatarPath());
+        response.setBook(bookMapper.toBookResponse(book));
+        return response;
     }
 
     public List<ReviewResponse> toReviewResponseList(List<Review> reviews) {
         return reviews.stream().map(review -> toReviewResponse(review)).toList();
     }
 
-    public ReviewPageResponse toReviewPageResponse(Page<Review> reviewPage) {
-        Integer page = reviewPage.getNumber();
-        Integer totalPages = reviewPage.getTotalPages();
-        Integer totalItems = (int) reviewPage.getTotalElements();
-        List<ReviewResponse> reviewResponses = toReviewResponseList(reviewPage.getContent());
-        return new ReviewPageResponse(page, totalPages, totalItems, reviewResponses);
+    public ReviewPageResponse toReviewPageResponse(Page<Review> reviews) {
+        Integer page = reviews.getNumber();
+        Integer totalPages = reviews.getTotalPages();
+        Integer totalItems = (int) reviews.getTotalElements();
+        List<ReviewResponse> responses = toReviewResponseList(reviews.getContent());
+        return new ReviewPageResponse(page, totalPages, totalItems, responses);
     }
 }

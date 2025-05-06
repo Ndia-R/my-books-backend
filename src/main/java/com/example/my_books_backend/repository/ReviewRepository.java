@@ -12,11 +12,11 @@ import com.example.my_books_backend.entity.User;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    Page<Review> findByBookIdAndIsDeletedFalse(String bookId, Pageable pageable);
-
     Optional<Review> findByBookIdAndUserAndIsDeletedFalse(String bookId, User user);
 
     Page<Review> findByUserAndIsDeletedFalse(User user, Pageable pageable);
+
+    Page<Review> findByBookIdAndIsDeletedFalse(String bookId, Pageable pageable);
 
     List<Review> findByBookIdAndIsDeletedFalse(String bookId);
 

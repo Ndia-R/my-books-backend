@@ -17,22 +17,21 @@ public class BookmarkMapper {
     private final BookMapper bookMapper;
 
     public BookmarkResponse toBookmarkResponse(Bookmark bookmark) {
-        BookmarkResponse bookmarkResponse = modelMapper.map(bookmark, BookmarkResponse.class);
+        BookmarkResponse response = modelMapper.map(bookmark, BookmarkResponse.class);
         Book book = modelMapper.map(bookmark.getBook(), Book.class);
-        bookmarkResponse.setBook(bookMapper.toBookResponse(book));
-        return bookmarkResponse;
+        response.setBook(bookMapper.toBookResponse(book));
+        return response;
     }
 
     public List<BookmarkResponse> toBookmarkResponseList(List<Bookmark> bookmarks) {
         return bookmarks.stream().map(bookmark -> toBookmarkResponse(bookmark)).toList();
     }
 
-    public BookmarkPageResponse toBookmarkPageResponse(Page<Bookmark> bookmarkPage) {
-        Integer page = bookmarkPage.getNumber();
-        Integer totalPages = bookmarkPage.getTotalPages();
-        Integer totalItems = (int) bookmarkPage.getTotalElements();
-        List<BookmarkResponse> bookmarkResponses =
-                toBookmarkResponseList(bookmarkPage.getContent());
-        return new BookmarkPageResponse(page, totalPages, totalItems, bookmarkResponses);
+    public BookmarkPageResponse toBookmarkPageResponse(Page<Bookmark> bookmarks) {
+        Integer page = bookmarks.getNumber();
+        Integer totalPages = bookmarks.getTotalPages();
+        Integer totalItems = (int) bookmarks.getTotalElements();
+        List<BookmarkResponse> responses = toBookmarkResponseList(bookmarks.getContent());
+        return new BookmarkPageResponse(page, totalPages, totalItems, responses);
     }
 }

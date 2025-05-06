@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
-import com.example.my_books_backend.dto.favorite.FavoriteInfoResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
 import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Favorite;
@@ -31,38 +31,48 @@ public class FavoriteServiceImpl implements FavoriteService {
     private final BookRepository bookRepository;
     private final PaginationUtil paginationUtil;
 
+    /** ユーザーが追加したすべてのお気に入り情報のデフォルトソート（作成日） */
     private static final Sort DEFAULT_SORT =
             Sort.by(Sort.Order.desc("createdAt"), Sort.Order.asc("id"));
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public FavoritePageResponse getFavoritePageByUser(Integer page, Integer maxResults, User user) {
-        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
-        Page<Favorite> favoritePage = favoriteRepository.findByUser(user, pageable);
-        return favoriteMapper.toFavoritePageResponse(favoritePage);
-    }
-
-    @Override
-    public FavoriteResponse getFavoriteByBookId(String bookId, User user) {
+    public FavoriteResponse getUserFavoriteForBook(String bookId, User user) {
         FavoriteId favoriteId = new FavoriteId(user.getId(), bookId);
         Favorite favorite = favoriteRepository.findById(favoriteId)
                 .orElseThrow(() -> new NotFoundException("Favorite not found"));
         return favoriteMapper.toFavoriteResponse(favorite);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public FavoriteInfoResponse getFavoriteInfo(String bookId, Long userId) {
-        List<Favorite> favorites = favoriteRepository.findByBookId(bookId);
-
-        boolean isFavorite = favorites.stream()
-                .anyMatch(favorite -> favorite.getId().getUserId().equals(userId));
-
-        FavoriteInfoResponse favoriteInfoResponse = new FavoriteInfoResponse();
-        favoriteInfoResponse.setIsFavorite(isFavorite);
-        favoriteInfoResponse.setFavoriteCount(favorites.size());
-
-        return favoriteInfoResponse;
+    public FavoritePageResponse getUserFavorites(Integer page, Integer maxResults, User user) {
+        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
+        Page<Favorite> favorites = favoriteRepository.findByUser(user, pageable);
+        return favoriteMapper.toFavoritePageResponse(favorites);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FavoriteCountsResponse getBookFavoriteCounts(String bookId) {
+        List<Favorite> favorites = favoriteRepository.findByBookId(bookId);
+
+        FavoriteCountsResponse response = new FavoriteCountsResponse();
+        response.setBookId(bookId);
+        response.setFavoriteCount(favorites.size());
+
+        return response;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     public FavoriteResponse createFavorite(FavoriteRequest request, User user) {
@@ -79,6 +89,9 @@ public class FavoriteServiceImpl implements FavoriteService {
         return favoriteMapper.toFavoriteResponse(savedFavorite);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     public void deleteFavorite(String bookId, User user) {

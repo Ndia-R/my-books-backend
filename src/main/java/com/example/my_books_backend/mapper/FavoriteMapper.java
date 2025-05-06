@@ -17,22 +17,21 @@ public class FavoriteMapper {
     private final BookMapper bookMapper;
 
     public FavoriteResponse toFavoriteResponse(Favorite favorite) {
-        FavoriteResponse favoriteResponse = modelMapper.map(favorite, FavoriteResponse.class);
+        FavoriteResponse response = modelMapper.map(favorite, FavoriteResponse.class);
         Book book = modelMapper.map(favorite.getBook(), Book.class);
-        favoriteResponse.setBook(bookMapper.toBookResponse(book));
-        return favoriteResponse;
+        response.setBook(bookMapper.toBookResponse(book));
+        return response;
     }
 
     public List<FavoriteResponse> toFavoriteResponseList(List<Favorite> favorites) {
         return favorites.stream().map(favorite -> toFavoriteResponse(favorite)).toList();
     }
 
-    public FavoritePageResponse toFavoritePageResponse(Page<Favorite> favoritePage) {
-        Integer page = favoritePage.getNumber();
-        Integer totalPages = favoritePage.getTotalPages();
-        Integer totalItems = (int) favoritePage.getTotalElements();
-        List<FavoriteResponse> favoriteResponses =
-                toFavoriteResponseList(favoritePage.getContent());
-        return new FavoritePageResponse(page, totalPages, totalItems, favoriteResponses);
+    public FavoritePageResponse toFavoritePageResponse(Page<Favorite> favorites) {
+        Integer page = favorites.getNumber();
+        Integer totalPages = favorites.getTotalPages();
+        Integer totalItems = (int) favorites.getTotalElements();
+        List<FavoriteResponse> responses = toFavoriteResponseList(favorites.getContent());
+        return new FavoritePageResponse(page, totalPages, totalItems, responses);
     }
 }

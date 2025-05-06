@@ -32,6 +32,13 @@ public class AuthService {
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtUtil jwtUtil;
 
+    /**
+     * ユーザーのログイン処理 メールアドレスとパスワードを検証し、認証成功時にアクセストークンとリフレッシュトークンを発行する。 リフレッシュトークンはCookieとして設定。
+     * 
+     * @param request ログインリクエスト（メールアドレスとパスワードを含む）
+     * @param response HTTPレスポンス（Cookieの設定に使用）
+     * @return アクセストークンを含むレスポンス
+     */
     public AccessTokenResponse login(LoginRequest request, HttpServletResponse response) {
         Authentication authentication;
         try {
@@ -54,6 +61,13 @@ public class AuthService {
         return new AccessTokenResponse(accessToken);
     }
 
+    /**
+     * 新規ユーザーのサインアップ処理 ユーザー情報を検証し、新規ユーザーを作成した後、アクセストークンとリフレッシュトークンを発行する。 リフレッシュトークンはCookieとして設定。
+     * 
+     * @param request サインアップリクエスト（メールアドレス、パスワード、名前、アバターパスを含む）
+     * @param response HTTPレスポンス（Cookieの設定に使用）
+     * @return アクセストークンを含むレスポンス
+     */
     public AccessTokenResponse signup(SignupRequest request, HttpServletResponse response) {
         String email = request.getEmail();
         String password = request.getPassword();
@@ -81,11 +95,22 @@ public class AuthService {
         return new AccessTokenResponse(accessToken);
     }
 
+    /**
+     * ユーザーのログアウト処理 リフレッシュトークンを無効化するためのCookieを設定。
+     * 
+     * @param response HTTPレスポンス（Cookieの設定に使用）
+     */
     public void logout(HttpServletResponse response) {
         Cookie cookie = jwtUtil.getInvalidateRefreshTokenCookie();
         response.addCookie(cookie);
     }
 
+    /**
+     * リフレッシュトークンを使用して新しいアクセストークンを発行。 リフレッシュトークンを検証し、有効な場合は新しいアクセストークンを返す。 同時に認証コンテキストも更新。
+     * 
+     * @param request HTTPリクエスト（リフレッシュトークンの取得に使用）
+     * @return 新しいアクセストークンを含むレスポンス
+     */
     public AccessTokenResponse refreshAccessToken(HttpServletRequest request) {
         String refreshToken = jwtUtil.getRefreshTokenFromCookie(request);
 

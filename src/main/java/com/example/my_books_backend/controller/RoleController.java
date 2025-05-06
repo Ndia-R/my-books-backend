@@ -19,39 +19,44 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("/roles")
 @RequiredArgsConstructor
 public class RoleController {
     private final RoleService roleService;
 
-    @GetMapping("/roles")
+    // すべてのロール取得
+    @GetMapping("")
     public ResponseEntity<List<RoleResponse>> getAllRoles() {
-        List<RoleResponse> roleResponses = roleService.getAllRoles();
-        return ResponseEntity.ok(roleResponses);
+        List<RoleResponse> response = roleService.getAllRoles();
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/roles/{id}")
+    // 特定のロール取得
+    @GetMapping("/{id}")
     public ResponseEntity<RoleResponse> getRoleById(@PathVariable Long id) {
-        RoleResponse roleResponse = roleService.getRoleById(id);
-        return ResponseEntity.ok(roleResponse);
+        RoleResponse response = roleService.getRoleById(id);
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/roles")
+    // ロール作成
+    @PostMapping("")
     public ResponseEntity<RoleResponse> createRole(@Valid @RequestBody RoleRequest request) {
-        RoleResponse roleResponse = roleService.createRole(request);
+        RoleResponse response = roleService.createRole(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(roleResponse.getId()).toUri();
-        return ResponseEntity.created(location).body(roleResponse);
+                .buildAndExpand(response.getId()).toUri();
+        return ResponseEntity.created(location).body(response);
     }
 
-    @PutMapping("/roles/{id}")
+    // ロール更新
+    @PutMapping("/{id}")
     public ResponseEntity<RoleResponse> updateRole(@PathVariable Long id,
             @Valid @RequestBody RoleRequest request) {
-        RoleResponse roleResponse = roleService.updateRole(id, request);
-        return ResponseEntity.ok(roleResponse);
+        RoleResponse response = roleService.updateRole(id, request);
+        return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/roles/{id}")
+    // ロール削除
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
         roleService.deleteRole(id);
         return ResponseEntity.noContent().build();

@@ -6,12 +6,13 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.my_books_backend.dto.user.ChangeEmailRequest;
-import com.example.my_books_backend.dto.user.ChangePasswordRequest;
+import com.example.my_books_backend.dto.user.UpdateUserEmailRequest;
+import com.example.my_books_backend.dto.user.UpdateUserPasswordRequest;
 import com.example.my_books_backend.dto.user.CreateUserRequest;
-import com.example.my_books_backend.dto.user.ProfileCountsResponse;
+import com.example.my_books_backend.dto.user.UserProfileCountsResponse;
+import com.example.my_books_backend.dto.user.UserProfileResponse;
 import com.example.my_books_backend.dto.user.UserResponse;
-import com.example.my_books_backend.dto.user.UpdateUserRequest;
+import com.example.my_books_backend.dto.user.UpdateUserProfileRequest;
 import com.example.my_books_backend.entity.Role;
 import com.example.my_books_backend.entity.RoleName;
 import com.example.my_books_backend.entity.User;
@@ -44,17 +45,26 @@ public class UserServiceImpl implements UserService {
 
     private String DEFAULT_AVATAR_PATH = "";
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
         return userMapper.toUserResponseList(users);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
@@ -62,6 +72,9 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserResponse(user);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     public User createUser(CreateUserRequest request) {
@@ -90,29 +103,41 @@ public class UserServiceImpl implements UserService {
         return savedUser;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public UserResponse getCurrentUser(User user) {
-        return userMapper.toUserResponse(user);
+    public UserProfileResponse getUserProfile(User user) {
+        return userMapper.toUserProfileResponse(user);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public ProfileCountsResponse getProfileCounts(User user) {
+    public UserProfileCountsResponse getUserProfileCounts(User user) {
         Integer favoriteCount = favoriteRepository.countByUserId(user.getId());
         Integer bookmarkCount = bookmarkRepository.countByUserIdAndIsDeletedFalse(user.getId());
         Integer reviewCount = reviewRepository.countByUserIdAndIsDeletedFalse(user.getId());
 
-        return new ProfileCountsResponse(favoriteCount, bookmarkCount, reviewCount);
+        return new UserProfileCountsResponse(favoriteCount, bookmarkCount, reviewCount);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
-    public void updateCurrentUser(UpdateUserRequest request, User user) {
+    public void updateUserProfile(UpdateUserProfileRequest request, User user) {
         String name = request.getName();
         String avatarPath = request.getAvatarPath();
 
@@ -125,9 +150,12 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
-    public void changeEmail(ChangeEmailRequest request, User user) {
+    public void updateUserEmail(UpdateUserEmailRequest request, User user) {
         String email = request.getEmail();
         String password = request.getPassword();
 
@@ -147,9 +175,12 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
-    public void changePassword(ChangePasswordRequest request, User user) {
+    public void updateUserPassword(UpdateUserPasswordRequest request, User user) {
         String currentPassword = request.getCurrentPassword();
         String newPassword = request.getNewPassword();
         String confirmPassword = request.getConfirmPassword();

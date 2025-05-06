@@ -8,43 +8,98 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookPageResponse;
+import com.example.my_books_backend.dto.book_chapter.BookTableOfContentsResponse;
+import com.example.my_books_backend.dto.book_chapter_page_content.BookChapterPageContentResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
+import com.example.my_books_backend.dto.review.ReviewPageResponse;
+import com.example.my_books_backend.dto.review.ReviewCountsResponse;
 import com.example.my_books_backend.service.BookService;
+import com.example.my_books_backend.service.FavoriteService;
+import com.example.my_books_backend.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("/books")
 @RequiredArgsConstructor
 public class BookController {
     private final BookService bookService;
+    private final ReviewService reviewService;
+    private final FavoriteService favoriteService;
 
-    @GetMapping("/books/{bookId}")
-    public ResponseEntity<BookDetailsResponse> getBookDetailsById(@PathVariable String bookId) {
-        BookDetailsResponse bookDetailsResponse = bookService.getBookDetailsById(bookId);
-        return ResponseEntity.ok(bookDetailsResponse);
-    }
-
-    @GetMapping("/books/new-books")
-    public ResponseEntity<BookPageResponse> getNewBooks(
+    // 最新の書籍リスト（１０冊分）
+    @GetMapping("/new-releases")
+    public ResponseEntity<BookPageResponse> getLatestBooks(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
-        BookPageResponse bookPageResponse = bookService.getNewBooks(page, maxResults);
-        return ResponseEntity.ok(bookPageResponse);
+        BookPageResponse response = bookService.getLatestBooks(page, maxResults);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/books/search")
-    public ResponseEntity<BookPageResponse> getBookPageByTitle(@RequestParam String q,
+    // タイトル検索
+    @GetMapping("/search")
+    public ResponseEntity<BookPageResponse> searchBooksByTitleKeyword(@RequestParam String q,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
-        BookPageResponse bookPageResponse = bookService.getBookPageByTitle(q, page, maxResults);
-        return ResponseEntity.ok(bookPageResponse);
+        BookPageResponse response = bookService.searchBooksByTitleKeyword(q, page, maxResults);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/books/discover")
-    public ResponseEntity<BookPageResponse> getBookPageByGenreId(@RequestParam String genreIds,
+    // ジャンル検索
+    @GetMapping("/discover")
+    public ResponseEntity<BookPageResponse> searchBooksByGenre(@RequestParam String genreIds,
             @RequestParam String condition, @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
-        BookPageResponse bookPageResponse =
-                bookService.getBookPageByGenreId(genreIds, condition, page, maxResults);
-        return ResponseEntity.ok(bookPageResponse);
+        BookPageResponse response =
+                bookService.searchBooksByGenre(genreIds, condition, page, maxResults);
+        return ResponseEntity.ok(response);
+    }
+
+    // 特定の書籍の詳細
+    @GetMapping("/{bookId}")
+    public ResponseEntity<BookDetailsResponse> getBookDetails(@PathVariable String bookId) {
+        BookDetailsResponse response = bookService.getBookDetails(bookId);
+        return ResponseEntity.ok(response);
+    }
+
+    // 特定の書籍の目次
+    @GetMapping("/{bookId}/toc")
+    public ResponseEntity<BookTableOfContentsResponse> getBookTableOfContents(
+            @PathVariable String bookId) {
+        BookTableOfContentsResponse response = bookService.getBookTableOfContents(bookId);
+        return ResponseEntity.ok(response);
+    }
+
+    // 特定の書籍の閲覧ページ
+    @GetMapping("/{bookId}/chapters/{chapterNumber}/pages/{pageNumber}")
+    public ResponseEntity<BookChapterPageContentResponse> getBookChapterPageContent(
+            @PathVariable String bookId, @PathVariable Integer chapterNumber,
+            @PathVariable Integer pageNumber) {
+        BookChapterPageContentResponse response =
+                bookService.getBookChapterPageContent(bookId, chapterNumber, pageNumber);
+        return ResponseEntity.ok(response);
+    }
+
+    // 特定の書籍のレビュー一覧
+    @GetMapping("/{bookId}/reviews")
+    public ResponseEntity<ReviewPageResponse> getBookReviews(@PathVariable String bookId,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer maxResults) {
+        ReviewPageResponse response = reviewService.getBookReviews(bookId, page, maxResults);
+        return ResponseEntity.ok(response);
+    }
+
+    // 特定の書籍のレビュー数
+    @GetMapping("/{bookId}/reviews/counts")
+    public ResponseEntity<ReviewCountsResponse> getBookReviewCounts(@PathVariable String bookId) {
+        ReviewCountsResponse response = reviewService.getBookReviewCounts(bookId);
+        return ResponseEntity.ok(response);
+    }
+
+    // 特定の書籍のお気に入り数
+    @GetMapping("/{bookId}/favorites/counts")
+    public ResponseEntity<FavoriteCountsResponse> getBookFavoriteCounts(
+            @PathVariable String bookId) {
+        FavoriteCountsResponse response = favoriteService.getBookFavoriteCounts(bookId);
+        return ResponseEntity.ok(response);
     }
 }

@@ -45,8 +45,8 @@ public class Book extends EntityBase {
     @Column(name = "publisher", nullable = false)
     private String publisher;
 
-    @Column(name = "published_date", nullable = false)
-    private Date publishedDate;
+    @Column(name = "publication_date", nullable = false)
+    private Date publicationDate;
 
     @Column(name = "price", nullable = false)
     private Integer price;
