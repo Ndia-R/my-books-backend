@@ -10,7 +10,7 @@ public class UpdateUserPasswordRequest {
     private String currentPassword;
 
     @NotBlank(message = "新しいパスワードは必須です")
-    @Size(min = 4, message = "パスワードは4文字以上で入力してください")
+    @Size(min = 3, message = "パスワードは3文字以上で入力してください")
     private String newPassword;
 
     @NotBlank(message = "確認用パスワードは必須です")

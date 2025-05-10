@@ -19,7 +19,7 @@ public class SignupRequest {
 
     @NotNull
     @NotBlank(message = "パスワードは必須です")
-    @Size(min = 4, message = "パスワードは4文字以上で入力してください")
+    @Size(min = 3, message = "パスワードは3文字以上で入力してください")
     private String password;
 
     @NotNull
