@@ -1,6 +1,7 @@
 package com.example.my_books_backend.service;
 
 import com.example.my_books_backend.dto.review.ReviewPageResponse;
+import java.util.List;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.dto.review.ReviewRequest;
@@ -27,6 +28,16 @@ public interface ReviewService {
     ReviewPageResponse getUserReviews(Integer page, Integer maxResults, User user);
 
     /**
+     * ユーザーが投稿したすべてのレビューを取得（カーソル方式で取得）
+     * 
+     * @param bookId 書籍ID
+     * @param cursorId カーソルID（レビューID）、nullの場合は先頭からmaxResults分のデータが返却される
+     * @param maxResults 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @return レビューリスト
+     */
+    List<ReviewResponse> getUserReviewsByCursor(Long cursorId, Integer maxResults, User user);
+
+    /**
      * 書籍に対するレビューリストを取得（ページング形式）
      * 
      * @param bookId 書籍ID
@@ -35,6 +46,16 @@ public interface ReviewService {
      * @return レビューリスト
      */
     ReviewPageResponse getBookReviews(String bookId, Integer page, Integer maxResults);
+
+    /**
+     * 書籍に対するレビューリストを取得（カーソル方式で取得）
+     * 
+     * @param bookId 書籍ID
+     * @param cursorId カーソルID（レビューID）、nullの場合は先頭からmaxResults分のデータが返却される
+     * @param maxResults 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @return レビューリスト
+     */
+    List<ReviewResponse> getBookReviewsByCursor(String bookId, Long cursorId, Integer maxResults);
 
     /**
      * 書籍に対するレビュー数などを取得 （レビュー数・平均評価点）

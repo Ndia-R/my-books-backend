@@ -3,6 +3,7 @@ package com.example.my_books_backend.service;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.entity.User;
+import java.util.List;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
 import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
 
@@ -25,6 +26,15 @@ public interface FavoriteService {
      * @return お気に入りリスト
      */
     FavoritePageResponse getUserFavorites(Integer page, Integer maxResults, User user);
+
+    /**
+     * ユーザーが追加したすべてのお気に入りを取得（カーソル方式で取得）
+     * 
+     * @param cursorId カーソルID（レビューID）、nullの場合は先頭からmaxResults分のデータが返却される
+     * @param maxResults 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @return お気に入りリスト
+     */
+    List<FavoriteResponse> getUserFavoritesByCursor(Long cursorId, Integer maxResults, User user);
 
     /**
      * 書籍に対するお気に入り数を取得

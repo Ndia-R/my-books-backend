@@ -60,6 +60,18 @@ public class FavoriteServiceImpl implements FavoriteService {
      * {@inheritDoc}
      */
     @Override
+    public List<FavoriteResponse> getUserFavoritesByCursor(Long cursorId, Integer maxResults,
+            User user) {
+        Pageable pageable = paginationUtil.createPageable(0, maxResults, DEFAULT_SORT);
+        List<Favorite> favorites = favoriteRepository.findFavoritesByUserIdWithCursor(user.getId(),
+                cursorId, pageable);
+        return favoriteMapper.toFavoriteResponseList(favorites);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public FavoriteCountsResponse getBookFavoriteCounts(String bookId) {
         List<Favorite> favorites = favoriteRepository.findByBookId(bookId);
 

@@ -1,5 +1,7 @@
 package com.example.my_books_backend.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +14,7 @@ import com.example.my_books_backend.dto.book_chapter.BookTableOfContentsResponse
 import com.example.my_books_backend.dto.book_chapter_page_content.BookChapterPageContentResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
 import com.example.my_books_backend.dto.review.ReviewPageResponse;
+import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
 import com.example.my_books_backend.service.BookService;
 import com.example.my_books_backend.service.FavoriteService;
@@ -85,6 +88,16 @@ public class BookController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer maxResults) {
         ReviewPageResponse response = reviewService.getBookReviews(bookId, page, maxResults);
+        return ResponseEntity.ok(response);
+    }
+
+    // 特定の書籍のレビュー一覧（カーソル方式）
+    @GetMapping("/{bookId}/reviews/by-cursor")
+    public ResponseEntity<List<ReviewResponse>> getBookReviewsByCursor(@PathVariable String bookId,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(required = false) Integer maxResults) {
+        List<ReviewResponse> response =
+                reviewService.getBookReviewsByCursor(bookId, cursorId, maxResults);
         return ResponseEntity.ok(response);
     }
 

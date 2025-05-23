@@ -66,11 +66,35 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
+    public List<ReviewResponse> getUserReviewsByCursor(Long cursorId, Integer maxResults,
+            User user) {
+        Pageable pageable = paginationUtil.createPageable(0, maxResults, USER_REVIEWS_DEFAULT_SORT);
+        List<Review> reviews =
+                reviewRepository.findReviewsByUserIdWithCursor(user.getId(), cursorId, pageable);
+        return reviewMapper.toReviewResponseList(reviews);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public ReviewPageResponse getBookReviews(String bookId, Integer page, Integer maxResults) {
         Pageable pageable =
                 paginationUtil.createPageable(page, maxResults, BOOK_REVIEWS_DEFAULT_SORT);
         Page<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(bookId, pageable);
         return reviewMapper.toReviewPageResponse(reviews);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<ReviewResponse> getBookReviewsByCursor(String bookId, Long cursorId,
+            Integer maxResults) {
+        Pageable pageable = paginationUtil.createPageable(0, maxResults, BOOK_REVIEWS_DEFAULT_SORT);
+        List<Review> reviews =
+                reviewRepository.findReviewsByBookIdWithCursor(bookId, cursorId, pageable);
+        return reviewMapper.toReviewResponseList(reviews);
     }
 
     /**

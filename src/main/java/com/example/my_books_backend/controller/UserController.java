@@ -63,6 +63,17 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    // 自分のレビュー一覧（カーソル方式）
+    @GetMapping("/reviews/by-cursor")
+    public ResponseEntity<List<ReviewResponse>> getUserReviewsByCursor(
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(required = false) Integer maxResults,
+            @AuthenticationPrincipal User user) {
+        List<ReviewResponse> response =
+                reviewService.getUserReviewsByCursor(cursorId, maxResults, user);
+        return ResponseEntity.ok(response);
+    }
+
     // 自分のお気に入り一覧
     @GetMapping("/favorites")
     public ResponseEntity<FavoritePageResponse> getUserFavorites(
@@ -70,6 +81,17 @@ public class UserController {
             @RequestParam(required = false) Integer maxResults,
             @AuthenticationPrincipal User user) {
         FavoritePageResponse response = favoriteService.getUserFavorites(page, maxResults, user);
+        return ResponseEntity.ok(response);
+    }
+
+    // 自分のお気に入り一覧（カーソル方式）
+    @GetMapping("/favorites/by-cursor")
+    public ResponseEntity<List<FavoriteResponse>> getUserFavoritesByCursor(
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(required = false) Integer maxResults,
+            @AuthenticationPrincipal User user) {
+        List<FavoriteResponse> response =
+                favoriteService.getUserFavoritesByCursor(cursorId, maxResults, user);
         return ResponseEntity.ok(response);
     }
 
