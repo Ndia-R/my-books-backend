@@ -1,10 +1,12 @@
 package com.example.my_books_backend.controller;
 
-import java.util.List;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.user.UserProfileCountsResponse;
 import com.example.my_books_backend.dto.user.UserProfileResponse;
+import com.example.my_books_backend.dto.bookmark.BookmarkCursorResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
-import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteCursorResponse;
 import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
-import com.example.my_books_backend.dto.favorite.FavoriteResponse;
+import com.example.my_books_backend.dto.review.ReviewCursorResponse;
 import com.example.my_books_backend.dto.review.ReviewPageResponse;
-import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.dto.user.UpdateUserEmailRequest;
 import com.example.my_books_backend.dto.user.UpdateUserPasswordRequest;
 import com.example.my_books_backend.dto.user.UpdateUserProfileRequest;
@@ -38,14 +40,17 @@ public class UserController {
     private final FavoriteService favoriteService;
     private final BookmarkService bookmarkService;
 
-    // 自分のプロフィール情報
+    private static final int DEFAULT_PAGE_SIZE = 5;
+    private static final String DEFAULT_PAGE_SIZE_STR = "5";
+
+    // ユーザーのプロフィール情報
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponse> getUserProfile(@AuthenticationPrincipal User user) {
         UserProfileResponse response = userService.getUserProfile(user);
         return ResponseEntity.ok(response);
     }
 
-    // 自分のレビュー、お気に入り、ブックマークの数
+    // ユーザーのレビュー、お気に入り、ブックマークの数
     @GetMapping("/profile-counts")
     public ResponseEntity<UserProfileCountsResponse> getUserProfileCounts(
             @AuthenticationPrincipal User user) {
@@ -53,86 +58,66 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // 自分のレビュー一覧
+    // ユーザーが投稿したレビューを取得
     @GetMapping("/reviews")
-    public ResponseEntity<ReviewPageResponse> getUserReviews(
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer maxResults,
-            @AuthenticationPrincipal User user) {
-        ReviewPageResponse response = reviewService.getUserReviews(page, maxResults, user);
+    public ResponseEntity<ReviewPageResponse> getUserReviews(@AuthenticationPrincipal User user,
+            @ParameterObject @PageableDefault(size = DEFAULT_PAGE_SIZE, sort = {"updatedAt", "id"},
+                    direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String bookId) {
+        ReviewPageResponse response = reviewService.getUserReviews(user, pageable, bookId);
         return ResponseEntity.ok(response);
     }
 
-    // 自分のレビュー一覧（カーソル方式）
-    @GetMapping("/reviews/by-cursor")
-    public ResponseEntity<List<ReviewResponse>> getUserReviewsByCursor(
-            @RequestParam(required = false) Long cursorId,
-            @RequestParam(required = false) Integer maxResults,
-            @AuthenticationPrincipal User user) {
-        List<ReviewResponse> response =
-                reviewService.getUserReviewsByCursor(cursorId, maxResults, user);
+    // ユーザーが投稿したレビューを取得（カーソルベース）
+    @GetMapping("/reviews/cursor")
+    public ResponseEntity<ReviewCursorResponse> getUserReviewsWithCursor(
+            @AuthenticationPrincipal User user, @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE_STR) Integer limit) {
+        ReviewCursorResponse response = reviewService.getUserReviewsWithCursor(user, cursor, limit);
         return ResponseEntity.ok(response);
     }
 
-    // 自分のお気に入り一覧
+    // ユーザーが追加したお気に入りを取得
     @GetMapping("/favorites")
-    public ResponseEntity<FavoritePageResponse> getUserFavorites(
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer maxResults,
-            @AuthenticationPrincipal User user) {
-        FavoritePageResponse response = favoriteService.getUserFavorites(page, maxResults, user);
+    public ResponseEntity<FavoritePageResponse> getUserFavorites(@AuthenticationPrincipal User user,
+            @ParameterObject @PageableDefault(size = DEFAULT_PAGE_SIZE, sort = {"updatedAt", "id"},
+                    direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String bookId) {
+        FavoritePageResponse response = favoriteService.getUserFavorites(user, pageable, bookId);
         return ResponseEntity.ok(response);
     }
 
-    // 自分のお気に入り一覧（カーソル方式）
-    @GetMapping("/favorites/by-cursor")
-    public ResponseEntity<List<FavoriteResponse>> getUserFavoritesByCursor(
-            @RequestParam(required = false) Long cursorId,
-            @RequestParam(required = false) Integer maxResults,
-            @AuthenticationPrincipal User user) {
-        List<FavoriteResponse> response =
-                favoriteService.getUserFavoritesByCursor(cursorId, maxResults, user);
+    // ユーザーが追加したお気に入りを取得（カーソルベース）
+    @GetMapping("/favorites/cursor")
+    public ResponseEntity<FavoriteCursorResponse> getUserFavoritesWithCursor(
+            @AuthenticationPrincipal User user, @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE_STR) Integer limit) {
+        FavoriteCursorResponse response =
+                favoriteService.getUserFavoritesWithCursor(user, cursor, limit);
         return ResponseEntity.ok(response);
     }
 
-    // 自分のブックマーク一覧
+    // ユーザーが追加したブックマークを取得
     @GetMapping("/bookmarks")
-    public ResponseEntity<BookmarkPageResponse> getUserBookmarks(
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer maxResults,
-            @AuthenticationPrincipal User user) {
-        BookmarkPageResponse responses = bookmarkService.getUserBookmarks(page, maxResults, user);
+    public ResponseEntity<BookmarkPageResponse> getUserBookmarks(@AuthenticationPrincipal User user,
+            @ParameterObject @PageableDefault(size = DEFAULT_PAGE_SIZE, sort = {"updatedAt", "id"},
+                    direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String bookId) {
+        BookmarkPageResponse responses = bookmarkService.getUserBookmarks(user, pageable, bookId);
         return ResponseEntity.ok(responses);
     }
 
-    // 自分が投稿した特定の書籍のレビュー
-    // （書籍１冊に対して、１つのレビューなので「単数形」）
-    @GetMapping("/books/{bookId}/review")
-    public ResponseEntity<ReviewResponse> getUserReviewForBook(@PathVariable String bookId,
-            @AuthenticationPrincipal User user) {
-        ReviewResponse response = reviewService.getUserReviewForBook(bookId, user);
+    // ユーザーが追加したブックマークを取得（カーソルベース）
+    @GetMapping("/bookmarks/cursor")
+    public ResponseEntity<BookmarkCursorResponse> getUserBookmarksWithCursor(
+            @AuthenticationPrincipal User user, @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE_STR) Integer limit) {
+        BookmarkCursorResponse response =
+                bookmarkService.getUserBookmarksWithCursor(user, cursor, limit);
         return ResponseEntity.ok(response);
     }
 
-    // 自分の追加した特定の書籍のお気に入り
-    // （書籍１冊に対して、１つのお気に入りなので「単数形」）
-    @GetMapping("/books/{bookId}/favorite")
-    public ResponseEntity<FavoriteResponse> getUserFavoriteForBook(@PathVariable String bookId,
-            @AuthenticationPrincipal User user) {
-        FavoriteResponse response = favoriteService.getUserFavoriteForBook(bookId, user);
-        return ResponseEntity.ok(response);
-    }
-
-    // 自分の追加した特定の書籍のブックマークリスト
-    // （書籍１冊に対して、複数のブックマークなので「複数形」）
-    @GetMapping("/books/{bookId}/bookmarks")
-    public ResponseEntity<List<BookmarkResponse>> getUserBookmarksForBook(
-            @PathVariable String bookId, @AuthenticationPrincipal User user) {
-        List<BookmarkResponse> responses = bookmarkService.getUserBookmarksForBook(bookId, user);
-        return ResponseEntity.ok(responses);
-    }
-
-    // 自分のプロフィール情報を更新
+    // ユーザーのプロフィール情報を更新
     @PutMapping("/profile")
     public ResponseEntity<Void> updateUserProfile(
             @Valid @RequestBody UpdateUserProfileRequest request,
@@ -141,7 +126,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    // 自分のメールアドレスを更新
+    // ユーザーのメールアドレスを更新
     @PutMapping("/email")
     public ResponseEntity<Void> updateUserEmail(@Valid @RequestBody UpdateUserEmailRequest request,
             @AuthenticationPrincipal User user) {
@@ -149,7 +134,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    // 自分のパスワードを更新
+    // ユーザーのパスワードを更新
     @PutMapping("/password")
     public ResponseEntity<Void> updateUserPassword(
             @Valid @RequestBody UpdateUserPasswordRequest request,

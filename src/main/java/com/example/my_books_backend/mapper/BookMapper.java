@@ -6,6 +6,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import com.example.my_books_backend.dto.book.BookResponse;
+import com.example.my_books_backend.dto.book.BookCursorResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookPageResponse;
 import com.example.my_books_backend.entity.Book;
@@ -47,6 +48,16 @@ public class BookMapper {
         Integer totalItems = (int) books.getTotalElements();
         List<BookResponse> responses = toBookResponseList(books.getContent());
         return new BookPageResponse(page, totalPages, totalItems, responses);
+    }
+
+    public BookCursorResponse toBookCursorResponse(List<Book> books, Integer limit) {
+        Boolean hasNext = books.size() > limit;
+        if (hasNext) {
+            books = books.subList(0, limit); // 余分な1件を削除
+        }
+        String endCursor = hasNext ? books.get(books.size() - 1).getId() : null;
+        List<BookResponse> responses = toBookResponseList(books);
+        return new BookCursorResponse(hasNext, endCursor, responses);
     }
 
     public BookDetailsResponse toBookDetailsResponse(Book book) {

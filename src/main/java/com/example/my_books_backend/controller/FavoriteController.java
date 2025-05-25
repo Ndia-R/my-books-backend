@@ -28,16 +28,16 @@ public class FavoriteController {
     public ResponseEntity<FavoriteResponse> createFavorite(
             @Valid @RequestBody FavoriteRequest request, @AuthenticationPrincipal User user) {
         FavoriteResponse response = favoriteService.createFavorite(request, user);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{bookId}")
-                .buildAndExpand(response.getBookId()).toUri();
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(response.getId()).toUri();
         return ResponseEntity.created(location).body(response);
     }
 
     // お気に入り削除
-    @DeleteMapping("/{bookId}")
-    public ResponseEntity<Void> deleteFavorite(@PathVariable String bookId,
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFavorite(@PathVariable Long id,
             @AuthenticationPrincipal User user) {
-        favoriteService.deleteFavorite(bookId, user);
+        favoriteService.deleteFavorite(id, user);
         return ResponseEntity.noContent().build();
     }
 }

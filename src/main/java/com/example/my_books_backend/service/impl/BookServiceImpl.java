@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.example.my_books_backend.dto.genre.GenreResponse;
+import com.example.my_books_backend.dto.book.BookCursorResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookPageResponse;
 import com.example.my_books_backend.dto.book_chapter.BookChapterResponse;
@@ -27,7 +27,6 @@ import com.example.my_books_backend.repository.BookChapterPageContentRepository;
 import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.service.BookService;
 import com.example.my_books_backend.service.GenreService;
-import com.example.my_books_backend.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -38,20 +37,14 @@ public class BookServiceImpl implements BookService {
     private final BookChapterPageContentRepository bookChapterPageContentRepository;
     private final BookMapper bookMapper;
 
-    private final PaginationUtil paginationUtil;
     private final GenreService genreService;
 
-    /** 書籍一覧のデフォルトソート（出版日） */
-    private static final Sort DEFAULT_SORT =
-            Sort.by(Sort.Order.desc("publicationDate"), Sort.Order.asc("id"));
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public BookPageResponse getLatestBooks(Integer page, Integer maxResults) {
-        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
-        Page<Book> books = bookRepository.findTop10ByOrderByPublicationDateDesc(pageable);
+    public BookPageResponse getLatestBooks(Pageable pageable) {
+        Page<Book> books = bookRepository.findByIsDeletedFalse(pageable);
         return bookMapper.toBookPageResponse(books);
     }
 
@@ -59,10 +52,8 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public BookPageResponse searchBooksByTitleKeyword(String keyword, Integer page,
-            Integer maxResults) {
-        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
-        Page<Book> books = bookRepository.findByTitleContaining(keyword, pageable);
+    public BookPageResponse getBooksByTitleKeyword(String keyword, Pageable pageable) {
+        Page<Book> books = bookRepository.findByTitleContainingAndIsDeletedFalse(keyword, pageable);
         return bookMapper.toBookPageResponse(books);
     }
 
@@ -70,22 +61,32 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public BookPageResponse searchBooksByGenre(String genreIdsQuery, String conditionQuery,
-            Integer page, Integer maxResults) {
+    public BookCursorResponse getBooksByTitleKeywordWithCursor(String keyword, String cursor,
+            Integer limit) {
+        // 次のページの有無を判定するために、1件多く取得
+        List<Book> books = bookRepository.findBooksByTitleKeywordWithCursor("%" + keyword + "%",
+                cursor, limit + 1);
+        return bookMapper.toBookCursorResponse(books, limit);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BookPageResponse getBooksByGenre(String genreIdsQuery, String conditionQuery,
+            Pageable pageable) {
         if (!("SINGLE".equals(conditionQuery) || "AND".equals(conditionQuery)
                 || "OR".equals(conditionQuery))) {
             throw new BadRequestException("検索条件が不正です。");
         }
-
-        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
-
         List<Long> genreIds = Arrays.stream(genreIdsQuery.split(",")).map(Long::parseLong)
                 .collect(Collectors.toList());
 
         Boolean isAndCondition = "AND".equals(conditionQuery);
 
         Page<Book> books = isAndCondition
-                ? bookRepository.findByAllGenreIds(genreIds, genreIds.size(), pageable)
+                ? bookRepository.findDistinctByGenres_IdInAndIsDeletedFalse(genreIds,
+                        genreIds.size(), pageable)
                 : bookRepository.findDistinctByGenres_IdIn(genreIds, pageable);
 
         return bookMapper.toBookPageResponse(books);
@@ -95,8 +96,8 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public BookDetailsResponse getBookDetails(String bookId) {
-        Book book = bookRepository.findById(bookId)
+    public BookDetailsResponse getBookDetails(String id) {
+        Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Book not found"));
 
         List<GenreResponse> allGenres = genreService.getAllGenres();
@@ -117,17 +118,17 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public BookTableOfContentsResponse getBookTableOfContents(String bookId) {
-        Book book = bookRepository.findById(bookId)
+    public BookTableOfContentsResponse getBookTableOfContents(String id) {
+        Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Book not found"));
 
-        List<BookChapter> chapters = bookChapterRepository.findByBookId(bookId);
+        List<BookChapter> chapters = bookChapterRepository.findByBookId(id);
 
         List<BookChapterResponse> chapterResponses = chapters.stream().map(chapter -> {
             Integer chapterNumber = chapter.getId().getChapterNumber();
 
             List<BookChapterPageContent> pageContents = bookChapterPageContentRepository
-                    .findByIdBookIdAndIdChapterNumber(bookId, chapterNumber);
+                    .findByIdBookIdAndIdChapterNumber(id, chapterNumber);
 
             List<Integer> pageNumbers = pageContents.stream()
                     .map(content -> content.getId().getPageNumber()).collect(Collectors.toList());
@@ -141,7 +142,7 @@ public class BookServiceImpl implements BookService {
         }).collect(Collectors.toList());
 
         BookTableOfContentsResponse response = new BookTableOfContentsResponse();
-        response.setBookId(bookId);
+        response.setBookId(id);
         response.setTitle(book.getTitle());
         response.setChapters(chapterResponses);
 

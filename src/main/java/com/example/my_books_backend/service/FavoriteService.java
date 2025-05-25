@@ -3,38 +3,31 @@ package com.example.my_books_backend.service;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.entity.User;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteCursorResponse;
 import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
 
 public interface FavoriteService {
     /**
-     * ユーザーが追加した特定の書籍のお気に入りを取得
+     * ユーザーが追加したお気に入りを取得
      * 
-     * @param bookId 書籍ID
      * @param user ユーザーエンティティ
-     * @return お気に入り情報
-     */
-    FavoriteResponse getUserFavoriteForBook(String bookId, User user);
-
-    /**
-     * ユーザーが追加したすべてのお気に入りを取得（ページング形式）
-     * 
-     * @param page ページ番号（0ベース）、nullの場合はデフォルト値が使用される
-     * @param maxResults 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
-     * @param user ユーザーエンティティ
+     * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
+     * @param bookId 書籍ID、nullの場合はすべてが対象
      * @return お気に入りリスト
      */
-    FavoritePageResponse getUserFavorites(Integer page, Integer maxResults, User user);
+    FavoritePageResponse getUserFavorites(User user, Pageable pageable, String bookId);
 
     /**
-     * ユーザーが追加したすべてのお気に入りを取得（カーソル方式で取得）
+     * ユーザーが追加したお気に入りを取得（カーソルベース）
      * 
-     * @param cursorId カーソルID（レビューID）、nullの場合は先頭からmaxResults分のデータが返却される
-     * @param maxResults 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @param user ユーザーエンティティ
+     * @param cursor カーソルID、nullの場合は先頭からlimit分のデータが返却される
+     * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
      * @return お気に入りリスト
      */
-    List<FavoriteResponse> getUserFavoritesByCursor(Long cursorId, Integer maxResults, User user);
+    FavoriteCursorResponse getUserFavoritesWithCursor(User user, Long cursor, Integer limit);
 
     /**
      * 書籍に対するお気に入り数を取得
@@ -59,5 +52,5 @@ public interface FavoriteService {
      * @param id 削除するお気に入りのID
      * @param user ユーザーエンティティ
      */
-    void deleteFavorite(String bookId, User user);
+    void deleteFavorite(Long id, User user);
 }

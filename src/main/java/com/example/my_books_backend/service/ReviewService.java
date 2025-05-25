@@ -1,61 +1,52 @@
 package com.example.my_books_backend.service;
 
 import com.example.my_books_backend.dto.review.ReviewPageResponse;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
+import com.example.my_books_backend.dto.review.ReviewCursorResponse;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 
 public interface ReviewService {
     /**
-     * ユーザーが投稿した特定の書籍のレビューを取得
+     * ユーザーが投稿したレビューを取得
      * 
-     * @param bookId 書籍ID
      * @param user ユーザーエンティティ
-     * @return レビュー情報
+     * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
+     * @param bookId 書籍ID、nullの場合はすべてが対象
+     * @return レビューリスト
      */
-    ReviewResponse getUserReviewForBook(String bookId, User user);
+    ReviewPageResponse getUserReviews(User user, Pageable pageable, String bookId);
 
     /**
-     * ユーザーが投稿したすべてのレビューを取得（ページング形式）
+     * ユーザーが投稿したレビューを取得（カーソルベース）
      * 
-     * @param page ページ番号（0ベース）、nullの場合はデフォルト値が使用される
-     * @param maxResults 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
      * @param user ユーザーエンティティ
+     * @param cursor カーソルID、nullの場合は先頭からlimit分のデータが返却される
+     * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
      * @return レビューリスト
      */
-    ReviewPageResponse getUserReviews(Integer page, Integer maxResults, User user);
+    ReviewCursorResponse getUserReviewsWithCursor(User user, Long cursor, Integer limit);
 
     /**
-     * ユーザーが投稿したすべてのレビューを取得（カーソル方式で取得）
+     * 書籍に対するレビューを取得
      * 
      * @param bookId 書籍ID
-     * @param cursorId カーソルID（レビューID）、nullの場合は先頭からmaxResults分のデータが返却される
-     * @param maxResults 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
      * @return レビューリスト
      */
-    List<ReviewResponse> getUserReviewsByCursor(Long cursorId, Integer maxResults, User user);
+    ReviewPageResponse getBookReviews(String bookId, Pageable pageable);
 
     /**
-     * 書籍に対するレビューリストを取得（ページング形式）
+     * 書籍に対するレビューを取得（カーソルベース）
      * 
      * @param bookId 書籍ID
-     * @param page ページ番号（0ベース）、nullの場合はデフォルト値が使用される
-     * @param maxResults 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @param cursor カーソルID、nullの場合は先頭からlimit分のデータが返却される
+     * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
      * @return レビューリスト
      */
-    ReviewPageResponse getBookReviews(String bookId, Integer page, Integer maxResults);
-
-    /**
-     * 書籍に対するレビューリストを取得（カーソル方式で取得）
-     * 
-     * @param bookId 書籍ID
-     * @param cursorId カーソルID（レビューID）、nullの場合は先頭からmaxResults分のデータが返却される
-     * @param maxResults 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
-     * @return レビューリスト
-     */
-    List<ReviewResponse> getBookReviewsByCursor(String bookId, Long cursorId, Integer maxResults);
+    ReviewCursorResponse getBookReviewsWithCursor(String bookId, Long cursor, Integer limit);
 
     /**
      * 書籍に対するレビュー数などを取得 （レビュー数・平均評価点）

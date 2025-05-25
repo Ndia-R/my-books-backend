@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserProfileCountsResponse getUserProfileCounts(User user) {
-        Integer favoriteCount = favoriteRepository.countByUserId(user.getId());
+        Integer favoriteCount = favoriteRepository.countByUserIdAndIsDeletedFalse(user.getId());
         Integer bookmarkCount = bookmarkRepository.countByUserIdAndIsDeletedFalse(user.getId());
         Integer reviewCount = reviewRepository.countByUserIdAndIsDeletedFalse(user.getId());
 

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FavoriteResponse {
+    private Long id;
     private Long userId;
     private String bookId;
     private LocalDateTime createdAt;

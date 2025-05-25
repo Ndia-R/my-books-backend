@@ -8,9 +8,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.my_books_backend.dto.bookmark.BookmarkCursorResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
@@ -26,7 +26,6 @@ import com.example.my_books_backend.repository.BookChapterRepository;
 import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.repository.BookmarkRepository;
 import com.example.my_books_backend.service.BookmarkService;
-import com.example.my_books_backend.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -37,50 +36,58 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     private final BookRepository bookRepository;
     private final BookChapterRepository bookChapterRepository;
-    private final PaginationUtil paginationUtil;
-
-    /** ユーザーが追加したすべてのブックマーク情報のデフォルトソート（作成日） */
-    private static final Sort DEFAULT_SORT =
-            Sort.by(Sort.Order.desc("createdAt"), Sort.Order.asc("id"));
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<BookmarkResponse> getUserBookmarksForBook(String bookId, User user) {
-        List<Bookmark> bookmarks =
-                bookmarkRepository.findByBookIdAndUserAndIsDeletedFalse(bookId, user);
-        List<BookmarkResponse> responses = bookmarkMapper.toBookmarkResponseList(bookmarks);
+    public BookmarkPageResponse getUserBookmarks(User user, Pageable pageable, String bookId) {
+        Page<Bookmark> bookmarkPage = (bookId == null)
+                ? bookmarkRepository.findByUserAndIsDeletedFalse(user, pageable)
+                : bookmarkRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
+        BookmarkPageResponse response = bookmarkMapper.toBookmarkPageResponse(bookmarkPage);
 
         // 書籍の目次のタイトルを取得し、章番号とタイトルのマップを作成する
-        List<BookChapter> bookChapters = bookChapterRepository.findByBookId(bookId);
-        Map<Integer, String> chapterTitleMap = bookChapters.stream().collect(Collectors.toMap(
-                bookChapter -> bookChapter.getId().getChapterNumber(), BookChapter::getTitle));
+        Set<String> bookIds = bookmarkPage.getContent().stream()
+                .map(bookmark -> bookmark.getBook().getId()).collect(Collectors.toSet());
+
+        Map<String, Map<Integer, String>> bookChapterTitleMaps = new HashMap<>();
+        for (String _bookId : bookIds) {
+            List<BookChapter> bookChapters = bookChapterRepository.findByBookId(_bookId);
+            Map<Integer, String> chapterTitleMap = bookChapters.stream().collect(Collectors.toMap(
+                    bookChapter -> bookChapter.getId().getChapterNumber(), BookChapter::getTitle));
+            bookChapterTitleMaps.put(_bookId, chapterTitleMap);
+        }
 
         // 章番号に対応するタイトルをレスポンスに追加する
-        responses.forEach(bookmark -> {
-            String chapterTitle = chapterTitleMap.get(bookmark.getChapterNumber());
-            if (chapterTitle != null) {
-                bookmark.setChapterTitle(chapterTitle);
+        response.getBookmarks().forEach(bookmark -> {
+            Map<Integer, String> chapterTitleMap =
+                    bookChapterTitleMaps.get(bookmark.getBook().getId());
+            if (chapterTitleMap != null) {
+                String chapterTitle = chapterTitleMap.get(bookmark.getChapterNumber());
+                if (chapterTitle != null) {
+                    bookmark.setChapterTitle(chapterTitle);
+                }
             }
         });
 
-        return responses;
+        return response;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public BookmarkPageResponse getUserBookmarks(Integer page, Integer maxResults, User user) {
-        Pageable pageable = paginationUtil.createPageable(page, maxResults, DEFAULT_SORT);
-        Page<Bookmark> bookmarkPage =
-                bookmarkRepository.findByUserAndIsDeletedFalse(user, pageable);
-        BookmarkPageResponse response = bookmarkMapper.toBookmarkPageResponse(bookmarkPage);
+    public BookmarkCursorResponse getUserBookmarksWithCursor(User user, Long cursor,
+            Integer limit) {
+        // 次のページの有無を判定するために、1件多く取得
+        List<Bookmark> bookmarks =
+                bookmarkRepository.findBookmarksByUserIdWithCursor(user.getId(), cursor, limit + 1);
+        BookmarkCursorResponse response = bookmarkMapper.toBookmarkCursorResponse(bookmarks, limit);
 
         // 書籍の目次のタイトルを取得し、章番号とタイトルのマップを作成する
-        Set<String> bookIds = bookmarkPage.getContent().stream()
-                .map(bookmark -> bookmark.getBook().getId()).collect(Collectors.toSet());
+        Set<String> bookIds = bookmarks.stream().map(bookmark -> bookmark.getBook().getId())
+                .collect(Collectors.toSet());
 
         Map<String, Map<Integer, String>> bookChapterTitleMaps = new HashMap<>();
         for (String bookId : bookIds) {

@@ -1,5 +1,7 @@
 package com.example.my_books_backend.service;
 
+import org.springframework.data.domain.Pageable;
+import com.example.my_books_backend.dto.book.BookCursorResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookPageResponse;
 import com.example.my_books_backend.dto.book_chapter.BookTableOfContentsResponse;
@@ -7,51 +9,59 @@ import com.example.my_books_backend.dto.book_chapter_page_content.BookChapterPag
 
 public interface BookService {
     /**
-     * 最新の書籍リスト（１０冊分）を取得（ページング形式）
+     * 最新の書籍リスト（10冊分）を取得
      * 
-     * @param page ページ番号（0ベース）、nullの場合はデフォルト値が使用される
-     * @param maxResults 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
      * @return 最新の書籍リスト
      */
-    BookPageResponse getLatestBooks(Integer page, Integer maxResults);
+    BookPageResponse getLatestBooks(Pageable pageable);
 
     /**
-     * タイトルで書籍を検索したリストを取得（ページング形式）
+     * タイトルで書籍を検索したリストを取得
      * 
      * @param keyword 検索キーワード
-     * @param page ページ番号（0ベース）、nullの場合はデフォルト値が使用される
-     * @param maxResults 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
      * @return 検索結果
      */
-    BookPageResponse searchBooksByTitleKeyword(String keyword, Integer page, Integer maxResults);
+    BookPageResponse getBooksByTitleKeyword(String keyword, Pageable pageable);
 
     /**
-     * ジャンルIDで書籍を検索したリストを取得（ページング形式）
+     * タイトルで書籍を検索したリストを取得（カーソルベース）
+     * 
+     * @param keyword 検索キーワード
+     * @param cursor カーソルID、nullの場合は先頭からlimit分のデータが返却される
+     * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @return 検索結果
+     */
+    BookCursorResponse getBooksByTitleKeywordWithCursor(String keyword, String cursor,
+            Integer limit);
+
+    /**
+     * ジャンルIDで書籍を検索したリストを取得
      * 
      * @param genreIdsQuery カンマ区切りのジャンルIDリスト（例："1,2,3"）
      * @param conditionQuery 検索条件（"SINGLE"、"AND"、"OR"のいずれか）
-     * @param page ページ番号（0ベース）、nullの場合はデフォルト値が使用される
-     * @param maxResults 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
      * @return 検索結果
      */
-    BookPageResponse searchBooksByGenre(String genreIdsQuery, String conditionQuery, Integer page,
-            Integer maxResults);
+    BookPageResponse getBooksByGenre(String genreIdsQuery, String conditionQuery,
+            Pageable pageable);
 
     /**
      * 指定された書籍の詳細情報を取得
      * 
-     * @param bookId 書籍ID
+     * @param id 書籍ID
      * @return 書籍の詳細情報
      */
-    BookDetailsResponse getBookDetails(String bookId);
+    BookDetailsResponse getBookDetails(String id);
 
     /**
      * 指定された書籍の目次情報（章のリスト）を取得
      * 
-     * @param bookId 書籍ID
+     * @param id 書籍ID
      * @return 書籍の目次情報
      */
-    BookTableOfContentsResponse getBookTableOfContents(String bookId);
+    BookTableOfContentsResponse getBookTableOfContents(String id);
 
     /**
      * 指定された書籍の特定の章・ページのコンテンツを取得

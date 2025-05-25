@@ -14,35 +14,44 @@ import com.example.my_books_backend.entity.User;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    Optional<Review> findByBookIdAndUserAndIsDeletedFalse(String bookId, User user);
-
+    // ユーザーが投稿したレビューを取得
     Page<Review> findByUserAndIsDeletedFalse(User user, Pageable pageable);
 
-    // カーソル方式のページネーション（cursorIdをカーソルとして使用し、updated_atを基準に降順に並べ替える）
-    @Query("""
-            SELECT r FROM Review r
-            WHERE (:cursorId IS NULL OR
-                   r.updatedAt < (SELECT r2.updatedAt FROM Review r2 WHERE r2.id = :cursorId) OR
-                   (r.updatedAt = (SELECT r2.updatedAt FROM Review r2 WHERE r2.id = :cursorId) AND r.id > :cursorId))
-            AND r.user.id = :userId AND r.isDeleted = false
-            ORDER BY r.updatedAt DESC, r.id ASC
-            """)
-    List<Review> findReviewsByUserIdWithCursor(@Param("userId") Long userId,
-            @Param("cursorId") Long cursorId, Pageable pageable);
+    // ユーザーが投稿したレビューを取得（書籍ID指定）
+    Page<Review> findByUserAndIsDeletedFalseAndBookId(User user, Pageable pageable, String bookId);
 
+    // ユーザーが投稿したレビューを取得（カーソルベース）
+    @Query(value = """
+            SELECT * FROM reviews r
+            WHERE (:cursor IS NULL OR
+                   r.updated_at < (SELECT r2.updated_at FROM reviews r2 WHERE r2.id = :cursor) OR
+                   (r.updated_at = (SELECT r2.updated_at FROM reviews r2 WHERE r2.id = :cursor) AND r.id > :cursor))
+            AND r.user_id = :userId
+            AND r.is_deleted = false
+            ORDER BY r.updated_at DESC, r.id DESC
+            LIMIT :limit
+            """,
+            nativeQuery = true)
+    List<Review> findReviewsByUserIdWithCursor(@Param("userId") Long userId,
+            @Param("cursor") Long cursor, @Param("limit") Integer limit);
+
+    // 書籍に対するレビューを取得
     Page<Review> findByBookIdAndIsDeletedFalse(String bookId, Pageable pageable);
 
-    // カーソル方式のページネーション（cursorIdをカーソルとして使用し、updated_atを基準に降順に並べ替える）
-    @Query("""
-            SELECT r FROM Review r
-            WHERE (:cursorId IS NULL OR
-                   r.updatedAt < (SELECT r2.updatedAt FROM Review r2 WHERE r2.id = :cursorId) OR
-                   (r.updatedAt = (SELECT r2.updatedAt FROM Review r2 WHERE r2.id = :cursorId) AND r.id > :cursorId))
-            AND r.book.id = :bookId AND r.isDeleted = false
-            ORDER BY r.updatedAt DESC, r.id ASC
-            """)
+    // 書籍に対するレビューを取得（カーソルベース）
+    @Query(value = """
+            SELECT * FROM reviews r
+            WHERE (:cursor IS NULL OR
+                   r.updated_at < (SELECT r2.updated_at FROM reviews r2 WHERE r2.id = :cursor) OR
+                   (r.updated_at = (SELECT r2.updated_at FROM reviews r2 WHERE r2.id = :cursor) AND r.id > :cursor))
+            AND r.book_id = :bookId
+            AND r.is_deleted = false
+            ORDER BY r.updated_at DESC, r.id DESC
+            LIMIT :limit
+            """,
+            nativeQuery = true)
     List<Review> findReviewsByBookIdWithCursor(@Param("bookId") String bookId,
-            @Param("cursorId") Long cursorId, Pageable pageable);
+            @Param("cursor") Long cursor, @Param("limit") Integer limit);
 
     List<Review> findByBookIdAndIsDeletedFalse(String bookId);
 

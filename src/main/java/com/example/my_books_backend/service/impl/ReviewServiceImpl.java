@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.review.ReviewPageResponse;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
+import com.example.my_books_backend.dto.review.ReviewCursorResponse;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.entity.Book;
@@ -21,7 +21,6 @@ import com.example.my_books_backend.mapper.ReviewMapper;
 import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.repository.ReviewRepository;
 import com.example.my_books_backend.service.ReviewService;
-import com.example.my_books_backend.util.PaginationUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -31,34 +30,15 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewMapper reviewMapper;
 
     private final BookRepository bookRepository;
-    private final PaginationUtil paginationUtil;
-
-    /** ユーザーが投稿したすべてのレビュー情報のデフォルトソート（作成日） */
-    private static final Sort USER_REVIEWS_DEFAULT_SORT =
-            Sort.by(Sort.Order.desc("createdAt"), Sort.Order.asc("id"));
-
-    /** 書籍に対するレビュー一覧のデフォルトソート（更新日） */
-    private static final Sort BOOK_REVIEWS_DEFAULT_SORT =
-            Sort.by(Sort.Order.desc("updatedAt"), Sort.Order.asc("id"));
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ReviewResponse getUserReviewForBook(String bookId, User user) {
-        Review review = reviewRepository.findByBookIdAndUserAndIsDeletedFalse(bookId, user)
-                .orElseThrow(() -> new NotFoundException("Review not found"));
-        return reviewMapper.toReviewResponse(review);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ReviewPageResponse getUserReviews(Integer page, Integer maxResults, User user) {
-        Pageable pageable =
-                paginationUtil.createPageable(page, maxResults, USER_REVIEWS_DEFAULT_SORT);
-        Page<Review> reviews = reviewRepository.findByUserAndIsDeletedFalse(user, pageable);
+    public ReviewPageResponse getUserReviews(User user, Pageable pageable, String bookId) {
+        Page<Review> reviews = (bookId == null)
+                ? reviewRepository.findByUserAndIsDeletedFalse(user, pageable)
+                : reviewRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
         return reviewMapper.toReviewPageResponse(reviews);
     }
 
@@ -66,21 +46,18 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public List<ReviewResponse> getUserReviewsByCursor(Long cursorId, Integer maxResults,
-            User user) {
-        Pageable pageable = paginationUtil.createPageable(0, maxResults, USER_REVIEWS_DEFAULT_SORT);
+    public ReviewCursorResponse getUserReviewsWithCursor(User user, Long cursor, Integer limit) {
+        // 次のページの有無を判定するために、1件多く取得
         List<Review> reviews =
-                reviewRepository.findReviewsByUserIdWithCursor(user.getId(), cursorId, pageable);
-        return reviewMapper.toReviewResponseList(reviews);
+                reviewRepository.findReviewsByUserIdWithCursor(user.getId(), cursor, limit + 1);
+        return reviewMapper.toReviewCursorResponse(reviews, limit);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ReviewPageResponse getBookReviews(String bookId, Integer page, Integer maxResults) {
-        Pageable pageable =
-                paginationUtil.createPageable(page, maxResults, BOOK_REVIEWS_DEFAULT_SORT);
+    public ReviewPageResponse getBookReviews(String bookId, Pageable pageable) {
         Page<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(bookId, pageable);
         return reviewMapper.toReviewPageResponse(reviews);
     }
@@ -89,12 +66,12 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public List<ReviewResponse> getBookReviewsByCursor(String bookId, Long cursorId,
-            Integer maxResults) {
-        Pageable pageable = paginationUtil.createPageable(0, maxResults, BOOK_REVIEWS_DEFAULT_SORT);
+    public ReviewCursorResponse getBookReviewsWithCursor(String bookId, Long cursor,
+            Integer limit) {
+        // 次のページの有無を判定するために、1件多く取得
         List<Review> reviews =
-                reviewRepository.findReviewsByBookIdWithCursor(bookId, cursorId, pageable);
-        return reviewMapper.toReviewResponseList(reviews);
+                reviewRepository.findReviewsByBookIdWithCursor(bookId, cursor, limit + 1);
+        return reviewMapper.toReviewCursorResponse(reviews, limit);
     }
 
     /**

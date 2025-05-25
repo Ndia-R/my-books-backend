@@ -1,21 +1,24 @@
 package com.example.my_books_backend.controller;
 
-import java.util.List;
-
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.my_books_backend.dto.book.BookCursorResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookPageResponse;
 import com.example.my_books_backend.dto.book_chapter.BookTableOfContentsResponse;
 import com.example.my_books_backend.dto.book_chapter_page_content.BookChapterPageContentResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
-import com.example.my_books_backend.dto.review.ReviewPageResponse;
-import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
+import com.example.my_books_backend.dto.review.ReviewCursorResponse;
+import com.example.my_books_backend.dto.review.ReviewPageResponse;
 import com.example.my_books_backend.service.BookService;
 import com.example.my_books_backend.service.FavoriteService;
 import com.example.my_books_backend.service.ReviewService;
@@ -29,90 +32,110 @@ public class BookController {
     private final ReviewService reviewService;
     private final FavoriteService favoriteService;
 
-    // 最新の書籍リスト（１０冊分）
+    private static final int LATEST_BOOKS_PAGE_SIZE = 10;
+
+    private static final int DEFAULT_BOOKS_PAGE_SIZE = 20;
+    private static final String DEFAULT_BOOKS_PAGE_SIZE_STR = "20";
+
+    private static final int DEFAULT_REVIEWS_PAGE_SIZE = 3;
+    private static final String DEFAULT_REVIEWS_PAGE_SIZE_STR = "3";
+
+    // Pageableの引数についている「@ParameterObject」はSwaggerでpageableを個別クエリパラメータとして指定したいため
+
+    // 最新の書籍リスト
     @GetMapping("/new-releases")
-    public ResponseEntity<BookPageResponse> getLatestBooks(
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer maxResults) {
-        BookPageResponse response = bookService.getLatestBooks(page, maxResults);
+    public ResponseEntity<BookPageResponse> getLatestBooks(@ParameterObject @PageableDefault(
+            size = LATEST_BOOKS_PAGE_SIZE, sort = {"publicationDate", "id"},
+            direction = Sort.Direction.DESC) Pageable pageable) {
+        BookPageResponse response = bookService.getLatestBooks(pageable);
         return ResponseEntity.ok(response);
     }
 
     // タイトル検索
     @GetMapping("/search")
-    public ResponseEntity<BookPageResponse> searchBooksByTitleKeyword(@RequestParam String q,
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer maxResults) {
-        BookPageResponse response = bookService.searchBooksByTitleKeyword(q, page, maxResults);
+    public ResponseEntity<BookPageResponse> getBooksByTitleKeyword(@RequestParam String q,
+            @ParameterObject @PageableDefault(size = DEFAULT_BOOKS_PAGE_SIZE,
+                    sort = {"publicationDate", "id"},
+                    direction = Sort.Direction.DESC) Pageable pageable) {
+        BookPageResponse response = bookService.getBooksByTitleKeyword(q, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    // タイトル検索（カーソルベース）
+    @GetMapping("/search/cursor")
+    public ResponseEntity<BookCursorResponse> getBooksByTitleKeywordWithCursor(
+            @RequestParam String q, @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = DEFAULT_BOOKS_PAGE_SIZE_STR) Integer limit) {
+        BookCursorResponse response =
+                bookService.getBooksByTitleKeywordWithCursor(q, cursor, limit);
         return ResponseEntity.ok(response);
     }
 
     // ジャンル検索
     @GetMapping("/discover")
-    public ResponseEntity<BookPageResponse> searchBooksByGenre(@RequestParam String genreIds,
-            @RequestParam String condition, @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer maxResults) {
-        BookPageResponse response =
-                bookService.searchBooksByGenre(genreIds, condition, page, maxResults);
+    public ResponseEntity<BookPageResponse> getBooksByGenre(@RequestParam String genreIds,
+            @RequestParam String condition,
+            @ParameterObject @PageableDefault(size = DEFAULT_BOOKS_PAGE_SIZE,
+                    sort = {"publicationDate", "id"},
+                    direction = Sort.Direction.DESC) Pageable pageable) {
+        BookPageResponse response = bookService.getBooksByGenre(genreIds, condition, pageable);
         return ResponseEntity.ok(response);
     }
 
     // 特定の書籍の詳細
-    @GetMapping("/{bookId}")
-    public ResponseEntity<BookDetailsResponse> getBookDetails(@PathVariable String bookId) {
-        BookDetailsResponse response = bookService.getBookDetails(bookId);
+    @GetMapping("/{id}")
+    public ResponseEntity<BookDetailsResponse> getBookDetails(@PathVariable String id) {
+        BookDetailsResponse response = bookService.getBookDetails(id);
         return ResponseEntity.ok(response);
     }
 
     // 特定の書籍の目次
-    @GetMapping("/{bookId}/toc")
+    @GetMapping("/{id}/toc")
     public ResponseEntity<BookTableOfContentsResponse> getBookTableOfContents(
-            @PathVariable String bookId) {
-        BookTableOfContentsResponse response = bookService.getBookTableOfContents(bookId);
+            @PathVariable String id) {
+        BookTableOfContentsResponse response = bookService.getBookTableOfContents(id);
         return ResponseEntity.ok(response);
     }
 
     // 特定の書籍の閲覧ページ
-    @GetMapping("/{bookId}/chapters/{chapterNumber}/pages/{pageNumber}")
+    @GetMapping("/{id}/chapters/{chapter}/pages/{page}")
     public ResponseEntity<BookChapterPageContentResponse> getBookChapterPageContent(
-            @PathVariable String bookId, @PathVariable Integer chapterNumber,
-            @PathVariable Integer pageNumber) {
+            @PathVariable String id, @PathVariable Integer chapter, @PathVariable Integer page) {
         BookChapterPageContentResponse response =
-                bookService.getBookChapterPageContent(bookId, chapterNumber, pageNumber);
+                bookService.getBookChapterPageContent(id, chapter, page);
         return ResponseEntity.ok(response);
     }
 
     // 特定の書籍のレビュー一覧
-    @GetMapping("/{bookId}/reviews")
-    public ResponseEntity<ReviewPageResponse> getBookReviews(@PathVariable String bookId,
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer maxResults) {
-        ReviewPageResponse response = reviewService.getBookReviews(bookId, page, maxResults);
+    @GetMapping("/{id}/reviews")
+    public ResponseEntity<ReviewPageResponse> getBookReviews(@PathVariable String id,
+            @ParameterObject @PageableDefault(size = DEFAULT_REVIEWS_PAGE_SIZE,
+                    sort = {"updatedAt", "id"},
+                    direction = Sort.Direction.DESC) Pageable pageable) {
+        ReviewPageResponse response = reviewService.getBookReviews(id, pageable);
         return ResponseEntity.ok(response);
     }
 
-    // 特定の書籍のレビュー一覧（カーソル方式）
-    @GetMapping("/{bookId}/reviews/by-cursor")
-    public ResponseEntity<List<ReviewResponse>> getBookReviewsByCursor(@PathVariable String bookId,
-            @RequestParam(required = false) Long cursorId,
-            @RequestParam(required = false) Integer maxResults) {
-        List<ReviewResponse> response =
-                reviewService.getBookReviewsByCursor(bookId, cursorId, maxResults);
+    // 特定の書籍のレビュー一覧（カーソルベース）
+    @GetMapping("/{id}/reviews/cursor")
+    public ResponseEntity<ReviewCursorResponse> getBookReviewsWithCursor(@PathVariable String id,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = DEFAULT_REVIEWS_PAGE_SIZE_STR) Integer limit) {
+        ReviewCursorResponse response = reviewService.getBookReviewsWithCursor(id, cursor, limit);
         return ResponseEntity.ok(response);
     }
 
     // 特定の書籍のレビュー数
-    @GetMapping("/{bookId}/reviews/counts")
-    public ResponseEntity<ReviewCountsResponse> getBookReviewCounts(@PathVariable String bookId) {
-        ReviewCountsResponse response = reviewService.getBookReviewCounts(bookId);
+    @GetMapping("/{id}/reviews/counts")
+    public ResponseEntity<ReviewCountsResponse> getBookReviewCounts(@PathVariable String id) {
+        ReviewCountsResponse response = reviewService.getBookReviewCounts(id);
         return ResponseEntity.ok(response);
     }
 
     // 特定の書籍のお気に入り数
-    @GetMapping("/{bookId}/favorites/counts")
-    public ResponseEntity<FavoriteCountsResponse> getBookFavoriteCounts(
-            @PathVariable String bookId) {
-        FavoriteCountsResponse response = favoriteService.getBookFavoriteCounts(bookId);
+    @GetMapping("/{id}/favorites/counts")
+    public ResponseEntity<FavoriteCountsResponse> getBookFavoriteCounts(@PathVariable String id) {
+        FavoriteCountsResponse response = favoriteService.getBookFavoriteCounts(id);
         return ResponseEntity.ok(response);
     }
 }
