@@ -7,8 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.review.ReviewPageResponse;
+import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
-import com.example.my_books_backend.dto.review.ReviewCursorResponse;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.entity.Book;
@@ -46,11 +46,21 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public ReviewCursorResponse getUserReviewsWithCursor(User user, Long cursor, Integer limit) {
+    public CursorPageResponse<ReviewResponse> getUserReviewsWithCursor(User user, String cursor,
+            Integer limit) {
         // 次のページの有無を判定するために、1件多く取得
-        List<Review> reviews =
-                reviewRepository.findReviewsByUserIdWithCursor(user.getId(), cursor, limit + 1);
-        return reviewMapper.toReviewCursorResponse(reviews, limit);
+        List<Review> reviews = reviewRepository.findReviewsByUserIdWithCursor(user.getId(),
+                Long.parseLong(cursor), limit + 1);
+
+        Boolean hasNext = reviews.size() > limit;
+        if (hasNext) {
+            reviews = reviews.subList(0, limit); // 余分な1件を削除
+        }
+
+        String endCursor = hasNext ? reviews.get(reviews.size() - 1).getId().toString() : null;
+        List<ReviewResponse> responses = reviewMapper.toReviewResponseList(reviews);
+
+        return new CursorPageResponse<ReviewResponse>(endCursor, hasNext, responses);
     }
 
     /**
@@ -66,12 +76,21 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public ReviewCursorResponse getBookReviewsWithCursor(String bookId, Long cursor,
+    public CursorPageResponse<ReviewResponse> getBookReviewsWithCursor(String bookId, String cursor,
             Integer limit) {
         // 次のページの有無を判定するために、1件多く取得
-        List<Review> reviews =
-                reviewRepository.findReviewsByBookIdWithCursor(bookId, cursor, limit + 1);
-        return reviewMapper.toReviewCursorResponse(reviews, limit);
+        List<Review> reviews = reviewRepository.findReviewsByBookIdWithCursor(bookId,
+                Long.parseLong(cursor), limit + 1);
+
+        Boolean hasNext = reviews.size() > limit;
+        if (hasNext) {
+            reviews = reviews.subList(0, limit); // 余分な1件を削除
+        }
+
+        String endCursor = hasNext ? reviews.get(reviews.size() - 1).getId().toString() : null;
+        List<ReviewResponse> responses = reviewMapper.toReviewResponseList(reviews);
+
+        return new CursorPageResponse<ReviewResponse>(endCursor, hasNext, responses);
     }
 
     /**

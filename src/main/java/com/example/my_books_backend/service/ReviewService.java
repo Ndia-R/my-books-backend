@@ -2,8 +2,8 @@ package com.example.my_books_backend.service;
 
 import com.example.my_books_backend.dto.review.ReviewPageResponse;
 import org.springframework.data.domain.Pageable;
+import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
-import com.example.my_books_backend.dto.review.ReviewCursorResponse;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
@@ -27,7 +27,8 @@ public interface ReviewService {
      * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
      * @return レビューリスト
      */
-    ReviewCursorResponse getUserReviewsWithCursor(User user, Long cursor, Integer limit);
+    CursorPageResponse<ReviewResponse> getUserReviewsWithCursor(User user, String cursor,
+            Integer limit);
 
     /**
      * 書籍に対するレビューを取得
@@ -46,7 +47,8 @@ public interface ReviewService {
      * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
      * @return レビューリスト
      */
-    ReviewCursorResponse getBookReviewsWithCursor(String bookId, Long cursor, Integer limit);
+    CursorPageResponse<ReviewResponse> getBookReviewsWithCursor(String bookId, String cursor,
+            Integer limit);
 
     /**
      * 書籍に対するレビュー数などを取得 （レビュー数・平均評価点）

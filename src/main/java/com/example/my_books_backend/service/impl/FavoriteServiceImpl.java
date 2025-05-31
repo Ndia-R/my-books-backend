@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
+import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
-import com.example.my_books_backend.dto.favorite.FavoriteCursorResponse;
 import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Favorite;
@@ -46,12 +46,21 @@ public class FavoriteServiceImpl implements FavoriteService {
      * {@inheritDoc}
      */
     @Override
-    public FavoriteCursorResponse getUserFavoritesWithCursor(User user, Long cursor,
+    public CursorPageResponse<FavoriteResponse> getUserFavoritesWithCursor(User user, String cursor,
             Integer limit) {
         // 次のページの有無を判定するために、1件多く取得
-        List<Favorite> favorites =
-                favoriteRepository.findFavoritesByUserIdWithCursor(user.getId(), cursor, limit + 1);
-        return favoriteMapper.toFavoriteCursorResponse(favorites, limit);
+        List<Favorite> favorites = favoriteRepository.findFavoritesByUserIdWithCursor(user.getId(),
+                Long.parseLong(cursor), limit + 1);
+
+        Boolean hasNext = favorites.size() > limit;
+        if (hasNext) {
+            favorites = favorites.subList(0, limit); // 余分な1件を削除
+        }
+
+        String endCursor = hasNext ? favorites.get(favorites.size() - 1).getId().toString() : null;
+        List<FavoriteResponse> responses = favoriteMapper.toFavoriteResponseList(favorites);
+
+        return new CursorPageResponse<FavoriteResponse>(endCursor, hasNext, responses);
     }
 
     /**

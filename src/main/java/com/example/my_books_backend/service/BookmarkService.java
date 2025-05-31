@@ -1,6 +1,6 @@
 package com.example.my_books_backend.service;
 
-import com.example.my_books_backend.dto.bookmark.BookmarkCursorResponse;
+import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
@@ -26,7 +26,8 @@ public interface BookmarkService {
      * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
      * @return ブックマークリスト
      */
-    BookmarkCursorResponse getUserBookmarksWithCursor(User user, Long cursor, Integer limit);
+    CursorPageResponse<BookmarkResponse> getUserBookmarksWithCursor(User user, String cursor,
+            Integer limit);
 
     /**
      * ブックマークを作成

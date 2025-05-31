@@ -58,4 +58,13 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Optional<Review> findByUserAndBook(User user, Book book);
 
     Integer countByUserIdAndIsDeletedFalse(Long userId);
+
+    // レビュー数と平均評価を一度に取得する
+    @Query("""
+            SELECT r.bookId, COUNT(r), AVG(r.rating)
+            FROM Review r
+            WHERE r.bookId IN :bookIds AND r.isDeleted = false
+            GROUP BY r.bookId
+            """)
+    List<Object[]> findReviewStatsByBookIds(@Param("bookIds") List<String> bookIds);
 }

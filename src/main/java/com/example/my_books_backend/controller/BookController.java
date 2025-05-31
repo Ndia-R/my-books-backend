@@ -10,15 +10,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.my_books_backend.dto.book.BookCursorResponse;
+import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookPageResponse;
+import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.book_chapter.BookTableOfContentsResponse;
 import com.example.my_books_backend.dto.book_chapter_page_content.BookChapterPageContentResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
-import com.example.my_books_backend.dto.review.ReviewCursorResponse;
 import com.example.my_books_backend.dto.review.ReviewPageResponse;
+import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.service.BookService;
 import com.example.my_books_backend.service.FavoriteService;
 import com.example.my_books_backend.service.ReviewService;
@@ -63,10 +64,10 @@ public class BookController {
 
     // タイトル検索（カーソルベース）
     @GetMapping("/search/cursor")
-    public ResponseEntity<BookCursorResponse> getBooksByTitleKeywordWithCursor(
+    public ResponseEntity<CursorPageResponse<BookResponse>> getBooksByTitleKeywordWithCursor(
             @RequestParam String q, @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = DEFAULT_BOOKS_PAGE_SIZE_STR) Integer limit) {
-        BookCursorResponse response =
+        CursorPageResponse<BookResponse> response =
                 bookService.getBooksByTitleKeywordWithCursor(q, cursor, limit);
         return ResponseEntity.ok(response);
     }
@@ -118,10 +119,11 @@ public class BookController {
 
     // 特定の書籍のレビュー一覧（カーソルベース）
     @GetMapping("/{id}/reviews/cursor")
-    public ResponseEntity<ReviewCursorResponse> getBookReviewsWithCursor(@PathVariable String id,
-            @RequestParam(required = false) Long cursor,
+    public ResponseEntity<CursorPageResponse<ReviewResponse>> getBookReviewsWithCursor(
+            @PathVariable String id, @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = DEFAULT_REVIEWS_PAGE_SIZE_STR) Integer limit) {
-        ReviewCursorResponse response = reviewService.getBookReviewsWithCursor(id, cursor, limit);
+        CursorPageResponse<ReviewResponse> response =
+                reviewService.getBookReviewsWithCursor(id, cursor, limit);
         return ResponseEntity.ok(response);
     }
 

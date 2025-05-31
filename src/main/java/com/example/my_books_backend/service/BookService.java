@@ -1,11 +1,15 @@
 package com.example.my_books_backend.service;
 
+import java.util.List;
+import java.util.Map;
 import org.springframework.data.domain.Pageable;
-import com.example.my_books_backend.dto.book.BookCursorResponse;
+import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookPageResponse;
+import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.book_chapter.BookTableOfContentsResponse;
 import com.example.my_books_backend.dto.book_chapter_page_content.BookChapterPageContentResponse;
+import com.example.my_books_backend.entity.Book;
 
 public interface BookService {
     /**
@@ -33,7 +37,7 @@ public interface BookService {
      * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
      * @return 検索結果
      */
-    BookCursorResponse getBooksByTitleKeywordWithCursor(String keyword, String cursor,
+    CursorPageResponse<BookResponse> getBooksByTitleKeywordWithCursor(String keyword, String cursor,
             Integer limit);
 
     /**
@@ -73,4 +77,14 @@ public interface BookService {
      */
     BookChapterPageContentResponse getBookChapterPageContent(String bookId, Integer chapterNumber,
             Integer pageNumber);
+
+    /**
+     * レビュー統計の取得と格納
+     * 
+     * @param books 書籍リスト
+     * @param reviewCounts 書籍に対するレビュー数を格納するMap
+     * @param averageRatings 書籍の平均評価点を格納するMap
+     */
+    void loadReviewStatistics(List<Book> books, Map<String, Integer> reviewCounts,
+            Map<String, Double> averageRatings);
 }

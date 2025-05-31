@@ -4,8 +4,8 @@ import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.entity.User;
 import org.springframework.data.domain.Pageable;
+import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
-import com.example.my_books_backend.dto.favorite.FavoriteCursorResponse;
 import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
 
 public interface FavoriteService {
@@ -27,7 +27,8 @@ public interface FavoriteService {
      * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
      * @return お気に入りリスト
      */
-    FavoriteCursorResponse getUserFavoritesWithCursor(User user, Long cursor, Integer limit);
+    CursorPageResponse<FavoriteResponse> getUserFavoritesWithCursor(User user, String cursor,
+            Integer limit);
 
     /**
      * 書籍に対するお気に入り数を取得

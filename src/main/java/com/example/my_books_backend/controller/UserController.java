@@ -14,12 +14,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.user.UserProfileCountsResponse;
 import com.example.my_books_backend.dto.user.UserProfileResponse;
-import com.example.my_books_backend.dto.bookmark.BookmarkCursorResponse;
+import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
-import com.example.my_books_backend.dto.favorite.FavoriteCursorResponse;
+import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
-import com.example.my_books_backend.dto.review.ReviewCursorResponse;
+import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.dto.review.ReviewPageResponse;
+import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.dto.user.UpdateUserEmailRequest;
 import com.example.my_books_backend.dto.user.UpdateUserPasswordRequest;
 import com.example.my_books_backend.dto.user.UpdateUserProfileRequest;
@@ -70,10 +71,11 @@ public class UserController {
 
     // ユーザーが投稿したレビューを取得（カーソルベース）
     @GetMapping("/reviews/cursor")
-    public ResponseEntity<ReviewCursorResponse> getUserReviewsWithCursor(
-            @AuthenticationPrincipal User user, @RequestParam(required = false) Long cursor,
+    public ResponseEntity<CursorPageResponse<ReviewResponse>> getUserReviewsWithCursor(
+            @AuthenticationPrincipal User user, @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = DEFAULT_PAGE_SIZE_STR) Integer limit) {
-        ReviewCursorResponse response = reviewService.getUserReviewsWithCursor(user, cursor, limit);
+        CursorPageResponse<ReviewResponse> response =
+                reviewService.getUserReviewsWithCursor(user, cursor, limit);
         return ResponseEntity.ok(response);
     }
 
@@ -89,10 +91,10 @@ public class UserController {
 
     // ユーザーが追加したお気に入りを取得（カーソルベース）
     @GetMapping("/favorites/cursor")
-    public ResponseEntity<FavoriteCursorResponse> getUserFavoritesWithCursor(
-            @AuthenticationPrincipal User user, @RequestParam(required = false) Long cursor,
+    public ResponseEntity<CursorPageResponse<FavoriteResponse>> getUserFavoritesWithCursor(
+            @AuthenticationPrincipal User user, @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = DEFAULT_PAGE_SIZE_STR) Integer limit) {
-        FavoriteCursorResponse response =
+        CursorPageResponse<FavoriteResponse> response =
                 favoriteService.getUserFavoritesWithCursor(user, cursor, limit);
         return ResponseEntity.ok(response);
     }
@@ -109,10 +111,10 @@ public class UserController {
 
     // ユーザーが追加したブックマークを取得（カーソルベース）
     @GetMapping("/bookmarks/cursor")
-    public ResponseEntity<BookmarkCursorResponse> getUserBookmarksWithCursor(
-            @AuthenticationPrincipal User user, @RequestParam(required = false) Long cursor,
+    public ResponseEntity<CursorPageResponse<BookmarkResponse>> getUserBookmarksWithCursor(
+            @AuthenticationPrincipal User user, @RequestParam(required = false) String cursor,
             @RequestParam(defaultValue = DEFAULT_PAGE_SIZE_STR) Integer limit) {
-        BookmarkCursorResponse response =
+        CursorPageResponse<BookmarkResponse> response =
                 bookmarkService.getUserBookmarksWithCursor(user, cursor, limit);
         return ResponseEntity.ok(response);
     }

@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.my_books_backend.dto.bookmark.BookmarkCursorResponse;
+import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
@@ -78,12 +78,22 @@ public class BookmarkServiceImpl implements BookmarkService {
      * {@inheritDoc}
      */
     @Override
-    public BookmarkCursorResponse getUserBookmarksWithCursor(User user, Long cursor,
+    public CursorPageResponse<BookmarkResponse> getUserBookmarksWithCursor(User user, String cursor,
             Integer limit) {
         // 次のページの有無を判定するために、1件多く取得
-        List<Bookmark> bookmarks =
-                bookmarkRepository.findBookmarksByUserIdWithCursor(user.getId(), cursor, limit + 1);
-        BookmarkCursorResponse response = bookmarkMapper.toBookmarkCursorResponse(bookmarks, limit);
+        List<Bookmark> bookmarks = bookmarkRepository.findBookmarksByUserIdWithCursor(user.getId(),
+                Long.parseLong(cursor), limit + 1);
+
+        Boolean hasNext = bookmarks.size() > limit;
+        if (hasNext) {
+            bookmarks = bookmarks.subList(0, limit); // 余分な1件を削除
+        }
+
+        String endCursor = hasNext ? bookmarks.get(bookmarks.size() - 1).getId().toString() : null;
+        List<BookmarkResponse> responses = bookmarkMapper.toBookmarkResponseList(bookmarks);
+
+        CursorPageResponse<BookmarkResponse> response =
+                new CursorPageResponse<BookmarkResponse>(endCursor, hasNext, responses);
 
         // 書籍の目次のタイトルを取得し、章番号とタイトルのマップを作成する
         Set<String> bookIds = bookmarks.stream().map(bookmark -> bookmark.getBook().getId())
@@ -98,7 +108,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         }
 
         // 章番号に対応するタイトルをレスポンスに追加する
-        response.getBookmarks().forEach(bookmark -> {
+        response.getData().forEach(bookmark -> {
             Map<Integer, String> chapterTitleMap =
                     bookChapterTitleMaps.get(bookmark.getBook().getId());
             if (chapterTitleMap != null) {
