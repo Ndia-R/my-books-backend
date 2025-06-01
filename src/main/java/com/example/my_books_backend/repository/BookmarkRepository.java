@@ -26,7 +26,7 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
             SELECT * FROM bookmarks b
             WHERE (:cursor IS NULL OR
                    b.updated_at < (SELECT b2.updated_at FROM bookmarks b2 WHERE b2.id = :cursor) OR
-                   (b.updated_at = (SELECT b2.updated_at FROM bookmarks b2 WHERE b2.id = :cursor) AND b.id > :cursor))
+                   (b.updated_at = (SELECT b2.updated_at FROM bookmarks b2 WHERE b2.id = :cursor) AND b.id < :cursor))
             AND b.user_id = :userId
             AND b.is_deleted = false
             ORDER BY b.updated_at DESC, b.id DESC

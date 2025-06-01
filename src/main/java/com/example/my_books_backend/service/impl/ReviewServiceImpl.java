@@ -50,17 +50,8 @@ public class ReviewServiceImpl implements ReviewService {
             Integer limit) {
         // 次のページの有無を判定するために、1件多く取得
         List<Review> reviews = reviewRepository.findReviewsByUserIdWithCursor(user.getId(),
-                Long.parseLong(cursor), limit + 1);
-
-        Boolean hasNext = reviews.size() > limit;
-        if (hasNext) {
-            reviews = reviews.subList(0, limit); // 余分な1件を削除
-        }
-
-        String endCursor = hasNext ? reviews.get(reviews.size() - 1).getId().toString() : null;
-        List<ReviewResponse> responses = reviewMapper.toReviewResponseList(reviews);
-
-        return new CursorPageResponse<ReviewResponse>(endCursor, hasNext, responses);
+                (cursor != null) ? Long.parseLong(cursor) : null, limit + 1);
+        return reviewMapper.toCursorPageResponse(reviews, limit);
     }
 
     /**
@@ -80,17 +71,8 @@ public class ReviewServiceImpl implements ReviewService {
             Integer limit) {
         // 次のページの有無を判定するために、1件多く取得
         List<Review> reviews = reviewRepository.findReviewsByBookIdWithCursor(bookId,
-                Long.parseLong(cursor), limit + 1);
-
-        Boolean hasNext = reviews.size() > limit;
-        if (hasNext) {
-            reviews = reviews.subList(0, limit); // 余分な1件を削除
-        }
-
-        String endCursor = hasNext ? reviews.get(reviews.size() - 1).getId().toString() : null;
-        List<ReviewResponse> responses = reviewMapper.toReviewResponseList(reviews);
-
-        return new CursorPageResponse<ReviewResponse>(endCursor, hasNext, responses);
+                (cursor != null) ? Long.parseLong(cursor) : null, limit + 1);
+        return reviewMapper.toCursorPageResponse(reviews, limit);
     }
 
     /**

@@ -1,9 +1,8 @@
 package com.example.my_books_backend.service.impl;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,14 +19,13 @@ import com.example.my_books_backend.entity.BookChapter;
 import com.example.my_books_backend.entity.BookChapterId;
 import com.example.my_books_backend.entity.BookChapterPageContent;
 import com.example.my_books_backend.entity.BookChapterPageContentId;
-import com.example.my_books_backend.entity.Review;
+import com.example.my_books_backend.entity.Genre;
 import com.example.my_books_backend.exception.BadRequestException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.BookMapper;
 import com.example.my_books_backend.repository.BookChapterRepository;
 import com.example.my_books_backend.repository.BookChapterPageContentRepository;
 import com.example.my_books_backend.repository.BookRepository;
-import com.example.my_books_backend.repository.ReviewRepository;
 import com.example.my_books_backend.service.BookService;
 import com.example.my_books_backend.service.GenreService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
-    private final ReviewRepository reviewRepository;
     private final BookChapterRepository bookChapterRepository;
     private final BookChapterPageContentRepository bookChapterPageContentRepository;
     private final BookMapper bookMapper;
@@ -49,12 +46,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookPageResponse getLatestBooks(Pageable pageable) {
         Page<Book> books = bookRepository.findByIsDeletedFalse(pageable);
-
-        Map<String, Integer> reviewCounts = new HashMap<>();
-        Map<String, Double> averageRatings = new HashMap<>();
-        loadReviewStatistics(books.getContent(), reviewCounts, averageRatings);
-
-        return bookMapper.toBookPageResponse(books, reviewCounts, averageRatings);
+        return bookMapper.toBookPageResponse(books);
     }
 
     /**
@@ -63,12 +55,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookPageResponse getBooksByTitleKeyword(String keyword, Pageable pageable) {
         Page<Book> books = bookRepository.findByTitleContainingAndIsDeletedFalse(keyword, pageable);
-
-        Map<String, Integer> reviewCounts = new HashMap<>();
-        Map<String, Double> averageRatings = new HashMap<>();
-        loadReviewStatistics(books.getContent(), reviewCounts, averageRatings);
-
-        return bookMapper.toBookPageResponse(books, reviewCounts, averageRatings);
+        return bookMapper.toBookPageResponse(books);
     }
 
     /**
@@ -80,20 +67,7 @@ public class BookServiceImpl implements BookService {
         // 次のページの有無を判定するために、1件多く取得
         List<Book> books = bookRepository.findBooksByTitleKeywordWithCursor("%" + keyword + "%",
                 cursor, limit + 1);
-
-        Boolean hasNext = books.size() > limit;
-        if (hasNext) {
-            books = books.subList(0, limit); // 余分な1件を削除
-        }
-
-        String endCursor = hasNext ? books.get(books.size() - 1).getId() : null;
-
-        Map<String, Integer> reviewCounts = new HashMap<>();
-        Map<String, Double> averageRatings = new HashMap<>();
-        loadReviewStatistics(books, reviewCounts, averageRatings);
-
-        return bookMapper.toCursorPageResponse(books, endCursor, hasNext, reviewCounts,
-                averageRatings);
+        return bookMapper.toCursorPageResponse(books, limit);
     }
 
     /**
@@ -106,8 +80,8 @@ public class BookServiceImpl implements BookService {
                 || "OR".equals(conditionQuery))) {
             throw new BadRequestException("検索条件が不正です。");
         }
-        List<Long> genreIds =
-                Arrays.stream(genreIdsQuery.split(",")).map(id -> Long.parseLong(id)).toList();
+        List<Long> genreIds = Arrays.stream(genreIdsQuery.split(",")).map(Long::parseLong)
+                .collect(Collectors.toList());
 
         Boolean isAndCondition = "AND".equals(conditionQuery);
 
@@ -116,11 +90,7 @@ public class BookServiceImpl implements BookService {
                         genreIds.size(), pageable)
                 : bookRepository.findDistinctByGenres_IdIn(genreIds, pageable);
 
-        Map<String, Integer> reviewCounts = new HashMap<>();
-        Map<String, Double> averageRatings = new HashMap<>();
-        loadReviewStatistics(books.getContent(), reviewCounts, averageRatings);
-
-        return bookMapper.toBookPageResponse(books, reviewCounts, averageRatings);
+        return bookMapper.toBookPageResponse(books);
     }
 
     /**
@@ -133,19 +103,13 @@ public class BookServiceImpl implements BookService {
 
         List<GenreResponse> allGenres = genreService.getAllGenres();
 
-        List<Long> bookGenreIds = book.getGenres().stream().map(genre -> genre.getId()).toList();
+        List<Long> bookGenreIds =
+                book.getGenres().stream().map(Genre::getId).collect(Collectors.toList());
 
-        List<GenreResponse> relevantGenres =
-                allGenres.stream().filter(genre -> bookGenreIds.contains(genre.getId())).toList();
+        List<GenreResponse> relevantGenres = allGenres.stream()
+                .filter(genre -> bookGenreIds.contains(genre.getId())).collect(Collectors.toList());
 
-        // レビュー情報を取得
-        List<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(book.getId());
-        Integer reviewCount = reviews.size();
-        Double averageRating =
-                reviews.stream().mapToDouble(review -> review.getRating()).average().orElse(0.0);
-
-        BookDetailsResponse response =
-                bookMapper.toBookDetailsResponse(book, reviewCount, averageRating);
+        BookDetailsResponse response = bookMapper.toBookDetailsResponse(book);
         response.setGenres(relevantGenres);
 
         return response;
@@ -167,8 +131,8 @@ public class BookServiceImpl implements BookService {
             List<BookChapterPageContent> pageContents = bookChapterPageContentRepository
                     .findByIdBookIdAndIdChapterNumber(id, chapterNumber);
 
-            List<Integer> pageNumbers =
-                    pageContents.stream().map(content -> content.getId().getPageNumber()).toList();
+            List<Integer> pageNumbers = pageContents.stream()
+                    .map(content -> content.getId().getPageNumber()).collect(Collectors.toList());
 
             BookChapterResponse response = new BookChapterResponse();
             response.setChapterNumber(chapterNumber);
@@ -176,7 +140,7 @@ public class BookServiceImpl implements BookService {
             response.setPageNumbers(pageNumbers);
 
             return response;
-        }).toList();
+        }).collect(Collectors.toList());
 
         BookTableOfContentsResponse response = new BookTableOfContentsResponse();
         response.setBookId(id);
@@ -210,36 +174,5 @@ public class BookServiceImpl implements BookService {
         response.setContent(pageContent.getContent());
 
         return response;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadReviewStatistics(List<Book> books, Map<String, Integer> reviewCounts,
-            Map<String, Double> averageRatings) {
-        if (books.isEmpty()) {
-            return;
-        }
-
-        List<String> bookIds = books.stream().map(book -> book.getId()).toList();
-
-        // 一度のクエリでレビュー数と平均評価を取得
-        List<Object[]> reviewStats = reviewRepository.findReviewStatsByBookIds(bookIds);
-
-        for (Object[] stat : reviewStats) {
-            String bookId = (String) stat[0];
-            Integer count = ((Number) stat[1]).intValue();
-            Double avgRating = stat[2] != null ? ((Number) stat[2]).doubleValue() : 0.0;
-
-            reviewCounts.put(bookId, count);
-            averageRatings.put(bookId, avgRating);
-        }
-
-        // レビューが存在しない書籍にデフォルト値を設定
-        for (Book book : books) {
-            reviewCounts.putIfAbsent(book.getId(), 0);
-            averageRatings.putIfAbsent(book.getId(), 0.0);
-        }
     }
 }

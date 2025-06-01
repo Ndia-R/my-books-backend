@@ -50,17 +50,8 @@ public class FavoriteServiceImpl implements FavoriteService {
             Integer limit) {
         // 次のページの有無を判定するために、1件多く取得
         List<Favorite> favorites = favoriteRepository.findFavoritesByUserIdWithCursor(user.getId(),
-                Long.parseLong(cursor), limit + 1);
-
-        Boolean hasNext = favorites.size() > limit;
-        if (hasNext) {
-            favorites = favorites.subList(0, limit); // 余分な1件を削除
-        }
-
-        String endCursor = hasNext ? favorites.get(favorites.size() - 1).getId().toString() : null;
-        List<FavoriteResponse> responses = favoriteMapper.toFavoriteResponseList(favorites);
-
-        return new CursorPageResponse<FavoriteResponse>(endCursor, hasNext, responses);
+                (cursor != null) ? Long.parseLong(cursor) : null, limit + 1);
+        return favoriteMapper.toCursorPageResponse(favorites, limit);
     }
 
     /**

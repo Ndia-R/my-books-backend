@@ -4,6 +4,7 @@ import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
+import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.review.ReviewPageResponse;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.entity.Book;
@@ -37,5 +38,16 @@ public class ReviewMapper {
         Integer totalItems = (int) reviews.getTotalElements();
         List<ReviewResponse> responses = toReviewResponseList(reviews.getContent());
         return new ReviewPageResponse(page, totalPages, totalItems, responses);
+    }
+
+    public CursorPageResponse<ReviewResponse> toCursorPageResponse(List<Review> reviews,
+            Integer limit) {
+        Boolean hasNext = reviews.size() > limit;
+        if (hasNext) {
+            reviews = reviews.subList(0, limit); // 余分な1件を削除
+        }
+        String endCursor = hasNext ? reviews.get(reviews.size() - 1).getId().toString() : null;
+        List<ReviewResponse> responses = toReviewResponseList(reviews);
+        return new CursorPageResponse<ReviewResponse>(endCursor, hasNext, responses);
     }
 }

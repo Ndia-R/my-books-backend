@@ -82,18 +82,9 @@ public class BookmarkServiceImpl implements BookmarkService {
             Integer limit) {
         // 次のページの有無を判定するために、1件多く取得
         List<Bookmark> bookmarks = bookmarkRepository.findBookmarksByUserIdWithCursor(user.getId(),
-                Long.parseLong(cursor), limit + 1);
-
-        Boolean hasNext = bookmarks.size() > limit;
-        if (hasNext) {
-            bookmarks = bookmarks.subList(0, limit); // 余分な1件を削除
-        }
-
-        String endCursor = hasNext ? bookmarks.get(bookmarks.size() - 1).getId().toString() : null;
-        List<BookmarkResponse> responses = bookmarkMapper.toBookmarkResponseList(bookmarks);
-
+                (cursor != null) ? Long.parseLong(cursor) : null, limit + 1);
         CursorPageResponse<BookmarkResponse> response =
-                new CursorPageResponse<BookmarkResponse>(endCursor, hasNext, responses);
+                bookmarkMapper.toCursorPageResponse(bookmarks, limit);
 
         // 書籍の目次のタイトルを取得し、章番号とタイトルのマップを作成する
         Set<String> bookIds = bookmarks.stream().map(bookmark -> bookmark.getBook().getId())
