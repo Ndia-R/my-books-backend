@@ -5,8 +5,8 @@ import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.entity.User;
 import org.springframework.data.domain.Pageable;
 import com.example.my_books_backend.dto.CursorPageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
-import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
 
 public interface FavoriteService {
     /**
@@ -17,7 +17,7 @@ public interface FavoriteService {
      * @param bookId 書籍ID、nullの場合はすべてが対象
      * @return お気に入りリスト
      */
-    FavoritePageResponse getUserFavorites(User user, Pageable pageable, String bookId);
+    PageResponse<FavoriteResponse> getUserFavorites(User user, Pageable pageable, String bookId);
 
     /**
      * ユーザーが追加したお気に入りを取得（カーソルベース）

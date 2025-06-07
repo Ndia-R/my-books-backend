@@ -8,8 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.example.my_books_backend.dto.genre.GenreResponse;
 import com.example.my_books_backend.dto.CursorPageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
-import com.example.my_books_backend.dto.book.BookPageResponse;
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.book_chapter.BookChapterResponse;
 import com.example.my_books_backend.dto.book_chapter.BookTableOfContentsResponse;
@@ -44,18 +44,18 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public BookPageResponse getLatestBooks(Pageable pageable) {
+    public PageResponse<BookResponse> getLatestBooks(Pageable pageable) {
         Page<Book> books = bookRepository.findByIsDeletedFalse(pageable);
-        return bookMapper.toBookPageResponse(books);
+        return bookMapper.toPageResponse(books);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public BookPageResponse getBooksByTitleKeyword(String keyword, Pageable pageable) {
+    public PageResponse<BookResponse> getBooksByTitleKeyword(String keyword, Pageable pageable) {
         Page<Book> books = bookRepository.findByTitleContainingAndIsDeletedFalse(keyword, pageable);
-        return bookMapper.toBookPageResponse(books);
+        return bookMapper.toPageResponse(books);
     }
 
     /**
@@ -74,7 +74,7 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public BookPageResponse getBooksByGenre(String genreIdsQuery, String conditionQuery,
+    public PageResponse<BookResponse> getBooksByGenre(String genreIdsQuery, String conditionQuery,
             Pageable pageable) {
         if (!("SINGLE".equals(conditionQuery) || "AND".equals(conditionQuery)
                 || "OR".equals(conditionQuery))) {
@@ -90,7 +90,7 @@ public class BookServiceImpl implements BookService {
                         genreIds.size(), pageable)
                 : bookRepository.findDistinctByGenres_IdIn(genreIds, pageable);
 
-        return bookMapper.toBookPageResponse(books);
+        return bookMapper.toPageResponse(books);
     }
 
     /**

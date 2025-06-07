@@ -5,7 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import com.example.my_books_backend.dto.CursorPageResponse;
-import com.example.my_books_backend.dto.review.ReviewPageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Review;
@@ -32,12 +32,12 @@ public class ReviewMapper {
         return reviews.stream().map(review -> toReviewResponse(review)).toList();
     }
 
-    public ReviewPageResponse toReviewPageResponse(Page<Review> reviews) {
-        Integer page = reviews.getNumber();
-        Integer totalPages = reviews.getTotalPages();
-        Integer totalItems = (int) reviews.getTotalElements();
+    public PageResponse<ReviewResponse> toPageResponse(Page<Review> reviews) {
         List<ReviewResponse> responses = toReviewResponseList(reviews.getContent());
-        return new ReviewPageResponse(page, totalPages, totalItems, responses);
+        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
+        return new PageResponse<ReviewResponse>(reviews.getNumber() + 1, reviews.getSize(),
+                reviews.getTotalPages(), reviews.getTotalElements(), reviews.hasNext(),
+                reviews.hasPrevious(), responses);
     }
 
     public CursorPageResponse<ReviewResponse> toCursorPageResponse(List<Review> reviews,

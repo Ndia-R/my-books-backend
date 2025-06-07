@@ -5,7 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import com.example.my_books_backend.dto.CursorPageResponse;
-import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Favorite;
@@ -28,12 +28,12 @@ public class FavoriteMapper {
         return favorites.stream().map(favorite -> toFavoriteResponse(favorite)).toList();
     }
 
-    public FavoritePageResponse toFavoritePageResponse(Page<Favorite> favorites) {
-        Integer page = favorites.getNumber();
-        Integer totalPages = favorites.getTotalPages();
-        Integer totalItems = (int) favorites.getTotalElements();
+    public PageResponse<FavoriteResponse> toPageResponse(Page<Favorite> favorites) {
         List<FavoriteResponse> responses = toFavoriteResponseList(favorites.getContent());
-        return new FavoritePageResponse(page, totalPages, totalItems, responses);
+        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
+        return new PageResponse<FavoriteResponse>(favorites.getNumber() + 1, favorites.getSize(),
+                favorites.getTotalPages(), favorites.getTotalElements(), favorites.hasNext(),
+                favorites.hasPrevious(), responses);
     }
 
     public CursorPageResponse<FavoriteResponse> toCursorPageResponse(List<Favorite> reviews,

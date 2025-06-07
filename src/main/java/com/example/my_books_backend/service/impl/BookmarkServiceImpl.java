@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.CursorPageResponse;
-import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.entity.Book;
@@ -41,11 +41,12 @@ public class BookmarkServiceImpl implements BookmarkService {
      * {@inheritDoc}
      */
     @Override
-    public BookmarkPageResponse getUserBookmarks(User user, Pageable pageable, String bookId) {
+    public PageResponse<BookmarkResponse> getUserBookmarks(User user, Pageable pageable,
+            String bookId) {
         Page<Bookmark> bookmarkPage = (bookId == null)
                 ? bookmarkRepository.findByUserAndIsDeletedFalse(user, pageable)
                 : bookmarkRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
-        BookmarkPageResponse response = bookmarkMapper.toBookmarkPageResponse(bookmarkPage);
+        PageResponse<BookmarkResponse> response = bookmarkMapper.toPageResponse(bookmarkPage);
 
         // 書籍の目次のタイトルを取得し、章番号とタイトルのマップを作成する
         Set<String> bookIds = bookmarkPage.getContent().stream()
@@ -60,7 +61,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         }
 
         // 章番号に対応するタイトルをレスポンスに追加する
-        response.getBookmarks().forEach(bookmark -> {
+        response.getData().forEach(bookmark -> {
             Map<Integer, String> chapterTitleMap =
                     bookChapterTitleMaps.get(bookmark.getBook().getId());
             if (chapterTitleMap != null) {

@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.dto.CursorPageResponse;
-import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Bookmark;
 import lombok.RequiredArgsConstructor;
@@ -28,12 +28,12 @@ public class BookmarkMapper {
         return bookmarks.stream().map(bookmark -> toBookmarkResponse(bookmark)).toList();
     }
 
-    public BookmarkPageResponse toBookmarkPageResponse(Page<Bookmark> bookmarks) {
-        Integer page = bookmarks.getNumber();
-        Integer totalPages = bookmarks.getTotalPages();
-        Integer totalItems = (int) bookmarks.getTotalElements();
+    public PageResponse<BookmarkResponse> toPageResponse(Page<Bookmark> bookmarks) {
         List<BookmarkResponse> responses = toBookmarkResponseList(bookmarks.getContent());
-        return new BookmarkPageResponse(page, totalPages, totalItems, responses);
+        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
+        return new PageResponse<BookmarkResponse>(bookmarks.getNumber() + 1, bookmarks.getSize(),
+                bookmarks.getTotalPages(), bookmarks.getTotalElements(), bookmarks.hasNext(),
+                bookmarks.hasPrevious(), responses);
     }
 
     public CursorPageResponse<BookmarkResponse> toCursorPageResponse(List<Bookmark> bookmarks,

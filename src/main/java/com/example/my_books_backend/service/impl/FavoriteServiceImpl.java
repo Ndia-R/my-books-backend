@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.dto.CursorPageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
-import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Favorite;
 import com.example.my_books_backend.entity.User;
@@ -35,11 +35,12 @@ public class FavoriteServiceImpl implements FavoriteService {
      * {@inheritDoc}
      */
     @Override
-    public FavoritePageResponse getUserFavorites(User user, Pageable pageable, String bookId) {
+    public PageResponse<FavoriteResponse> getUserFavorites(User user, Pageable pageable,
+            String bookId) {
         Page<Favorite> favorites = (bookId == null)
                 ? favoriteRepository.findByUserAndIsDeletedFalse(user, pageable)
                 : favoriteRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
-        return favoriteMapper.toFavoritePageResponse(favorites);
+        return favoriteMapper.toPageResponse(favorites);
     }
 
     /**

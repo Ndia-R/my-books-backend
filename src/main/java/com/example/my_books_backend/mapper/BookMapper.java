@@ -7,8 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.CursorPageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
-import com.example.my_books_backend.dto.book.BookPageResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Review;
 import com.example.my_books_backend.repository.ReviewRepository;
@@ -42,12 +42,12 @@ public class BookMapper {
         return books.stream().map(book -> toBookResponse(book)).toList();
     }
 
-    public BookPageResponse toBookPageResponse(Page<Book> books) {
-        Integer page = books.getNumber();
-        Integer totalPages = books.getTotalPages();
-        Integer totalItems = (int) books.getTotalElements();
+    public PageResponse<BookResponse> toPageResponse(Page<Book> books) {
         List<BookResponse> responses = toBookResponseList(books.getContent());
-        return new BookPageResponse(page, totalPages, totalItems, responses);
+        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
+        return new PageResponse<BookResponse>(books.getNumber() + 1, books.getSize(),
+                books.getTotalPages(), books.getTotalElements(), books.hasNext(),
+                books.hasPrevious(), responses);
     }
 
     public CursorPageResponse<BookResponse> toCursorPageResponse(List<Book> books, Integer limit) {

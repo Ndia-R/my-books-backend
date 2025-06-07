@@ -6,8 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.my_books_backend.dto.review.ReviewPageResponse;
 import com.example.my_books_backend.dto.CursorPageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
@@ -35,11 +35,12 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public ReviewPageResponse getUserReviews(User user, Pageable pageable, String bookId) {
+    public PageResponse<ReviewResponse> getUserReviews(User user, Pageable pageable,
+            String bookId) {
         Page<Review> reviews = (bookId == null)
                 ? reviewRepository.findByUserAndIsDeletedFalse(user, pageable)
                 : reviewRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
-        return reviewMapper.toReviewPageResponse(reviews);
+        return reviewMapper.toPageResponse(reviews);
     }
 
     /**
@@ -58,9 +59,9 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public ReviewPageResponse getBookReviews(String bookId, Pageable pageable) {
+    public PageResponse<ReviewResponse> getBookReviews(String bookId, Pageable pageable) {
         Page<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(bookId, pageable);
-        return reviewMapper.toReviewPageResponse(reviews);
+        return reviewMapper.toPageResponse(reviews);
     }
 
     /**

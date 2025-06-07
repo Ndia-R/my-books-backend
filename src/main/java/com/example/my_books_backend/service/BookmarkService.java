@@ -1,7 +1,7 @@
 package com.example.my_books_backend.service;
 
 import com.example.my_books_backend.dto.CursorPageResponse;
-import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.entity.User;
@@ -16,7 +16,7 @@ public interface BookmarkService {
      * @param bookId 書籍ID、nullの場合はすべてが対象
      * @return ブックマークリスト
      */
-    BookmarkPageResponse getUserBookmarks(User user, Pageable pageable, String bookId);
+    PageResponse<BookmarkResponse> getUserBookmarks(User user, Pageable pageable, String bookId);
 
     /**
      * ユーザーが追加したブックマークを取得（カーソルベース）

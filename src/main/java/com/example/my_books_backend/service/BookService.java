@@ -2,8 +2,8 @@ package com.example.my_books_backend.service;
 
 import org.springframework.data.domain.Pageable;
 import com.example.my_books_backend.dto.CursorPageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
-import com.example.my_books_backend.dto.book.BookPageResponse;
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.book_chapter.BookTableOfContentsResponse;
 import com.example.my_books_backend.dto.book_chapter_page_content.BookChapterPageContentResponse;
@@ -15,7 +15,7 @@ public interface BookService {
      * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
      * @return 最新の書籍リスト
      */
-    BookPageResponse getLatestBooks(Pageable pageable);
+    PageResponse<BookResponse> getLatestBooks(Pageable pageable);
 
     /**
      * タイトルで書籍を検索したリストを取得
@@ -24,7 +24,7 @@ public interface BookService {
      * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
      * @return 検索結果
      */
-    BookPageResponse getBooksByTitleKeyword(String keyword, Pageable pageable);
+    PageResponse<BookResponse> getBooksByTitleKeyword(String keyword, Pageable pageable);
 
     /**
      * タイトルで書籍を検索したリストを取得（カーソルベース）
@@ -45,7 +45,7 @@ public interface BookService {
      * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
      * @return 検索結果
      */
-    BookPageResponse getBooksByGenre(String genreIdsQuery, String conditionQuery,
+    PageResponse<BookResponse> getBooksByGenre(String genreIdsQuery, String conditionQuery,
             Pageable pageable);
 
     /**

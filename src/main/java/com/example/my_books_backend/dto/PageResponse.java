@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageResponse<T> {
-    private int currentPage;
+    private int currentPage; // ページ番号は1ベース
     private int pageSize;
     private int totalPages;
     private long totalItems;

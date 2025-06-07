@@ -15,11 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.user.UserProfileCountsResponse;
 import com.example.my_books_backend.dto.user.UserProfileResponse;
 import com.example.my_books_backend.dto.CursorPageResponse;
-import com.example.my_books_backend.dto.bookmark.BookmarkPageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
-import com.example.my_books_backend.dto.favorite.FavoritePageResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
-import com.example.my_books_backend.dto.review.ReviewPageResponse;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.dto.user.UpdateUserEmailRequest;
 import com.example.my_books_backend.dto.user.UpdateUserPasswordRequest;
@@ -42,7 +40,7 @@ public class UserController {
     private final BookmarkService bookmarkService;
 
     private static final int DEFAULT_PAGE_SIZE = 5;
-    private static final String DEFAULT_PAGE_SIZE_STR = "5";
+    private static final String DEFAULT_PAGE_SIZE_STR = "5"; // カーソルベース用
 
     // ユーザーのプロフィール情報
     @GetMapping("/profile")
@@ -61,11 +59,13 @@ public class UserController {
 
     // ユーザーが投稿したレビューを取得
     @GetMapping("/reviews")
-    public ResponseEntity<ReviewPageResponse> getUserReviews(@AuthenticationPrincipal User user,
+    public ResponseEntity<PageResponse<ReviewResponse>> getUserReviews(
+            @AuthenticationPrincipal User user,
             @ParameterObject @PageableDefault(size = DEFAULT_PAGE_SIZE, sort = {"updatedAt", "id"},
                     direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) String bookId) {
-        ReviewPageResponse response = reviewService.getUserReviews(user, pageable, bookId);
+        PageResponse<ReviewResponse> response =
+                reviewService.getUserReviews(user, pageable, bookId);
         return ResponseEntity.ok(response);
     }
 
@@ -81,11 +81,13 @@ public class UserController {
 
     // ユーザーが追加したお気に入りを取得
     @GetMapping("/favorites")
-    public ResponseEntity<FavoritePageResponse> getUserFavorites(@AuthenticationPrincipal User user,
+    public ResponseEntity<PageResponse<FavoriteResponse>> getUserFavorites(
+            @AuthenticationPrincipal User user,
             @ParameterObject @PageableDefault(size = DEFAULT_PAGE_SIZE, sort = {"updatedAt", "id"},
                     direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) String bookId) {
-        FavoritePageResponse response = favoriteService.getUserFavorites(user, pageable, bookId);
+        PageResponse<FavoriteResponse> response =
+                favoriteService.getUserFavorites(user, pageable, bookId);
         return ResponseEntity.ok(response);
     }
 
@@ -101,11 +103,13 @@ public class UserController {
 
     // ユーザーが追加したブックマークを取得
     @GetMapping("/bookmarks")
-    public ResponseEntity<BookmarkPageResponse> getUserBookmarks(@AuthenticationPrincipal User user,
+    public ResponseEntity<PageResponse<BookmarkResponse>> getUserBookmarks(
+            @AuthenticationPrincipal User user,
             @ParameterObject @PageableDefault(size = DEFAULT_PAGE_SIZE, sort = {"updatedAt", "id"},
                     direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) String bookId) {
-        BookmarkPageResponse responses = bookmarkService.getUserBookmarks(user, pageable, bookId);
+        PageResponse<BookmarkResponse> responses =
+                bookmarkService.getUserBookmarks(user, pageable, bookId);
         return ResponseEntity.ok(responses);
     }
 

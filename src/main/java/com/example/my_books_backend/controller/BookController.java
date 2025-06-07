@@ -11,14 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.CursorPageResponse;
+import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
-import com.example.my_books_backend.dto.book.BookPageResponse;
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.book_chapter.BookTableOfContentsResponse;
 import com.example.my_books_backend.dto.book_chapter_page_content.BookChapterPageContentResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
-import com.example.my_books_backend.dto.review.ReviewPageResponse;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.service.BookService;
 import com.example.my_books_backend.service.FavoriteService;
@@ -36,29 +35,30 @@ public class BookController {
     private static final int LATEST_BOOKS_PAGE_SIZE = 10;
 
     private static final int DEFAULT_BOOKS_PAGE_SIZE = 20;
-    private static final String DEFAULT_BOOKS_PAGE_SIZE_STR = "20";
+    private static final String DEFAULT_BOOKS_PAGE_SIZE_STR = "20"; // カーソルベース用
 
     private static final int DEFAULT_REVIEWS_PAGE_SIZE = 3;
-    private static final String DEFAULT_REVIEWS_PAGE_SIZE_STR = "3";
+    private static final String DEFAULT_REVIEWS_PAGE_SIZE_STR = "3"; // カーソルベース用
 
     // Pageableの引数についている「@ParameterObject」はSwaggerでpageableを個別クエリパラメータとして指定したいため
 
     // 最新の書籍リスト
     @GetMapping("/new-releases")
-    public ResponseEntity<BookPageResponse> getLatestBooks(@ParameterObject @PageableDefault(
-            size = LATEST_BOOKS_PAGE_SIZE, sort = {"publicationDate", "id"},
-            direction = Sort.Direction.DESC) Pageable pageable) {
-        BookPageResponse response = bookService.getLatestBooks(pageable);
+    public ResponseEntity<PageResponse<BookResponse>> getLatestBooks(
+            @ParameterObject @PageableDefault(size = LATEST_BOOKS_PAGE_SIZE,
+                    sort = {"publicationDate", "id"},
+                    direction = Sort.Direction.DESC) Pageable pageable) {
+        PageResponse<BookResponse> response = bookService.getLatestBooks(pageable);
         return ResponseEntity.ok(response);
     }
 
     // タイトル検索
     @GetMapping("/search")
-    public ResponseEntity<BookPageResponse> getBooksByTitleKeyword(@RequestParam String q,
+    public ResponseEntity<PageResponse<BookResponse>> getBooksByTitleKeyword(@RequestParam String q,
             @ParameterObject @PageableDefault(size = DEFAULT_BOOKS_PAGE_SIZE,
                     sort = {"publicationDate", "id"},
                     direction = Sort.Direction.DESC) Pageable pageable) {
-        BookPageResponse response = bookService.getBooksByTitleKeyword(q, pageable);
+        PageResponse<BookResponse> response = bookService.getBooksByTitleKeyword(q, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -74,12 +74,13 @@ public class BookController {
 
     // ジャンル検索
     @GetMapping("/discover")
-    public ResponseEntity<BookPageResponse> getBooksByGenre(@RequestParam String genreIds,
+    public ResponseEntity<PageResponse<BookResponse>> getBooksByGenre(@RequestParam String genreIds,
             @RequestParam String condition,
             @ParameterObject @PageableDefault(size = DEFAULT_BOOKS_PAGE_SIZE,
                     sort = {"publicationDate", "id"},
                     direction = Sort.Direction.DESC) Pageable pageable) {
-        BookPageResponse response = bookService.getBooksByGenre(genreIds, condition, pageable);
+        PageResponse<BookResponse> response =
+                bookService.getBooksByGenre(genreIds, condition, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -109,11 +110,11 @@ public class BookController {
 
     // 特定の書籍のレビュー一覧
     @GetMapping("/{id}/reviews")
-    public ResponseEntity<ReviewPageResponse> getBookReviews(@PathVariable String id,
+    public ResponseEntity<PageResponse<ReviewResponse>> getBookReviews(@PathVariable String id,
             @ParameterObject @PageableDefault(size = DEFAULT_REVIEWS_PAGE_SIZE,
                     sort = {"updatedAt", "id"},
                     direction = Sort.Direction.DESC) Pageable pageable) {
-        ReviewPageResponse response = reviewService.getBookReviews(id, pageable);
+        PageResponse<ReviewResponse> response = reviewService.getBookReviews(id, pageable);
         return ResponseEntity.ok(response);
     }
 
