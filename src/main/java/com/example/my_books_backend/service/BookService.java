@@ -10,12 +10,21 @@ import com.example.my_books_backend.dto.book_chapter_page_content.BookChapterPag
 
 public interface BookService {
     /**
-     * 最新の書籍リスト（10冊分）を取得
+     * 書籍一覧取得（出版日で降順）を取得
      * 
      * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
      * @return 最新の書籍リスト
      */
-    PageResponse<BookResponse> getLatestBooks(Pageable pageable);
+    PageResponse<BookResponse> getBooks(Pageable pageable);
+
+    /**
+     * 書籍一覧取得（出版日で降順）を取得（カーソルベース）
+     * 
+     * @param cursor カーソルID、nullの場合は先頭からlimit分のデータが返却される
+     * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @return 最新の書籍リスト
+     */
+    CursorPageResponse<BookResponse> getBooksWithCursor(String cursor, Integer limit);
 
     /**
      * タイトルで書籍を検索したリストを取得

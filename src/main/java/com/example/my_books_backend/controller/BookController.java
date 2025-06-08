@@ -33,6 +33,7 @@ public class BookController {
     private final FavoriteService favoriteService;
 
     private static final int LATEST_BOOKS_PAGE_SIZE = 10;
+    private static final String LATEST_BOOKS_PAGE_SIZE_STR = "10"; // カーソルベース用
 
     private static final int DEFAULT_BOOKS_PAGE_SIZE = 20;
     private static final String DEFAULT_BOOKS_PAGE_SIZE_STR = "20"; // カーソルベース用
@@ -48,7 +49,16 @@ public class BookController {
             @ParameterObject @PageableDefault(size = LATEST_BOOKS_PAGE_SIZE,
                     sort = {"publicationDate", "id"},
                     direction = Sort.Direction.DESC) Pageable pageable) {
-        PageResponse<BookResponse> response = bookService.getLatestBooks(pageable);
+        PageResponse<BookResponse> response = bookService.getBooks(pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    // 最新の書籍リスト（カーソルベース）
+    @GetMapping("/new-releases/cursor")
+    public ResponseEntity<CursorPageResponse<BookResponse>> getLatestBooksWithCursor(
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = LATEST_BOOKS_PAGE_SIZE_STR) Integer limit) {
+        CursorPageResponse<BookResponse> response = bookService.getBooksWithCursor(cursor, limit);
         return ResponseEntity.ok(response);
     }
 

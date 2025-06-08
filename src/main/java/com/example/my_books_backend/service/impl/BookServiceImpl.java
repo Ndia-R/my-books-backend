@@ -44,9 +44,19 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<BookResponse> getLatestBooks(Pageable pageable) {
+    public PageResponse<BookResponse> getBooks(Pageable pageable) {
         Page<Book> books = bookRepository.findByIsDeletedFalse(pageable);
         return bookMapper.toPageResponse(books);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CursorPageResponse<BookResponse> getBooksWithCursor(String cursor, Integer limit) {
+        // 次のページの有無を判定するために、1件多く取得
+        List<Book> books = bookRepository.findBooksWithCursor(cursor, limit + 1);
+        return bookMapper.toCursorPageResponse(books, limit);
     }
 
     /**
