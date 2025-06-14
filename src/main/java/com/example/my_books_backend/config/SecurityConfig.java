@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import com.example.my_books_backend.util.JwtUtil;
+import com.example.my_books_backend.util.JwtUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +36,7 @@ public class SecurityConfig {
     private final AuthTokenFilter authTokenFilter;
     private final SecurityEndpointsConfig securityEndpointsConfig;
 
-    private final JwtUtil jwtUtil;
+    private final JwtUtils jwtUtil;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

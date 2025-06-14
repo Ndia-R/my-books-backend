@@ -24,8 +24,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Component
-public class JwtUtil {
-    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
+public class JwtUtils {
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
     @Value("${spring.app.jwtSecret}")
     private String secret;

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.example.my_books_backend.service.impl.UserDetailsServiceImpl;
-import com.example.my_books_backend.util.JwtUtil;
+import com.example.my_books_backend.util.JwtUtils;
 
 @Component
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
     private final UserDetailsServiceImpl userDetailsService;
-    private final JwtUtil jwtUtil;
+    private final JwtUtils jwtUtil;
     private final SecurityEndpointsConfig securityEndpointsConfig;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 

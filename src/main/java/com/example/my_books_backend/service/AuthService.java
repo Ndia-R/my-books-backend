@@ -17,7 +17,7 @@ import com.example.my_books_backend.exception.UnauthorizedException;
 import com.example.my_books_backend.exception.ValidationException;
 import com.example.my_books_backend.repository.UserRepository;
 import com.example.my_books_backend.service.impl.UserDetailsServiceImpl;
-import com.example.my_books_backend.util.JwtUtil;
+import com.example.my_books_backend.util.JwtUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +30,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final UserDetailsServiceImpl userDetailsService;
-    private final JwtUtil jwtUtil;
+    private final JwtUtils jwtUtil;
 
     /**
      * ユーザーのログイン処理 メールアドレスとパスワードを検証し、認証成功時にアクセストークンとリフレッシュトークンを発行する。 リフレッシュトークンはCookieとして設定。
