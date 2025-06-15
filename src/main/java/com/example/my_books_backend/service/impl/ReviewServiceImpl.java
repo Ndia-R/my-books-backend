@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.CursorPageResponse;
@@ -18,9 +19,10 @@ import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.ForbiddenException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.ReviewMapper;
-import com.example.my_books_backend.repository.BookRepository;
-import com.example.my_books_backend.repository.ReviewRepository;
+import com.example.my_books_backend.repository.book.BookRepository;
+import com.example.my_books_backend.repository.review.ReviewRepository;
 import com.example.my_books_backend.service.ReviewService;
+import com.example.my_books_backend.util.PageableUtils;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -35,8 +37,9 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<ReviewResponse> getUserReviews(User user, Pageable pageable,
-            String bookId) {
+    public PageResponse<ReviewResponse> getUserReviews(User user, Integer page, Integer size,
+            String sortString, String bookId) {
+        Pageable pageable = PageableUtils.createReviewPageable(page, size, sortString);
         Page<Review> reviews = (bookId == null)
                 ? reviewRepository.findByUserAndIsDeletedFalse(user, pageable)
                 : reviewRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
@@ -47,11 +50,16 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<ReviewResponse> getUserReviewsWithCursor(User user, String cursor,
-            Integer limit) {
-        // 次のページの有無を判定するために、1件多く取得
-        List<Review> reviews = reviewRepository.findReviewsByUserIdWithCursor(user.getId(),
-                (cursor != null) ? Long.parseLong(cursor) : null, limit + 1);
+    public CursorPageResponse<ReviewResponse> getUserReviewsWithCursor(User user, Long cursor,
+            Integer limit, String sortString) {
+
+        Sort sort = PageableUtils.parseSort(sortString, PageableUtils.REVIEW_ALLOWED_FIELDS);
+        String sortField = sort.iterator().next().getProperty();
+        String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
+
+        // 次のページの有無を判定するために、limit + 1にして、1件多く取得
+        List<Review> reviews = reviewRepository.findReviewsByUserIdWithCursor(user.getId(), cursor,
+                limit + 1, sortField, sortDirection);
         return reviewMapper.toCursorPageResponse(reviews, limit);
     }
 
@@ -59,7 +67,9 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<ReviewResponse> getBookReviews(String bookId, Pageable pageable) {
+    public PageResponse<ReviewResponse> getBookReviews(String bookId, Integer page, Integer size,
+            String sortString) {
+        Pageable pageable = PageableUtils.createReviewPageable(page, size, sortString);
         Page<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(bookId, pageable);
         return reviewMapper.toPageResponse(reviews);
     }
@@ -68,11 +78,16 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<ReviewResponse> getBookReviewsWithCursor(String bookId, String cursor,
-            Integer limit) {
-        // 次のページの有無を判定するために、1件多く取得
-        List<Review> reviews = reviewRepository.findReviewsByBookIdWithCursor(bookId,
-                (cursor != null) ? Long.parseLong(cursor) : null, limit + 1);
+    public CursorPageResponse<ReviewResponse> getBookReviewsWithCursor(String bookId, Long cursor,
+            Integer limit, String sortString) {
+
+        Sort sort = PageableUtils.parseSort(sortString, PageableUtils.REVIEW_ALLOWED_FIELDS);
+        String sortField = sort.iterator().next().getProperty();
+        String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
+
+        // 次のページの有無を判定するために、limit + 1にして、1件多く取得
+        List<Review> reviews = reviewRepository.findReviewsByBookIdWithCursor(bookId, cursor,
+                limit + 1, sortField, sortDirection);
         return reviewMapper.toCursorPageResponse(reviews, limit);
     }
 

@@ -2,7 +2,7 @@ package com.example.my_books_backend.entity;
 
 import java.sql.Date;
 import java.util.List;
-import com.example.my_books_backend.entity.shared.EntityBase;
+import com.example.my_books_backend.entity.base.EntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

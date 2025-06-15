@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
@@ -18,9 +19,10 @@ import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.ForbiddenException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.FavoriteMapper;
-import com.example.my_books_backend.repository.BookRepository;
-import com.example.my_books_backend.repository.FavoriteRepository;
+import com.example.my_books_backend.repository.book.BookRepository;
+import com.example.my_books_backend.repository.favorite.FavoriteRepository;
 import com.example.my_books_backend.service.FavoriteService;
+import com.example.my_books_backend.util.PageableUtils;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -35,8 +37,9 @@ public class FavoriteServiceImpl implements FavoriteService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<FavoriteResponse> getUserFavorites(User user, Pageable pageable,
-            String bookId) {
+    public PageResponse<FavoriteResponse> getUserFavorites(User user, Integer page, Integer size,
+            String sortString, String bookId) {
+        Pageable pageable = PageableUtils.createFavoritePageable(page, size, sortString);
         Page<Favorite> favorites = (bookId == null)
                 ? favoriteRepository.findByUserAndIsDeletedFalse(user, pageable)
                 : favoriteRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
@@ -47,11 +50,16 @@ public class FavoriteServiceImpl implements FavoriteService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<FavoriteResponse> getUserFavoritesWithCursor(User user, String cursor,
-            Integer limit) {
-        // 次のページの有無を判定するために、1件多く取得
+    public CursorPageResponse<FavoriteResponse> getUserFavoritesWithCursor(User user, Long cursor,
+            Integer limit, String sortString) {
+
+        Sort sort = PageableUtils.parseSort(sortString, PageableUtils.FAVORITE_ALLOWED_FIELDS);
+        String sortField = sort.iterator().next().getProperty();
+        String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
+
+        // 次のページの有無を判定するために、limit + 1にして、1件多く取得
         List<Favorite> favorites = favoriteRepository.findFavoritesByUserIdWithCursor(user.getId(),
-                (cursor != null) ? Long.parseLong(cursor) : null, limit + 1);
+                cursor, limit + 1, sortField, sortDirection);
         return favoriteMapper.toCursorPageResponse(favorites, limit);
     }
 

@@ -11,7 +11,7 @@ import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Review;
-import com.example.my_books_backend.repository.ReviewRepository;
+import com.example.my_books_backend.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 
 @Component

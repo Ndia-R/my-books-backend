@@ -3,7 +3,6 @@ package com.example.my_books_backend.service;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.entity.User;
-import org.springframework.data.domain.Pageable;
 import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
@@ -13,22 +12,26 @@ public interface FavoriteService {
      * ユーザーが追加したお気に入りを取得
      * 
      * @param user ユーザーエンティティ
-     * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
-     * @param bookId 書籍ID、nullの場合はすべてが対象
+     * @param page ページ番号（1ベース）
+     * @param size 1ページあたりの最大結果件数
+     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
+     * @param bookId 書籍ID（nullの場合はすべてが対象）
      * @return お気に入りリスト
      */
-    PageResponse<FavoriteResponse> getUserFavorites(User user, Pageable pageable, String bookId);
+    PageResponse<FavoriteResponse> getUserFavorites(User user, Integer page, Integer size,
+            String sortString, String bookId);
 
     /**
      * ユーザーが追加したお気に入りを取得（カーソルベース）
      * 
      * @param user ユーザーエンティティ
-     * @param cursor カーソルID、nullの場合は先頭からlimit分のデータが返却される
-     * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @param cursor カーソルID（nullの場合は先頭からlimit分のデータが返却される）
+     * @param limit 1ページあたりの最大結果件数
+     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return お気に入りリスト
      */
-    CursorPageResponse<FavoriteResponse> getUserFavoritesWithCursor(User user, String cursor,
-            Integer limit);
+    CursorPageResponse<FavoriteResponse> getUserFavoritesWithCursor(User user, Long cursor,
+            Integer limit, String sortString);
 
     /**
      * 書籍に対するお気に入り数を取得

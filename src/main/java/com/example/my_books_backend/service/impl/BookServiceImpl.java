@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.example.my_books_backend.dto.genre.GenreResponse;
 import com.example.my_books_backend.dto.CursorPageResponse;
@@ -24,10 +25,11 @@ import com.example.my_books_backend.exception.BadRequestException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.BookMapper;
 import com.example.my_books_backend.repository.BookChapterRepository;
+import com.example.my_books_backend.repository.book.BookRepository;
 import com.example.my_books_backend.repository.BookChapterPageContentRepository;
-import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.service.BookService;
 import com.example.my_books_backend.service.GenreService;
+import com.example.my_books_backend.util.PageableUtils;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -44,7 +46,8 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<BookResponse> getBooks(Pageable pageable) {
+    public PageResponse<BookResponse> getBooks(Integer page, Integer size, String sortString) {
+        Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
         Page<Book> books = bookRepository.findByIsDeletedFalse(pageable);
         return bookMapper.toPageResponse(books);
     }
@@ -53,17 +56,9 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<BookResponse> getBooksWithCursor(String cursor, Integer limit) {
-        // 次のページの有無を判定するために、1件多く取得
-        List<Book> books = bookRepository.findBooksWithCursor(cursor, limit + 1);
-        return bookMapper.toCursorPageResponse(books, limit);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PageResponse<BookResponse> getBooksByTitleKeyword(String keyword, Pageable pageable) {
+    public PageResponse<BookResponse> getBooksByTitleKeyword(String keyword, Integer page,
+            Integer size, String sortString) {
+        Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
         Page<Book> books = bookRepository.findByTitleContainingAndIsDeletedFalse(keyword, pageable);
         return bookMapper.toPageResponse(books);
     }
@@ -73,10 +68,15 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public CursorPageResponse<BookResponse> getBooksByTitleKeywordWithCursor(String keyword,
-            String cursor, Integer limit) {
-        // 次のページの有無を判定するために、1件多く取得
-        List<Book> books = bookRepository.findBooksByTitleKeywordWithCursor("%" + keyword + "%",
-                cursor, limit + 1);
+            String cursor, Integer limit, String sortString) {
+
+        Sort sort = PageableUtils.parseSort(sortString, PageableUtils.BOOK_ALLOWED_FIELDS);
+        String sortField = sort.iterator().next().getProperty();
+        String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
+
+        // 次のページの有無を判定するために、limit + 1にして、1件多く取得
+        List<Book> books = bookRepository.findBooksByTitleKeywordWithCursor(keyword, cursor,
+                limit + 1, sortField, sortDirection);
         return bookMapper.toCursorPageResponse(books, limit);
     }
 
@@ -96,9 +96,8 @@ public class BookServiceImpl implements BookService {
         Boolean isAndCondition = "AND".equals(conditionQuery);
 
         Page<Book> books = isAndCondition
-                ? bookRepository.findDistinctByGenres_IdInAndIsDeletedFalse(genreIds,
-                        genreIds.size(), pageable)
-                : bookRepository.findDistinctByGenres_IdIn(genreIds, pageable);
+                ? bookRepository.findBooksHavingAllGenres(genreIds, genreIds.size(), pageable)
+                : bookRepository.findDistinctByGenres_IdInAndIsDeletedFalse(genreIds, pageable);
 
         return bookMapper.toPageResponse(books);
     }

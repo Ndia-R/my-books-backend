@@ -21,13 +21,13 @@ import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.exception.UnauthorizedException;
 import com.example.my_books_backend.exception.ValidationException;
 import com.example.my_books_backend.mapper.UserMapper;
-import com.example.my_books_backend.repository.BookmarkRepository;
-import com.example.my_books_backend.repository.FavoriteRepository;
-import com.example.my_books_backend.repository.ReviewRepository;
 import com.example.my_books_backend.repository.RoleRepository;
 import com.example.my_books_backend.repository.UserRepository;
+import com.example.my_books_backend.repository.bookmark.BookmarkRepository;
+import com.example.my_books_backend.repository.favorite.FavoriteRepository;
+import com.example.my_books_backend.repository.review.ReviewRepository;
 import com.example.my_books_backend.service.UserService;
-import com.example.my_books_backend.util.RandomStringUtil;
+import com.example.my_books_backend.util.RandomStringUtils;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-    private final RandomStringUtil randomStringUtil;
+    private final RandomStringUtils randomStringUtil;
 
     private String DEFAULT_AVATAR_PATH = "";
 

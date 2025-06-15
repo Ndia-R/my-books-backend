@@ -5,29 +5,32 @@ import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.entity.User;
-import org.springframework.data.domain.Pageable;
 
 public interface BookmarkService {
     /**
      * ユーザーが追加したブックマークを取得
      * 
      * @param user ユーザーエンティティ
-     * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
-     * @param bookId 書籍ID、nullの場合はすべてが対象
+     * @param page ページ番号（1ベース）
+     * @param size 1ページあたりの最大結果件数
+     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
+     * @param bookId 書籍ID（nullの場合はすべてが対象）
      * @return ブックマークリスト
      */
-    PageResponse<BookmarkResponse> getUserBookmarks(User user, Pageable pageable, String bookId);
+    PageResponse<BookmarkResponse> getUserBookmarks(User user, Integer page, Integer size,
+            String sortString, String bookId);
 
     /**
      * ユーザーが追加したブックマークを取得（カーソルベース）
      * 
      * @param user ユーザーエンティティ
-     * @param cursor カーソルID、nullの場合は先頭からlimit分のデータが返却される
-     * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @param cursor カーソルID（nullの場合は先頭からlimit分のデータが返却される）
+     * @param limit 1ページあたりの最大結果件数
+     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return ブックマークリスト
      */
-    CursorPageResponse<BookmarkResponse> getUserBookmarksWithCursor(User user, String cursor,
-            Integer limit);
+    CursorPageResponse<BookmarkResponse> getUserBookmarksWithCursor(User user, Long cursor,
+            Integer limit, String sortString);
 
     /**
      * ブックマークを作成

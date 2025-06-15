@@ -10,41 +10,38 @@ import com.example.my_books_backend.dto.book_chapter_page_content.BookChapterPag
 
 public interface BookService {
     /**
-     * 書籍一覧取得（出版日で降順）を取得
+     * 書籍一覧取得
      * 
-     * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
+     * @param page ページ番号（1ベース）
+     * @param size 1ページあたりの最大結果件数
+     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return 最新の書籍リスト
      */
-    PageResponse<BookResponse> getBooks(Pageable pageable);
-
-    /**
-     * 書籍一覧取得（出版日で降順）を取得（カーソルベース）
-     * 
-     * @param cursor カーソルID、nullの場合は先頭からlimit分のデータが返却される
-     * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
-     * @return 最新の書籍リスト
-     */
-    CursorPageResponse<BookResponse> getBooksWithCursor(String cursor, Integer limit);
+    PageResponse<BookResponse> getBooks(Integer page, Integer size, String sortString);
 
     /**
      * タイトルで書籍を検索したリストを取得
      * 
      * @param keyword 検索キーワード
-     * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
+     * @param page ページ番号（1ベース）
+     * @param size 1ページあたりの最大結果件数
+     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return 検索結果
      */
-    PageResponse<BookResponse> getBooksByTitleKeyword(String keyword, Pageable pageable);
+    PageResponse<BookResponse> getBooksByTitleKeyword(String keyword, Integer page, Integer size,
+            String sortString);
 
     /**
      * タイトルで書籍を検索したリストを取得（カーソルベース）
      * 
      * @param keyword 検索キーワード
-     * @param cursor カーソルID、nullの場合は先頭からlimit分のデータが返却される
-     * @param limit 1ページあたりの最大結果件数、nullの場合はデフォルト値が使用される
+     * @param cursor カーソルID（nullの場合は先頭からlimit分のデータが返却される）
+     * @param limit 1ページあたりの最大結果件数
+     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return 検索結果
      */
     CursorPageResponse<BookResponse> getBooksByTitleKeywordWithCursor(String keyword, String cursor,
-            Integer limit);
+            Integer limit, String sortString);
 
     /**
      * ジャンルIDで書籍を検索したリストを取得

@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.CursorPageResponse;
@@ -23,9 +24,10 @@ import com.example.my_books_backend.exception.ForbiddenException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.BookmarkMapper;
 import com.example.my_books_backend.repository.BookChapterRepository;
-import com.example.my_books_backend.repository.BookRepository;
-import com.example.my_books_backend.repository.BookmarkRepository;
+import com.example.my_books_backend.repository.book.BookRepository;
+import com.example.my_books_backend.repository.bookmark.BookmarkRepository;
 import com.example.my_books_backend.service.BookmarkService;
+import com.example.my_books_backend.util.PageableUtils;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -41,8 +43,9 @@ public class BookmarkServiceImpl implements BookmarkService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<BookmarkResponse> getUserBookmarks(User user, Pageable pageable,
-            String bookId) {
+    public PageResponse<BookmarkResponse> getUserBookmarks(User user, Integer page, Integer size,
+            String sortString, String bookId) {
+        Pageable pageable = PageableUtils.createBookmarkPageable(page, size, sortString);
         Page<Bookmark> bookmarkPage = (bookId == null)
                 ? bookmarkRepository.findByUserAndIsDeletedFalse(user, pageable)
                 : bookmarkRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
@@ -79,11 +82,17 @@ public class BookmarkServiceImpl implements BookmarkService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<BookmarkResponse> getUserBookmarksWithCursor(User user, String cursor,
-            Integer limit) {
-        // 次のページの有無を判定するために、1件多く取得
+    public CursorPageResponse<BookmarkResponse> getUserBookmarksWithCursor(User user, Long cursor,
+            Integer limit, String sortString) {
+
+        Sort sort = PageableUtils.parseSort(sortString, PageableUtils.BOOKMARK_ALLOWED_FIELDS);
+        String sortField = sort.iterator().next().getProperty();
+        String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
+
+        // 次のページの有無を判定するために、limit + 1にして、1件多く取得
         List<Bookmark> bookmarks = bookmarkRepository.findBookmarksByUserIdWithCursor(user.getId(),
-                (cursor != null) ? Long.parseLong(cursor) : null, limit + 1);
+                cursor, limit + 1, sortField, sortDirection);
+
         CursorPageResponse<BookmarkResponse> response =
                 bookmarkMapper.toCursorPageResponse(bookmarks, limit);
 
