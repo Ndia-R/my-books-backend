@@ -15,23 +15,21 @@ public class BookmarkRepositoryCustomImpl implements BookmarkRepositoryCustom {
     public List<Bookmark> findBookmarksByUserIdWithCursor(Long userId, Long cursor, int limit,
             String sortField, String sortDirection) {
 
-        // ソートするフィールド名（キャメルケース）をカラム名（スネークケース）に変換
         String columnName = StringCaseUtils.camelToSnake(sortField);
-
         String comparison = "asc".equalsIgnoreCase(sortDirection) ? ">" : "<";
         String orderDirection = "asc".equalsIgnoreCase(sortDirection) ? "ASC" : "DESC";
 
         String sql = String.format(
                 """
-                        SELECT * FROM bookmarks tbl
+                        SELECT * FROM bookmarks b
                         WHERE (:cursor IS NULL OR
-                            (tbl.%s %s (SELECT tbl2.%s FROM bookmarks tbl2 WHERE tbl2.id = :cursor) OR
-                            (tbl.%s = (SELECT tbl2.%s FROM bookmarks tbl2 WHERE tbl2.id = :cursor) AND tbl.id > :cursor)))
-                        AND tbl.user_id = :userId
-                        AND tbl.is_deleted = false
+                            (b.%s %s (SELECT b2.%s FROM bookmarks b2 WHERE b2.id = :cursor) OR
+                            (b.%s = (SELECT b2.%s FROM bookmarks b2 WHERE b2.id = :cursor) AND b.id > :cursor)))
+                        AND b.user_id = :userId
+                        AND b.is_deleted = false
                         ORDER BY
-                            tbl.%s %s,
-                            tbl.id ASC
+                            b.%s %s,
+                            b.id ASC
                         LIMIT :limit
                         """,
                 columnName, comparison, columnName, columnName, columnName, columnName,

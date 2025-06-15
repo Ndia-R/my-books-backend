@@ -1,6 +1,5 @@
 package com.example.my_books_backend.service;
 
-import org.springframework.data.domain.Pageable;
 import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
@@ -48,11 +47,26 @@ public interface BookService {
      * 
      * @param genreIdsQuery カンマ区切りのジャンルIDリスト（例："1,2,3"）
      * @param conditionQuery 検索条件（"SINGLE"、"AND"、"OR"のいずれか）
-     * @param pageable ページネーション情報（ページ番号、ページサイズ、ソート条件）
+     * @param page ページ番号（1ベース）
+     * @param size 1ページあたりの最大結果件数
+     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return 検索結果
      */
     PageResponse<BookResponse> getBooksByGenre(String genreIdsQuery, String conditionQuery,
-            Pageable pageable);
+            Integer page, Integer size, String sortString);
+
+    /**
+     * ジャンルIDで書籍を検索したリストを取得（カーソルベース）
+     * 
+     * @param genreIdsQuery カンマ区切りのジャンルIDリスト（例："1,2,3"）
+     * @param conditionQuery 検索条件（"SINGLE"、"AND"、"OR"のいずれか）
+     * @param cursor カーソルID（nullの場合は先頭からlimit分のデータが返却される）
+     * @param limit 1ページあたりの最大結果件数
+     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
+     * @return 検索結果
+     */
+    CursorPageResponse<BookResponse> getBooksByGenreWithCursor(String genreIdsQuery,
+            String conditionQuery, String cursor, Integer limit, String sortString);
 
     /**
      * 指定された書籍の詳細情報を取得

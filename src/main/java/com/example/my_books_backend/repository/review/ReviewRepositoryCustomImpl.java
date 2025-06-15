@@ -15,23 +15,21 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     public List<Review> findReviewsByUserIdWithCursor(Long userId, Long cursor, int limit,
             String sortField, String sortDirection) {
 
-        // ソートするフィールド名（キャメルケース）をカラム名（スネークケース）に変換
         String columnName = StringCaseUtils.camelToSnake(sortField);
-
         String comparison = "asc".equalsIgnoreCase(sortDirection) ? ">" : "<";
         String orderDirection = "asc".equalsIgnoreCase(sortDirection) ? "ASC" : "DESC";
 
         String sql = String.format(
                 """
-                        SELECT * FROM reviews tbl
+                        SELECT * FROM reviews r
                         WHERE (:cursor IS NULL OR
-                            (tbl.%s %s (SELECT tbl2.%s FROM reviews tbl2 WHERE tbl2.id = :cursor) OR
-                            (tbl.%s = (SELECT tbl2.%s FROM reviews tbl2 WHERE tbl2.id = :cursor) AND tbl.id > :cursor)))
-                        AND tbl.user_id = :userId
-                        AND tbl.is_deleted = false
+                            (r.%s %s (SELECT r2.%s FROM reviews r2 WHERE r2.id = :cursor) OR
+                            (r.%s = (SELECT r2.%s FROM reviews r2 WHERE r2.id = :cursor) AND r.id > :cursor)))
+                        AND r.user_id = :userId
+                        AND r.is_deleted = false
                         ORDER BY
-                            tbl.%s %s,
-                            tbl.id ASC
+                            r.%s %s,
+                            r.id ASC
                         LIMIT :limit
                         """,
                 columnName, comparison, columnName, columnName, columnName, columnName,
@@ -51,23 +49,21 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     public List<Review> findReviewsByBookIdWithCursor(String bookId, Long cursor, int limit,
             String sortField, String sortDirection) {
 
-        // ソートするフィールド名（キャメルケース）をカラム名（スネークケース）に変換
         String columnName = StringCaseUtils.camelToSnake(sortField);
-
         String comparison = "asc".equalsIgnoreCase(sortDirection) ? ">" : "<";
         String orderDirection = "asc".equalsIgnoreCase(sortDirection) ? "ASC" : "DESC";
 
         String sql = String.format(
                 """
-                        SELECT * FROM reviews tbl
+                        SELECT * FROM reviews r
                         WHERE (:cursor IS NULL OR
-                            (tbl.%s %s (SELECT tbl2.%s FROM reviews tbl2 WHERE tbl2.id = :cursor) OR
-                            (tbl.%s = (SELECT tbl2.%s FROM reviews tbl2 WHERE tbl2.id = :cursor) AND tbl.id > :cursor)))
-                        AND tbl.book_id = :bookId
-                        AND tbl.is_deleted = false
+                            (r.%s %s (SELECT r2.%s FROM reviews r2 WHERE r2.id = :cursor) OR
+                            (r.%s = (SELECT r2.%s FROM reviews r2 WHERE r2.id = :cursor) AND r.id > :cursor)))
+                        AND r.book_id = :bookId
+                        AND r.is_deleted = false
                         ORDER BY
-                            tbl.%s %s,
-                            tbl.id ASC
+                            r.%s %s,
+                            r.id ASC
                         LIMIT :limit
                         """,
                 columnName, comparison, columnName, columnName, columnName, comparison, columnName,

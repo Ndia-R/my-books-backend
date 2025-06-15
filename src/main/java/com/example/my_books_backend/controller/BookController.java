@@ -1,6 +1,5 @@
 package com.example.my_books_backend.controller;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +18,6 @@ import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.service.BookService;
 import com.example.my_books_backend.service.FavoriteService;
 import com.example.my_books_backend.service.ReviewService;
-import com.example.my_books_backend.util.PageableUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -131,9 +129,44 @@ public class BookController {
                             "reviewCount.desc"})) @RequestParam(
                                     defaultValue = DEFAULT_BOOKS_SORT) String sort) {
 
-        Pageable pageable = PageableUtils.createBookPageable(page, size, sort);
         PageResponse<BookResponse> response =
-                bookService.getBooksByGenre(genreIds, condition, pageable);
+                bookService.getBooksByGenre(genreIds, condition, page, size, sort);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(description = "ジャンル検索: 指定されたジャンルIDと条件に基づいて書籍を検索（カーソルベース）")
+    @GetMapping("/discover/cursor")
+    public ResponseEntity<CursorPageResponse<BookResponse>> getBooksByGenreWithCursor(
+
+            @Parameter(description = """
+                    検索対象のジャンルIDをカンマ区切りで指定
+                    - 単一ジャンル: 1
+                    - 複数ジャンル: 1,2,3
+                    """, example = "1,2", required = true) @RequestParam String genreIds,
+
+            @Parameter(description = """
+                    ジャンル検索の条件を指定
+                    - SINGLE: 指定したジャンルのみ（複数指定の場合、最初のジャンルのみ）
+                    - AND: 指定したすべてのジャンル
+                    - OR: 指定したいずれかのジャンル
+                    """, example = "AND", required = true, schema = @Schema(
+                    allowableValues = {"SINGLE", "AND", "OR"})) @RequestParam String condition,
+
+            @Parameter(description = "カーソル（次のページを取得するための起点となるID）") @RequestParam(
+                    required = false) String cursor,
+
+            @Parameter(description = "1ページあたりの件数", example = DEFAULT_BOOKS_PAGE_SIZE) @RequestParam(
+                    defaultValue = DEFAULT_BOOKS_PAGE_SIZE) Integer limit,
+
+            @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT,
+                    schema = @Schema(allowableValues = {"title.asc", "title.desc",
+                            "publicationDate.asc", "publicationDate.desc", "averageRating.asc",
+                            "averageRating.desc", "reviewCount.asc",
+                            "reviewCount.desc"})) @RequestParam(
+                                    defaultValue = DEFAULT_BOOKS_SORT) String sort) {
+
+        CursorPageResponse<BookResponse> response =
+                bookService.getBooksByGenreWithCursor(genreIds, condition, cursor, limit, sort);
         return ResponseEntity.ok(response);
     }
 

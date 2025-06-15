@@ -15,23 +15,21 @@ public class FavoriteRepositoryCustomImpl implements FavoriteRepositoryCustom {
     public List<Favorite> findFavoritesByUserIdWithCursor(Long userId, Long cursor, int limit,
             String sortField, String sortDirection) {
 
-        // ソートするフィールド名（キャメルケース）をカラム名（スネークケース）に変換
         String columnName = StringCaseUtils.camelToSnake(sortField);
-
         String comparison = "asc".equalsIgnoreCase(sortDirection) ? ">" : "<";
         String orderDirection = "asc".equalsIgnoreCase(sortDirection) ? "ASC" : "DESC";
 
         String sql = String.format(
                 """
-                        SELECT * FROM favorites tbl
+                        SELECT * FROM favorites f
                         WHERE (:cursor IS NULL OR
-                            (tbl.%s %s (SELECT tbl2.%s FROM favorites tbl2 WHERE tbl2.id = :cursor) OR
-                            (tbl.%s = (SELECT tbl2.%s FROM favorites tbl2 WHERE tbl2.id = :cursor) AND tbl.id > :cursor)))
-                        AND tbl.user_id = :userId
-                        AND tbl.is_deleted = false
+                            (f.%s %s (SELECT f2.%s FROM favorites f2 WHERE f2.id = :cursor) OR
+                            (f.%s = (SELECT f2.%s FROM favorites f2 WHERE f2.id = :cursor) AND f.id > :cursor)))
+                        AND f.user_id = :userId
+                        AND f.is_deleted = false
                         ORDER BY
-                            tbl.%s %s,
-                            tbl.id ASC
+                            f.%s %s,
+                            f.id ASC
                         LIMIT :limit
                         """,
                 columnName, comparison, columnName, columnName, columnName, columnName,

@@ -85,11 +85,13 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public PageResponse<BookResponse> getBooksByGenre(String genreIdsQuery, String conditionQuery,
-            Pageable pageable) {
+            Integer page, Integer size, String sortString) {
         if (!("SINGLE".equals(conditionQuery) || "AND".equals(conditionQuery)
                 || "OR".equals(conditionQuery))) {
             throw new BadRequestException("検索条件が不正です。");
         }
+        Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
+
         List<Long> genreIds = Arrays.stream(genreIdsQuery.split(",")).map(Long::parseLong)
                 .collect(Collectors.toList());
 
@@ -100,6 +102,36 @@ public class BookServiceImpl implements BookService {
                 : bookRepository.findDistinctByGenres_IdInAndIsDeletedFalse(genreIds, pageable);
 
         return bookMapper.toPageResponse(books);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CursorPageResponse<BookResponse> getBooksByGenreWithCursor(String genreIdsQuery,
+            String conditionQuery, String cursor, Integer limit, String sortString) {
+        if (!("SINGLE".equals(conditionQuery) || "AND".equals(conditionQuery)
+                || "OR".equals(conditionQuery))) {
+            throw new BadRequestException("検索条件が不正です。");
+        }
+
+        Sort sort = PageableUtils.parseSort(sortString, PageableUtils.BOOK_ALLOWED_FIELDS);
+        String sortField = sort.iterator().next().getProperty();
+        String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
+
+        List<Long> genreIds = Arrays.stream(genreIdsQuery.split(",")).map(Long::parseLong)
+                .collect(Collectors.toList());
+
+        Boolean isAndCondition = "AND".equals(conditionQuery);
+
+        // 次のページの有無を判定するために、limit + 1にして、1件多く取得
+        List<Book> books = isAndCondition
+                ? bookRepository.findBooksByGenresAndWithCursor(genreIds, cursor, limit + 1,
+                        sortField, sortDirection)
+                : bookRepository.findBooksByGenresOrWithCursor(genreIds, cursor, limit + 1,
+                        sortField, sortDirection);
+
+        return bookMapper.toCursorPageResponse(books, limit);
     }
 
     /**
