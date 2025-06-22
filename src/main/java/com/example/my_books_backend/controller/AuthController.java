@@ -9,6 +9,7 @@ import com.example.my_books_backend.dto.auth.LoginRequest;
 import com.example.my_books_backend.dto.auth.SignupRequest;
 import com.example.my_books_backend.dto.auth.AccessTokenResponse;
 import com.example.my_books_backend.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -20,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
     private final AuthService authService;
 
-    // ログイン
+    @Operation(description = "ログイン")
     @PostMapping("/login")
     public ResponseEntity<AccessTokenResponse> login(@Valid @RequestBody LoginRequest request,
             HttpServletResponse response) {
@@ -28,7 +29,7 @@ public class AuthController {
         return ResponseEntity.ok(loginResponse);
     }
 
-    // サインアップ
+    @Operation(description = "サインアップ")
     @PostMapping("/signup")
     public ResponseEntity<AccessTokenResponse> signup(@Valid @RequestBody SignupRequest request,
             HttpServletResponse response) {
@@ -36,17 +37,17 @@ public class AuthController {
         return ResponseEntity.ok(userResponse);
     }
 
-    // ログアウト
     // Controllerクラスで"/logout"のエンドポイントを用意しても、Spring Securityのデフォルトの
     // "/logout"が呼ばれるので、このエンドポイントは意味がなくなる
     // ログアウト処理は「SecurityConfig.java」に実装している
+    @Operation(description = "ログアウト")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         authService.logout(response);
         return ResponseEntity.ok().build();
     }
 
-    // リフレッシュトークンからアクセストークンを取得
+    @Operation(description = "リフレッシュトークンからアクセストークンを取得")
     @PostMapping("/refresh-token")
     public ResponseEntity<AccessTokenResponse> refreshToken(HttpServletRequest request) {
         AccessTokenResponse accessTokenResponse = authService.refreshAccessToken(request);

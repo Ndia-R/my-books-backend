@@ -19,4 +19,5 @@ public class BookResponse {
     private String imagePath;
     private Integer reviewCount;
     private Double averageRating;
+    private Double popularity;
 }

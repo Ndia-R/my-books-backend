@@ -15,6 +15,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.my_books_backend.dto.genre.GenreRequest;
 import com.example.my_books_backend.dto.genre.GenreResponse;
 import com.example.my_books_backend.service.GenreService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -24,21 +25,21 @@ import lombok.RequiredArgsConstructor;
 public class GenreController {
     private final GenreService genreService;
 
-    // すべてのジャンル取得
+    @Operation(description = "すべてのジャンル取得")
     @GetMapping("")
     public ResponseEntity<List<GenreResponse>> getAllGenres() {
         List<GenreResponse> response = genreService.getAllGenres();
         return ResponseEntity.ok(response);
     }
 
-    // 特定のジャンル取得
+    @Operation(description = "特定のジャンル取得")
     @GetMapping("/{id}")
     public ResponseEntity<GenreResponse> getGenreById(@PathVariable Long id) {
         GenreResponse response = genreService.getGenreById(id);
         return ResponseEntity.ok(response);
     }
 
-    // ジャンル作成
+    @Operation(description = "ジャンル作成")
     @PostMapping("")
     public ResponseEntity<GenreResponse> createGenre(@Valid @RequestBody GenreRequest request) {
         GenreResponse response = genreService.createGenre(request);
@@ -47,7 +48,7 @@ public class GenreController {
         return ResponseEntity.created(location).body(response);
     }
 
-    // ジャンル更新
+    @Operation(description = "ジャンル更新")
     @PutMapping("/{id}")
     public ResponseEntity<GenreResponse> updateGenre(@PathVariable Long id,
             @Valid @RequestBody GenreRequest request) {
@@ -55,7 +56,7 @@ public class GenreController {
         return ResponseEntity.ok(respons);
     }
 
-    // ジャンル削除
+    @Operation(description = "ジャンル削除")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
         genreService.deleteGenre(id);

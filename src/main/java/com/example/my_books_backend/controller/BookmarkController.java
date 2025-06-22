@@ -15,6 +15,7 @@ import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.service.BookmarkService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class BookmarkController {
     private final BookmarkService bookmarkService;
 
-    // ブックマーク追加
+    @Operation(description = "ブックマーク追加")
     @PostMapping("")
     public ResponseEntity<BookmarkResponse> createBookmark(
             @Valid @RequestBody BookmarkRequest request, @AuthenticationPrincipal User user) {
@@ -34,7 +35,7 @@ public class BookmarkController {
         return ResponseEntity.created(location).body(response);
     }
 
-    // ブックマーク更新
+    @Operation(description = "ブックマーク更新")
     @PutMapping("/{id}")
     public ResponseEntity<BookmarkResponse> updateBookmark(@PathVariable Long id,
             @Valid @RequestBody BookmarkRequest request, @AuthenticationPrincipal User user) {
@@ -42,7 +43,7 @@ public class BookmarkController {
         return ResponseEntity.ok(response);
     }
 
-    // ブックマーク削除
+    @Operation(description = "ブックマーク削除")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBookmark(@PathVariable Long id,
             @AuthenticationPrincipal User user) {

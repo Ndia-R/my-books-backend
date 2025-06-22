@@ -10,15 +10,12 @@ import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.entity.Book;
-import com.example.my_books_backend.entity.Review;
-import com.example.my_books_backend.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class BookMapper {
     private final ModelMapper modelMapper;
-    private final ReviewRepository reviewRepository;
 
     public BookResponse toBookResponse(Book book) {
         BookResponse response = modelMapper.map(book, BookResponse.class);
@@ -28,12 +25,6 @@ public class BookMapper {
 
         List<String> authors = Arrays.asList(book.getAuthors().split(","));
         response.setAuthors(authors);
-
-        List<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(book.getId());
-        Double averageRating =
-                reviews.stream().mapToDouble(Review::getRating).average().orElse(0.0);
-        response.setReviewCount(reviews.size());
-        response.setAverageRating(averageRating);
 
         return response;
     }
@@ -65,12 +56,6 @@ public class BookMapper {
 
         List<String> authors = Arrays.asList(book.getAuthors().split(","));
         response.setAuthors(authors);
-
-        List<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(book.getId());
-        Double averageRating =
-                reviews.stream().mapToDouble(Review::getRating).average().orElse(0.0);
-        response.setReviewCount(reviews.size());
-        response.setAverageRating(averageRating);
 
         return response;
     }

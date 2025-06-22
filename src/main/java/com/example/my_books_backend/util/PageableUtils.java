@@ -14,7 +14,7 @@ public class PageableUtils {
 
     // ソートで使用可能なフィールド
     public static final List<String> BOOK_ALLOWED_FIELDS =
-            Arrays.asList("title", "publicationDate", "averageRating", "reviewCount");
+            Arrays.asList("title", "publicationDate", "reviewCount", "averageRating", "popularity");
 
     public static final List<String> REVIEW_ALLOWED_FIELDS =
             Arrays.asList("updatedAt", "createdAt", "rating");

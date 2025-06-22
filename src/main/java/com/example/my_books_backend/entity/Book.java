@@ -60,6 +60,15 @@ public class Book extends EntityBase {
     @Column(name = "image_path")
     private String imagePath;
 
+    @Column(name = "review_count", nullable = false)
+    private Integer reviewCount;
+
+    @Column(name = "average_rating", nullable = false)
+    private Double averageRating;
+
+    @Column(name = "popularity", nullable = false)
+    private Double popularity;
+
     @OneToMany(mappedBy = "book")
     private List<Review> reviews;
 

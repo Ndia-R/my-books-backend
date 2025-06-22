@@ -27,6 +27,9 @@ CREATE TABLE `books` (
   `page_count` INT NOT NULL DEFAULT 0,
   `isbn` VARCHAR(255) NOT NULL DEFAULT '',
   `image_path` VARCHAR(255) DEFAULT NULL,
+  `average_rating` DECIMAL(3, 2) NOT NULL DEFAULT 0.00,
+  `review_count` INT NOT NULL DEFAULT 0,
+  `popularity` DECIMAL(5, 3) NOT NULL DEFAULT 0.000,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `is_deleted` BOOLEAN NOT NULL DEFAULT FALSE
@@ -401,3 +404,28 @@ FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 (`book_id`, `chapter_number`, `page_number`, `content`);
+
+-- 評価点平均
+UPDATE books b
+SET average_rating = (
+    SELECT COALESCE(ROUND(AVG(r.rating), 2), 0.00)
+    FROM reviews r 
+    WHERE r.book_id = b.id AND r.is_deleted = false
+);
+
+-- レビュー数
+UPDATE books b
+SET review_count = (
+    SELECT COUNT(*)
+    FROM reviews r 
+    WHERE r.book_id = b.id AND r.is_deleted = false
+);
+
+-- 人気度
+UPDATE books b
+SET popularity = (
+    CASE 
+        WHEN b.review_count = 0 THEN 0.000
+        ELSE ROUND((b.review_count * b.average_rating) / (b.review_count + 10), 3)
+    END
+);

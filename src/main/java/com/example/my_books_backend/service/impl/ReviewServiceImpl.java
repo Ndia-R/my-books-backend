@@ -21,6 +21,7 @@ import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.ReviewMapper;
 import com.example.my_books_backend.repository.book.BookRepository;
 import com.example.my_books_backend.repository.review.ReviewRepository;
+import com.example.my_books_backend.service.BookStatsService;
 import com.example.my_books_backend.service.ReviewService;
 import com.example.my_books_backend.util.PageableUtils;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewMapper reviewMapper;
 
     private final BookRepository bookRepository;
+    private final BookStatsService bookRatingService;
 
     /**
      * {@inheritDoc}
@@ -134,6 +136,10 @@ public class ReviewServiceImpl implements ReviewService {
         review.setComment(request.getComment());
 
         Review savedReview = reviewRepository.save(review);
+
+        // 書籍の評価点を更新
+        bookRatingService.updateBookStats(savedReview.getBook().getId());
+
         return reviewMapper.toReviewResponse(savedReview);
     }
 
@@ -160,7 +166,12 @@ public class ReviewServiceImpl implements ReviewService {
         if (rating != null) {
             review.setRating(rating);
         }
+
         Review savedReview = reviewRepository.save(review);
+
+        // 書籍の評価点を更新
+        bookRatingService.updateBookStats(savedReview.getBook().getId());
+
         return reviewMapper.toReviewResponse(savedReview);
     }
 
@@ -179,5 +190,8 @@ public class ReviewServiceImpl implements ReviewService {
 
         review.setIsDeleted(true);
         reviewRepository.save(review);
+
+        // 書籍の評価点を更新
+        bookRatingService.updateBookStats(review.getBook().getId());
     }
 }

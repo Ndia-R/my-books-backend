@@ -15,6 +15,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.example.my_books_backend.dto.role.RoleRequest;
 import com.example.my_books_backend.dto.role.RoleResponse;
 import com.example.my_books_backend.service.RoleService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -24,21 +25,21 @@ import lombok.RequiredArgsConstructor;
 public class RoleController {
     private final RoleService roleService;
 
-    // すべてのロール取得
+    @Operation(description = "すべてのロール取得")
     @GetMapping("")
     public ResponseEntity<List<RoleResponse>> getAllRoles() {
         List<RoleResponse> response = roleService.getAllRoles();
         return ResponseEntity.ok(response);
     }
 
-    // 特定のロール取得
+    @Operation(description = "特定のロール取得")
     @GetMapping("/{id}")
     public ResponseEntity<RoleResponse> getRoleById(@PathVariable Long id) {
         RoleResponse response = roleService.getRoleById(id);
         return ResponseEntity.ok(response);
     }
 
-    // ロール作成
+    @Operation(description = "ロール作成")
     @PostMapping("")
     public ResponseEntity<RoleResponse> createRole(@Valid @RequestBody RoleRequest request) {
         RoleResponse response = roleService.createRole(request);
@@ -47,7 +48,7 @@ public class RoleController {
         return ResponseEntity.created(location).body(response);
     }
 
-    // ロール更新
+    @Operation(description = "ロール更新")
     @PutMapping("/{id}")
     public ResponseEntity<RoleResponse> updateRole(@PathVariable Long id,
             @Valid @RequestBody RoleRequest request) {
@@ -55,7 +56,7 @@ public class RoleController {
         return ResponseEntity.ok(response);
     }
 
-    // ロール削除
+    @Operation(description = "ロール削除")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
         roleService.deleteRole(id);

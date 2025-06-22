@@ -15,6 +15,7 @@ import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.service.ReviewService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class ReviewController {
     private final ReviewService reviewService;
 
-    // レビュー作成
+    @Operation(description = "レビュー作成")
     @PostMapping("")
     public ResponseEntity<ReviewResponse> createReview(@Valid @RequestBody ReviewRequest request,
             @AuthenticationPrincipal User user) {
@@ -34,7 +35,7 @@ public class ReviewController {
         return ResponseEntity.created(location).body(response);
     }
 
-    // レビュー更新
+    @Operation(description = "レビュー更新")
     @PutMapping("/{id}")
     public ResponseEntity<ReviewResponse> updateReview(@PathVariable Long id,
             @Valid @RequestBody ReviewRequest request, @AuthenticationPrincipal User user) {
@@ -42,7 +43,7 @@ public class ReviewController {
         return ResponseEntity.ok(response);
     }
 
-    // レビュー削除
+    @Operation(description = "レビュー削除")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long id,
             @AuthenticationPrincipal User user) {

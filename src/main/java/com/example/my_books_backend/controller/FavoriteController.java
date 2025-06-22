@@ -14,6 +14,7 @@ import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.service.FavoriteService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class FavoriteController {
     private final FavoriteService favoriteService;
 
-    // お気に入り追加
+    @Operation(description = "お気に入り追加")
     @PostMapping("")
     public ResponseEntity<FavoriteResponse> createFavorite(
             @Valid @RequestBody FavoriteRequest request, @AuthenticationPrincipal User user) {
@@ -33,7 +34,7 @@ public class FavoriteController {
         return ResponseEntity.created(location).body(response);
     }
 
-    // お気に入り削除
+    @Operation(description = "お気に入り削除")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFavorite(@PathVariable Long id,
             @AuthenticationPrincipal User user) {

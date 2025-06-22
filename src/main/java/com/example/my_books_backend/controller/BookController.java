@@ -33,7 +33,7 @@ public class BookController {
 
     private static final String DEFAULT_BOOKS_START_PAGE = "1";
     private static final String DEFAULT_BOOKS_PAGE_SIZE = "20";
-    private static final String DEFAULT_BOOKS_SORT = "publicationDate.desc";
+    private static final String DEFAULT_BOOKS_SORT = "popularity.desc";
 
     private static final String DEFAULT_REVIEWS_START_PAGE = "1";
     private static final String DEFAULT_REVIEWS_PAGE_SIZE = "3";
@@ -62,9 +62,9 @@ public class BookController {
 
             @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT,
                     schema = @Schema(allowableValues = {"title.asc", "title.desc",
-                            "publicationDate.asc", "publicationDate.desc", "averageRating.asc",
-                            "averageRating.desc", "reviewCount.asc",
-                            "reviewCount.desc"})) @RequestParam(
+                            "publicationDate.asc", "publicationDate.desc", "reviewCount.asc",
+                            "reviewCount.desc", "averageRating.asc", "averageRating.desc",
+                            "popularity.asc", "popularity.desc"})) @RequestParam(
                                     defaultValue = DEFAULT_BOOKS_SORT) String sort) {
 
         PageResponse<BookResponse> response =
@@ -87,9 +87,9 @@ public class BookController {
 
             @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT,
                     schema = @Schema(allowableValues = {"title.asc", "title.desc",
-                            "publicationDate.asc", "publicationDate.desc", "averageRating.asc",
-                            "averageRating.desc", "reviewCount.asc",
-                            "reviewCount.desc"})) @RequestParam(
+                            "publicationDate.asc", "publicationDate.desc", "reviewCount.asc",
+                            "reviewCount.desc", "averageRating.asc", "averageRating.desc",
+                            "popularity.asc", "popularity.desc"})) @RequestParam(
                                     defaultValue = DEFAULT_BOOKS_SORT) String sort) {
 
         CursorPageResponse<BookResponse> response =
@@ -124,9 +124,9 @@ public class BookController {
 
             @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT,
                     schema = @Schema(allowableValues = {"title.asc", "title.desc",
-                            "publicationDate.asc", "publicationDate.desc", "averageRating.asc",
-                            "averageRating.desc", "reviewCount.asc",
-                            "reviewCount.desc"})) @RequestParam(
+                            "publicationDate.asc", "publicationDate.desc", "reviewCount.asc",
+                            "reviewCount.desc", "averageRating.asc", "averageRating.desc",
+                            "popularity.asc", "popularity.desc"})) @RequestParam(
                                     defaultValue = DEFAULT_BOOKS_SORT) String sort) {
 
         PageResponse<BookResponse> response =
@@ -160,9 +160,9 @@ public class BookController {
 
             @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT,
                     schema = @Schema(allowableValues = {"title.asc", "title.desc",
-                            "publicationDate.asc", "publicationDate.desc", "averageRating.asc",
-                            "averageRating.desc", "reviewCount.asc",
-                            "reviewCount.desc"})) @RequestParam(
+                            "publicationDate.asc", "publicationDate.desc", "reviewCount.asc",
+                            "reviewCount.desc", "averageRating.asc", "averageRating.desc",
+                            "popularity.asc", "popularity.desc"})) @RequestParam(
                                     defaultValue = DEFAULT_BOOKS_SORT) String sort) {
 
         CursorPageResponse<BookResponse> response =
