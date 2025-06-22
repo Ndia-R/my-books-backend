@@ -1,25 +1,20 @@
 package com.example.my_books_backend.util;
 
-import java.security.Key;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.crypto.SecretKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.my_books_backend.entity.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -45,19 +40,19 @@ public class JwtUtils {
         String roles = user.getRoles().stream().map(role -> role.getName().toString())
                 .collect(Collectors.joining(","));
 
-        return Jwts.builder().subject(email).claim("name", name).claim("roles", roles)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + accessExpiration * 1000))
-                .signWith(key()).compact();
+        return JWT.create().withSubject(email).withClaim("name", name).withClaim("roles", roles)
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + accessExpiration * 1000))
+                .sign(getAlgorithm());
     }
 
     // リフレッシュトークン生成
     public String generateRefreshToken(User user) {
         String email = user.getEmail();
 
-        return Jwts.builder().subject(email).issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + refreshExpiration * 1000))
-                .signWith(key()).compact();
+        return JWT.create().withSubject(email).withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + refreshExpiration * 1000))
+                .sign(getAlgorithm());
     }
 
     // リフレッシュトークンからCookieを作成
@@ -99,60 +94,64 @@ public class JwtUtils {
     // トークンの検証
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(token);
+            JWTVerifier verifier = JWT.require(getAlgorithm()).build();
+            verifier.verify(token);
             return true;
-        } catch (MalformedJwtException e) {
-            logger.error("無効な JWTトークン: {}", e.getMessage());
-        } catch (ExpiredJwtException e) {
-            logger.error("JWTトークンの有効期限が切れています: {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            logger.error("JWTトークンはサポートされていません: {}", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            logger.error("JWTクレーム文字列が空です: {}", e.getMessage());
+        } catch (JWTVerificationException e) {
+            logger.error("JWT検証エラー: {}", e.getMessage());
+            return false;
         }
-        return false;
     }
 
     // トークンからサブジェクトを取得
     public String getSubjectFromToken(String token) {
-        return getClaimFromToken(token, claims -> claims.getSubject());
+        try {
+            DecodedJWT jwt = JWT.decode(token);
+            return jwt.getSubject();
+        } catch (JWTVerificationException e) {
+            logger.error("JWT解析エラー: {}", e.getMessage());
+            return null;
+        }
     }
 
     // トークンからJTIを取得
     public String getJtiFromToken(String token) {
-        return getClaimFromToken(token, claims -> claims.getId());
+        try {
+            DecodedJWT jwt = JWT.decode(token);
+            return jwt.getId();
+        } catch (JWTVerificationException e) {
+            logger.error("JWT解析エラー: {}", e.getMessage());
+            return null;
+        }
     }
 
     // トークンから有効期限を取得
     public Date getExpiryTimeFromToken(String token) {
-        return getClaimFromToken(token, claims -> claims.getExpiration());
+        try {
+            DecodedJWT jwt = JWT.decode(token);
+            return jwt.getExpiresAt();
+        } catch (JWTVerificationException e) {
+            logger.error("JWT解析エラー: {}", e.getMessage());
+            return null;
+        }
     }
 
     // トークンのロールを取得
     public List<String> getRolesFromToken(String token) {
-        return getClaimFromToken(token, claims -> {
-            String rolesString = claims.get("roles", String.class);
+        try {
+            DecodedJWT jwt = JWT.decode(token);
+            String rolesString = jwt.getClaim("roles").asString();
             return rolesString != null ? Arrays.asList(rolesString.split(","))
                     : Collections.emptyList();
-        });
+        } catch (JWTVerificationException e) {
+            logger.error("JWT解析エラー: {}", e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
-    // 秘密鍵の生成
-    private Key key() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    // 汎用的なクレーム取得メソッド
-    private <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaimsFromToken(token);
-        return claimsResolver.apply(claims);
-    }
-
-    // すべてのクレームを取得
-    private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(token)
-                .getPayload();
+    // Algorithmの取得
+    private Algorithm getAlgorithm() {
+        return Algorithm.HMAC256(secret);
     }
 }
 
