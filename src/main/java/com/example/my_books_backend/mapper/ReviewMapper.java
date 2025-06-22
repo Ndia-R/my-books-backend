@@ -1,36 +1,30 @@
 package com.example.my_books_backend.mapper;
 
 import java.util.List;
-import org.modelmapper.ModelMapper;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Component;
 import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.review.ReviewResponse;
-import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Review;
-import com.example.my_books_backend.entity.User;
-import lombok.RequiredArgsConstructor;
 
-@Component
-@RequiredArgsConstructor
-public class ReviewMapper {
-    private final ModelMapper modelMapper;
-    private final BookMapper bookMapper;
+@Mapper(componentModel = "spring")
+public abstract class ReviewMapper {
 
-    public ReviewResponse toReviewResponse(Review review) {
-        ReviewResponse response = modelMapper.map(review, ReviewResponse.class);
-        User user = modelMapper.map(review.getUser(), User.class);
-        Book book = modelMapper.map(review.getBook(), Book.class);
-        response.setName(user.getName());
-        response.setAvatarPath(user.getAvatarPath());
-        response.setBook(bookMapper.toBookResponse(book));
-        return response;
-    }
+    @Autowired
+    protected BookMapper bookMapper;
 
-    public List<ReviewResponse> toReviewResponseList(List<Review> reviews) {
-        return reviews.stream().map(review -> toReviewResponse(review)).toList();
-    }
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "bookId", source = "book.id")
+    @Mapping(target = "name", source = "user.name")
+    @Mapping(target = "avatarPath", source = "user.avatarPath")
+    @Mapping(target = "book", expression = "java(bookMapper.toBookResponse(review.getBook()))")
+    public abstract ReviewResponse toReviewResponse(Review review);
+
+    public abstract List<ReviewResponse> toReviewResponseList(List<Review> reviews);
 
     public PageResponse<ReviewResponse> toPageResponse(Page<Review> reviews) {
         List<ReviewResponse> responses = toReviewResponseList(reviews.getContent());

@@ -1,22 +1,14 @@
 package com.example.my_books_backend.mapper;
 
 import java.util.List;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 import com.example.my_books_backend.dto.role.RoleResponse;
 import com.example.my_books_backend.entity.Role;
-import lombok.RequiredArgsConstructor;
 
-@Component
-@RequiredArgsConstructor
-public class RoleMapper {
-    private final ModelMapper modelMapper;
+@Mapper(componentModel = "spring")
+public interface RoleMapper {
 
-    public RoleResponse toRoleResponse(Role role) {
-        return modelMapper.map(role, RoleResponse.class);
-    }
+    RoleResponse toRoleResponse(Role role);
 
-    public List<RoleResponse> toRoleResponseList(List<Role> roles) {
-        return roles.stream().map(role -> toRoleResponse(role)).toList();
-    }
+    List<RoleResponse> toRoleResponseList(List<Role> roles);
 }

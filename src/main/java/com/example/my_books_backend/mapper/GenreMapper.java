@@ -1,22 +1,14 @@
 package com.example.my_books_backend.mapper;
 
 import java.util.List;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 import com.example.my_books_backend.dto.genre.GenreResponse;
 import com.example.my_books_backend.entity.Genre;
-import lombok.RequiredArgsConstructor;
 
-@Component
-@RequiredArgsConstructor
-public class GenreMapper {
-    private final ModelMapper modelMapper;
+@Mapper(componentModel = "spring")
+public interface GenreMapper {
 
-    public GenreResponse toGenreResponse(Genre genre) {
-        return modelMapper.map(genre, GenreResponse.class);
-    }
+    GenreResponse toGenreResponse(Genre genre);
 
-    public List<GenreResponse> toGenreResponseList(List<Genre> genres) {
-        return genres.stream().map(genre -> toGenreResponse(genre)).toList();
-    }
+    List<GenreResponse> toGenreResponseList(List<Genre> genres);
 }

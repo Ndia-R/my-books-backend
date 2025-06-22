@@ -2,38 +2,40 @@ package com.example.my_books_backend.mapper;
 
 import java.util.Arrays;
 import java.util.List;
-import org.modelmapper.ModelMapper;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Component;
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.entity.Book;
-import lombok.RequiredArgsConstructor;
+import com.example.my_books_backend.entity.Genre;
 
-@Component
-@RequiredArgsConstructor
-public class BookMapper {
-    private final ModelMapper modelMapper;
+@Mapper(componentModel = "spring")
+public interface BookMapper {
 
-    public BookResponse toBookResponse(Book book) {
-        BookResponse response = modelMapper.map(book, BookResponse.class);
+    @Mapping(target = "genreIds", source = "genres", qualifiedByName = "genresToIds")
+    @Mapping(target = "authors", source = "authors", qualifiedByName = "splitAuthors")
+    BookResponse toBookResponse(Book book);
 
-        List<Long> genres = book.getGenres().stream().map(genre -> genre.getId()).toList();
-        response.setGenreIds(genres);
+    List<BookResponse> toBookResponseList(List<Book> books);
 
-        List<String> authors = Arrays.asList(book.getAuthors().split(","));
-        response.setAuthors(authors);
+    @Mapping(target = "authors", source = "authors", qualifiedByName = "splitAuthors")
+    BookDetailsResponse toBookDetailsResponse(Book book);
 
-        return response;
+    @Named("genresToIds")
+    default List<Long> genresToIds(List<Genre> genres) {
+        return genres.stream().map(Genre::getId).toList();
     }
 
-    public List<BookResponse> toBookResponseList(List<Book> books) {
-        return books.stream().map(book -> toBookResponse(book)).toList();
+    @Named("splitAuthors")
+    default List<String> splitAuthors(String authors) {
+        return Arrays.asList(authors.split(","));
     }
 
-    public PageResponse<BookResponse> toPageResponse(Page<Book> books) {
+    default PageResponse<BookResponse> toPageResponse(Page<Book> books) {
         List<BookResponse> responses = toBookResponseList(books.getContent());
         // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
         return new PageResponse<BookResponse>(books.getNumber() + 1, books.getSize(),
@@ -41,7 +43,7 @@ public class BookMapper {
                 books.hasPrevious(), responses);
     }
 
-    public CursorPageResponse<BookResponse> toCursorPageResponse(List<Book> books, Integer limit) {
+    default CursorPageResponse<BookResponse> toCursorPageResponse(List<Book> books, Integer limit) {
         Boolean hasNext = books.size() > limit;
         if (hasNext) {
             books = books.subList(0, limit); // 余分な1件を削除
@@ -49,14 +51,5 @@ public class BookMapper {
         String endCursor = hasNext ? books.get(books.size() - 1).getId() : null;
         List<BookResponse> responses = toBookResponseList(books);
         return new CursorPageResponse<BookResponse>(endCursor, hasNext, responses);
-    }
-
-    public BookDetailsResponse toBookDetailsResponse(Book book) {
-        BookDetailsResponse response = modelMapper.map(book, BookDetailsResponse.class);
-
-        List<String> authors = Arrays.asList(book.getAuthors().split(","));
-        response.setAuthors(authors);
-
-        return response;
     }
 }

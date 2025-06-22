@@ -1,40 +1,29 @@
 package com.example.my_books_backend.mapper;
 
 import java.util.List;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import com.example.my_books_backend.dto.user.UserProfileResponse;
 import com.example.my_books_backend.dto.user.UserResponse;
+import com.example.my_books_backend.entity.Role;
 import com.example.my_books_backend.entity.User;
-import lombok.RequiredArgsConstructor;
 
-@Component
-@RequiredArgsConstructor
-public class UserMapper {
-    private final ModelMapper modelMapper;
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
-    public UserResponse toUserResponse(User user) {
-        UserResponse response = modelMapper.map(user, UserResponse.class);
-        List<String> roles =
-                user.getRoles().stream().map(role -> role.getName().toString()).toList();
-        response.setRoles(roles);
-        return response;
-    }
+    @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToStringList")
+    UserResponse toUserResponse(User user);
 
-    public List<UserResponse> toUserResponseList(List<User> users) {
-        return users.stream().map(user -> toUserResponse(user)).toList();
-    }
+    List<UserResponse> toUserResponseList(List<User> users);
 
-    public UserProfileResponse toUserProfileResponse(User user) {
-        UserProfileResponse response = modelMapper.map(user, UserProfileResponse.class);
-        List<String> roles =
-                user.getRoles().stream().map(role -> role.getName().toString()).toList();
-        response.setRoles(roles);
-        return response;
-    }
+    @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToStringList")
+    UserProfileResponse toUserProfileResponse(User user);
 
-    public List<UserProfileResponse> toUserProfileResponseList(List<User> users) {
-        return users.stream().map(user -> toUserProfileResponse(user)).toList();
+    List<UserProfileResponse> toUserProfileResponseList(List<User> users);
+
+    @Named("rolesToStringList")
+    default List<String> rolesToStringList(List<Role> roles) {
+        return roles.stream().map(role -> role.getName().toString()).toList();
     }
 }
-

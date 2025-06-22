@@ -66,7 +66,7 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                             r.id ASC
                         LIMIT :limit
                         """,
-                columnName, comparison, columnName, columnName, columnName, comparison, columnName,
+                columnName, comparison, columnName, columnName, columnName, columnName,
                 orderDirection);
 
         Query query = entityManager.createNativeQuery(sql, Review.class);
