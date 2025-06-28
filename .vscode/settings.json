@@ -7,8 +7,8 @@
 
   // コードフォーマット
   "editor.defaultFormatter": "redhat.java",
-  "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
-  "java.format.settings.profile": "GoogleStyle",
+  "java.format.settings.url": "${workspaceFolder}/.vscode/claude-java-formatter.xml",
+  "java.format.settings.profile": "ClaudeJavaStyle",
 
   // ファイル保存時にフォーマット
   "[java]": {

@@ -15,6 +15,7 @@ import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Favorite;
 import com.example.my_books_backend.entity.User;
+import com.example.my_books_backend.entity.enums.SortableField.FieldCategory;
 import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.ForbiddenException;
 import com.example.my_books_backend.exception.NotFoundException;
@@ -53,7 +54,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     public CursorPageResponse<FavoriteResponse> getUserFavoritesWithCursor(User user, Long cursor,
             Integer limit, String sortString) {
 
-        Sort sort = PageableUtils.parseSort(sortString, PageableUtils.FAVORITE_ALLOWED_FIELDS);
+        Sort sort = PageableUtils.parseSort(sortString, FieldCategory.FAVORITE);
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
 

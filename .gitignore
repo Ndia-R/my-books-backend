@@ -35,3 +35,19 @@ out/
 
 ### VS Code ###
 # .vscode/
+
+### Environment Variables ###
+.env
+.env.local
+.env.*.local
+
+### Logs ###
+logs/
+*.log
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Docker ###
+.dockerignore

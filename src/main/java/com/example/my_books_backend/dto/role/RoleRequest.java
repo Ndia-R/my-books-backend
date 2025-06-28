@@ -1,7 +1,7 @@
 package com.example.my_books_backend.dto.role;
 
 import org.hibernate.validator.constraints.Length;
-import com.example.my_books_backend.entity.RoleName;
+import com.example.my_books_backend.entity.enums.RoleName;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;

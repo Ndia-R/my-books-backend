@@ -1,6 +1,7 @@
 package com.example.my_books_backend.entity;
 
 import com.example.my_books_backend.entity.base.EntityBase;
+import com.example.my_books_backend.entity.enums.RoleName;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

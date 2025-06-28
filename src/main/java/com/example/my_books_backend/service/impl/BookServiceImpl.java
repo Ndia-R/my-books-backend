@@ -30,6 +30,7 @@ import com.example.my_books_backend.repository.BookChapterPageContentRepository;
 import com.example.my_books_backend.service.BookService;
 import com.example.my_books_backend.service.GenreService;
 import com.example.my_books_backend.util.PageableUtils;
+import com.example.my_books_backend.entity.enums.SortableField.FieldCategory;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -70,7 +71,7 @@ public class BookServiceImpl implements BookService {
     public CursorPageResponse<BookResponse> getBooksByTitleKeywordWithCursor(String keyword,
             String cursor, Integer limit, String sortString) {
 
-        Sort sort = PageableUtils.parseSort(sortString, PageableUtils.BOOK_ALLOWED_FIELDS);
+        Sort sort = PageableUtils.parseSort(sortString, FieldCategory.BOOK);
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
 
@@ -115,7 +116,7 @@ public class BookServiceImpl implements BookService {
             throw new BadRequestException("検索条件が不正です。");
         }
 
-        Sort sort = PageableUtils.parseSort(sortString, PageableUtils.BOOK_ALLOWED_FIELDS);
+        Sort sort = PageableUtils.parseSort(sortString, FieldCategory.BOOK);
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
 

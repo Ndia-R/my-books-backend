@@ -2,37 +2,45 @@ services:
   app:
     build:
       context: .
-      dockerfile: .devcontainer/Dockerfile
-    volumes:
-      - .:/my-books-backend
-    tty: true
-    ports:
-      - 8080:8080
     environment:
+      TZ: Asia/Tokyo
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/my-books-db
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_APP_JWT_SECRET: j2fEn1JVrRd0IPQuPJAixNP5zM97PxcSdkt82O5MVJQ=
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_APP_JWT_SECRET: ${JWT_SECRET}
       SPRING_APP_JWT_ACCESS_EXPIRATION: 3600
       SPRING_APP_JWT_REFRESH_EXPIRATION: 86400
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/my-books-backend
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    tty: true
 
   db:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      TZ: Asia/Tokyo
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: my-books-db
     ports:
       - 3306:3306
     volumes:
-      - ./.devcontainer/db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./.devcontainer/db/books.csv:/docker-entrypoint-initdb.d/books.csv
-      - ./.devcontainer/db/book_genres.csv:/docker-entrypoint-initdb.d/book_genres.csv
-      - ./.devcontainer/db/book_chapter_page_contents.csv:/docker-entrypoint-initdb.d/book_chapter_page_contents.csv
-      - ./.devcontainer/db/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/books.csv:/docker-entrypoint-initdb.d/books.csv
+      - ./db/book_genres.csv:/docker-entrypoint-initdb.d/book_genres.csv
+      - ./db/book_chapter_page_contents.csv:/docker-entrypoint-initdb.d/book_chapter_page_contents.csv
+      - ./db/my.cnf:/etc/mysql/conf.d/my.cnf
       - db_data:/var/lib/mysql
     command: --secure-file-priv=/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
 
 volumes:
   db_data:

@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.role.RoleRequest;
 import com.example.my_books_backend.dto.role.RoleResponse;
 import com.example.my_books_backend.entity.Role;
-import com.example.my_books_backend.entity.RoleName;
+import com.example.my_books_backend.entity.enums.RoleName;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.RoleMapper;
 import com.example.my_books_backend.repository.RoleRepository;
