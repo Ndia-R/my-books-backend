@@ -6,7 +6,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
 /**
- * Fluent Builder Pattern によるカーソルベースクエリ構築 動的クエリ生成とパラメータ設定を一元化
+ * Fluent Builder Pattern によるカーソルベースクエリ構築
+ * 動的クエリ生成とパラメータ設定を一元化
  */
 public class CursorQueryBuilder {
 
@@ -199,7 +200,7 @@ public class CursorQueryBuilder {
      * クエリを構築して実行可能なQueryオブジェクトを返す
      */
     public Query build() {
-        // ✅ セキュリティチェック
+        // セキュリティチェック
         String columnName = RepositorySecurityUtils.validateAndGetColumnName(sortField, fieldCategory);
         boolean isAsc = RepositorySecurityUtils.validateSortDirection(sortDirection);
 
@@ -231,7 +232,7 @@ public class CursorQueryBuilder {
         String sql = baseSelect + joins + "\nWHERE " + finalWhereClause + groupByHaving + orderByClause
             + "\nLIMIT :limit";
 
-        // ✅ Queryオブジェクト作成とパラメータ設定
+        // Queryオブジェクト作成とパラメータ設定
         Query query = entityManager.createNativeQuery(sql, entityClass);
 
         // 共通パラメータ

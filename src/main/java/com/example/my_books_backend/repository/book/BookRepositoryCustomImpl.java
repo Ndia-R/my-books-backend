@@ -20,9 +20,9 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         String sortField,
         String sortDirection
     ) {
-
-        // ✅ 1段階の動的クエリ生成（Fluent Builder Pattern）
-        Query query = CursorQueryBuilder.forEntity(Book.class, entityManager)
+        // 動的クエリ生成
+        Query query = CursorQueryBuilder
+            .forEntity(Book.class, entityManager)
             .fromBooks()
             .filterByTitleKeyword(keyword)
             .withCursor(cursor)
@@ -48,8 +48,9 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
             return List.of();
         }
 
-        // ✅ 1段階の動的クエリ生成（OR条件）
-        Query query = CursorQueryBuilder.forEntity(Book.class, entityManager)
+        // 動的クエリ生成（OR条件）
+        Query query = CursorQueryBuilder
+            .forEntity(Book.class, entityManager)
             .fromBooks()
             .filterByGenresOr(genreIds)
             .withCursor(cursor)
@@ -75,8 +76,9 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
             return List.of();
         }
 
-        // ✅ 1段階の動的クエリ生成（AND条件）
-        Query query = CursorQueryBuilder.forEntity(Book.class, entityManager)
+        // 動的クエリ生成（AND条件）
+        Query query = CursorQueryBuilder
+            .forEntity(Book.class, entityManager)
             .fromBooks()
             .filterByGenresAnd(genreIds)
             .withCursor(cursor)
