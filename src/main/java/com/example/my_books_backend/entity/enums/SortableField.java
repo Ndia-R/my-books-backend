@@ -13,30 +13,22 @@ public enum SortableField {
 
     // Book関連フィールド
     BOOK_TITLE("title", FieldCategory.BOOK),
-
     BOOK_PUBLICATION_DATE("publicationDate", FieldCategory.BOOK),
-
     BOOK_REVIEW_COUNT("reviewCount", FieldCategory.BOOK),
-
     BOOK_AVERAGE_RATING("averageRating", FieldCategory.BOOK),
-
     BOOK_POPULARITY("popularity", FieldCategory.BOOK),
 
     // Review関連フィールド
     REVIEW_UPDATED_AT("updatedAt", FieldCategory.REVIEW),
-
     REVIEW_CREATED_AT("createdAt", FieldCategory.REVIEW),
-
     REVIEW_RATING("rating", FieldCategory.REVIEW),
 
     // Favorite関連フィールド
     FAVORITE_UPDATED_AT("updatedAt", FieldCategory.FAVORITE),
-
     FAVORITE_CREATED_AT("createdAt", FieldCategory.FAVORITE),
 
     // Bookmark関連フィールド
     BOOKMARK_UPDATED_AT("updatedAt", FieldCategory.BOOKMARK),
-
     BOOKMARK_CREATED_AT("createdAt", FieldCategory.BOOKMARK),
 
     // 共通フィールド
@@ -78,9 +70,12 @@ public enum SortableField {
      */
     public static SortableField fromCamelCase(String camelCase, FieldCategory category) {
         return Arrays.stream(values())
-                .filter(field -> field.camelCase.equals(camelCase)
-                        && (field.category == category || field.category == FieldCategory.COMMON))
-                .findFirst().orElse(null);
+            .filter(
+                field -> field.camelCase.equals(camelCase)
+                    && (field.category == category || field.category == FieldCategory.COMMON)
+            )
+            .findFirst()
+            .orElse(null);
     }
 
     /**
@@ -88,27 +83,36 @@ public enum SortableField {
      */
     public static SortableField fromSnakeCase(String snakeCase, FieldCategory category) {
         return Arrays.stream(values())
-                .filter(field -> field.snakeCase.equals(snakeCase)
-                        && (field.category == category || field.category == FieldCategory.COMMON))
-                .findFirst().orElse(null);
+            .filter(
+                field -> field.snakeCase.equals(snakeCase)
+                    && (field.category == category || field.category == FieldCategory.COMMON)
+            )
+            .findFirst()
+            .orElse(null);
     }
 
     /**
      * 指定カテゴリの全camelCaseフィールド名を取得
      */
     public static List<String> getCamelCaseFields(FieldCategory category) {
-        return Arrays.stream(values()).filter(
-                field -> field.category == category || field.category == FieldCategory.COMMON)
-                .map(field -> field.camelCase).collect(Collectors.toList());
+        return Arrays.stream(values())
+            .filter(
+                field -> field.category == category || field.category == FieldCategory.COMMON
+            )
+            .map(field -> field.camelCase)
+            .collect(Collectors.toList());
     }
 
     /**
      * 指定カテゴリの全snakeCaseフィールド名を取得
      */
     public static Set<String> getSnakeCaseFields(FieldCategory category) {
-        return Arrays.stream(values()).filter(
-                field -> field.category == category || field.category == FieldCategory.COMMON)
-                .map(field -> field.snakeCase).collect(Collectors.toSet());
+        return Arrays.stream(values())
+            .filter(
+                field -> field.category == category || field.category == FieldCategory.COMMON
+            )
+            .map(field -> field.snakeCase)
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -117,8 +121,10 @@ public enum SortableField {
     public static String toSnakeCaseSafely(String camelCase, FieldCategory category) {
         SortableField field = fromCamelCase(camelCase, category);
         if (field == null) {
-            throw new IllegalArgumentException(String
-                    .format("Invalid sort field '%s' for category '%s'", camelCase, category));
+            throw new IllegalArgumentException(
+                String
+                    .format("Invalid sort field '%s' for category '%s'", camelCase, category)
+            );
         }
         return field.snakeCase;
     }

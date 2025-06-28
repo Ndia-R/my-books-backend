@@ -57,8 +57,12 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<BookResponse> getBooksByTitleKeyword(String keyword, Integer page,
-            Integer size, String sortString) {
+    public PageResponse<BookResponse> getBooksByTitleKeyword(
+        String keyword,
+        Integer page,
+        Integer size,
+        String sortString
+    ) {
         Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
         Page<Book> books = bookRepository.findByTitleContainingAndIsDeletedFalse(keyword, pageable);
         return bookMapper.toPageResponse(books);
@@ -68,16 +72,25 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<BookResponse> getBooksByTitleKeywordWithCursor(String keyword,
-            String cursor, Integer limit, String sortString) {
+    public CursorPageResponse<BookResponse> getBooksByTitleKeywordWithCursor(
+        String keyword,
+        String cursor,
+        Integer limit,
+        String sortString
+    ) {
 
         Sort sort = PageableUtils.parseSort(sortString, FieldCategory.BOOK);
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
 
         // 次のページの有無を判定するために、limit + 1にして、1件多く取得
-        List<Book> books = bookRepository.findBooksByTitleKeywordWithCursor(keyword, cursor,
-                limit + 1, sortField, sortDirection);
+        List<Book> books = bookRepository.findBooksByTitleKeywordWithCursor(
+            keyword,
+            cursor,
+            limit + 1,
+            sortField,
+            sortDirection
+        );
         return bookMapper.toCursorPageResponse(books, limit);
     }
 
@@ -85,22 +98,29 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<BookResponse> getBooksByGenre(String genreIdsQuery, String conditionQuery,
-            Integer page, Integer size, String sortString) {
-        if (!("SINGLE".equals(conditionQuery) || "AND".equals(conditionQuery)
-                || "OR".equals(conditionQuery))) {
+    public PageResponse<BookResponse> getBooksByGenre(
+        String genreIdsQuery,
+        String conditionQuery,
+        Integer page,
+        Integer size,
+        String sortString
+    ) {
+        if (!("SINGLE".equals(conditionQuery)
+            || "AND".equals(conditionQuery)
+            || "OR".equals(conditionQuery))) {
             throw new BadRequestException("検索条件が不正です。");
         }
         Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
 
-        List<Long> genreIds = Arrays.stream(genreIdsQuery.split(",")).map(Long::parseLong)
-                .collect(Collectors.toList());
+        List<Long> genreIds = Arrays.stream(genreIdsQuery.split(","))
+            .map(Long::parseLong)
+            .collect(Collectors.toList());
 
         Boolean isAndCondition = "AND".equals(conditionQuery);
 
         Page<Book> books = isAndCondition
-                ? bookRepository.findBooksHavingAllGenres(genreIds, genreIds.size(), pageable)
-                : bookRepository.findDistinctByGenres_IdInAndIsDeletedFalse(genreIds, pageable);
+            ? bookRepository.findBooksHavingAllGenres(genreIds, genreIds.size(), pageable)
+            : bookRepository.findDistinctByGenres_IdInAndIsDeletedFalse(genreIds, pageable);
 
         return bookMapper.toPageResponse(books);
     }
@@ -109,10 +129,16 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<BookResponse> getBooksByGenreWithCursor(String genreIdsQuery,
-            String conditionQuery, String cursor, Integer limit, String sortString) {
-        if (!("SINGLE".equals(conditionQuery) || "AND".equals(conditionQuery)
-                || "OR".equals(conditionQuery))) {
+    public CursorPageResponse<BookResponse> getBooksByGenreWithCursor(
+        String genreIdsQuery,
+        String conditionQuery,
+        String cursor,
+        Integer limit,
+        String sortString
+    ) {
+        if (!("SINGLE".equals(conditionQuery)
+            || "AND".equals(conditionQuery)
+            || "OR".equals(conditionQuery))) {
             throw new BadRequestException("検索条件が不正です。");
         }
 
@@ -120,17 +146,28 @@ public class BookServiceImpl implements BookService {
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
 
-        List<Long> genreIds = Arrays.stream(genreIdsQuery.split(",")).map(Long::parseLong)
-                .collect(Collectors.toList());
+        List<Long> genreIds = Arrays.stream(genreIdsQuery.split(","))
+            .map(Long::parseLong)
+            .collect(Collectors.toList());
 
         Boolean isAndCondition = "AND".equals(conditionQuery);
 
         // 次のページの有無を判定するために、limit + 1にして、1件多く取得
         List<Book> books = isAndCondition
-                ? bookRepository.findBooksByGenresAndWithCursor(genreIds, cursor, limit + 1,
-                        sortField, sortDirection)
-                : bookRepository.findBooksByGenresOrWithCursor(genreIds, cursor, limit + 1,
-                        sortField, sortDirection);
+            ? bookRepository.findBooksByGenresAndWithCursor(
+                genreIds,
+                cursor,
+                limit + 1,
+                sortField,
+                sortDirection
+            )
+            : bookRepository.findBooksByGenresOrWithCursor(
+                genreIds,
+                cursor,
+                limit + 1,
+                sortField,
+                sortDirection
+            );
 
         return bookMapper.toCursorPageResponse(books, limit);
     }
@@ -141,15 +178,15 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDetailsResponse getBookDetails(String id) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Book not found"));
+            .orElseThrow(() -> new NotFoundException("Book not found"));
 
         List<GenreResponse> allGenres = genreService.getAllGenres();
 
-        List<Long> bookGenreIds =
-                book.getGenres().stream().map(Genre::getId).collect(Collectors.toList());
+        List<Long> bookGenreIds = book.getGenres().stream().map(Genre::getId).collect(Collectors.toList());
 
         List<GenreResponse> relevantGenres = allGenres.stream()
-                .filter(genre -> bookGenreIds.contains(genre.getId())).collect(Collectors.toList());
+            .filter(genre -> bookGenreIds.contains(genre.getId()))
+            .collect(Collectors.toList());
 
         BookDetailsResponse response = bookMapper.toBookDetailsResponse(book);
         response.setGenres(relevantGenres);
@@ -163,7 +200,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookTableOfContentsResponse getBookTableOfContents(String id) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Book not found"));
+            .orElseThrow(() -> new NotFoundException("Book not found"));
 
         List<BookChapter> chapters = bookChapterRepository.findByBookId(id);
 
@@ -171,10 +208,11 @@ public class BookServiceImpl implements BookService {
             Integer chapterNumber = chapter.getId().getChapterNumber();
 
             List<BookChapterPageContent> pageContents = bookChapterPageContentRepository
-                    .findByIdBookIdAndIdChapterNumber(id, chapterNumber);
+                .findByIdBookIdAndIdChapterNumber(id, chapterNumber);
 
             List<Integer> pageNumbers = pageContents.stream()
-                    .map(content -> content.getId().getPageNumber()).collect(Collectors.toList());
+                .map(content -> content.getId().getPageNumber())
+                .collect(Collectors.toList());
 
             BookChapterResponse response = new BookChapterResponse();
             response.setChapterNumber(chapterNumber);
@@ -196,17 +234,24 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public BookChapterPageContentResponse getBookChapterPageContent(String bookId,
-            Integer chapterNumber, Integer pageNumber) {
-        BookChapterPageContentId pageContentId =
-                new BookChapterPageContentId(bookId, chapterNumber, pageNumber);
+    public BookChapterPageContentResponse getBookChapterPageContent(
+        String bookId,
+        Integer chapterNumber,
+        Integer pageNumber
+    ) {
+        BookChapterPageContentId pageContentId = new BookChapterPageContentId(
+            bookId,
+            chapterNumber,
+            pageNumber
+        );
         BookChapterId chapterId = new BookChapterId(bookId, chapterNumber);
 
-        BookChapterPageContent pageContent =
-                bookChapterPageContentRepository.findById(pageContentId).orElseThrow(
-                        () -> new NotFoundException("BookChapterPageContent not found"));
+        BookChapterPageContent pageContent = bookChapterPageContentRepository.findById(pageContentId)
+            .orElseThrow(
+                () -> new NotFoundException("BookChapterPageContent not found")
+            );
         BookChapter chapter = bookChapterRepository.findById(chapterId)
-                .orElseThrow(() -> new NotFoundException("BookChapter not found"));
+            .orElseThrow(() -> new NotFoundException("BookChapter not found"));
 
         BookChapterPageContentResponse response = new BookChapterPageContentResponse();
         response.setBookId(bookId);

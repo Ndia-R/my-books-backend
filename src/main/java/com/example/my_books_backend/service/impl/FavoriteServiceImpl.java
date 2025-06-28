@@ -38,12 +38,17 @@ public class FavoriteServiceImpl implements FavoriteService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<FavoriteResponse> getUserFavorites(User user, Integer page, Integer size,
-            String sortString, String bookId) {
+    public PageResponse<FavoriteResponse> getUserFavorites(
+        User user,
+        Integer page,
+        Integer size,
+        String sortString,
+        String bookId
+    ) {
         Pageable pageable = PageableUtils.createFavoritePageable(page, size, sortString);
         Page<Favorite> favorites = (bookId == null)
-                ? favoriteRepository.findByUserAndIsDeletedFalse(user, pageable)
-                : favoriteRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
+            ? favoriteRepository.findByUserAndIsDeletedFalse(user, pageable)
+            : favoriteRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
         return favoriteMapper.toPageResponse(favorites);
     }
 
@@ -51,16 +56,25 @@ public class FavoriteServiceImpl implements FavoriteService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<FavoriteResponse> getUserFavoritesWithCursor(User user, Long cursor,
-            Integer limit, String sortString) {
+    public CursorPageResponse<FavoriteResponse> getUserFavoritesWithCursor(
+        User user,
+        Long cursor,
+        Integer limit,
+        String sortString
+    ) {
 
         Sort sort = PageableUtils.parseSort(sortString, FieldCategory.FAVORITE);
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
 
         // 次のページの有無を判定するために、limit + 1にして、1件多く取得
-        List<Favorite> favorites = favoriteRepository.findFavoritesByUserIdWithCursor(user.getId(),
-                cursor, limit + 1, sortField, sortDirection);
+        List<Favorite> favorites = favoriteRepository.findFavoritesByUserIdWithCursor(
+            user.getId(),
+            cursor,
+            limit + 1,
+            sortField,
+            sortDirection
+        );
         return favoriteMapper.toCursorPageResponse(favorites, limit);
     }
 
@@ -85,7 +99,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     @Transactional
     public FavoriteResponse createFavorite(FavoriteRequest request, User user) {
         Book book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new NotFoundException("Book not found"));
+            .orElseThrow(() -> new NotFoundException("Book not found"));
 
         Optional<Favorite> existingFavorite = favoriteRepository.findByUserAndBook(user, book);
 
@@ -112,7 +126,7 @@ public class FavoriteServiceImpl implements FavoriteService {
     @Transactional
     public void deleteFavorite(Long id, User user) {
         Favorite favorite = favoriteRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("favorite not found"));
+            .orElseThrow(() -> new NotFoundException("favorite not found"));
 
         if (!favorite.getUser().getId().equals(user.getId())) {
             throw new ForbiddenException("このお気に入りを削除する権限がありません");

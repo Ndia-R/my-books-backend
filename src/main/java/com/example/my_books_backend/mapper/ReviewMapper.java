@@ -29,13 +29,21 @@ public abstract class ReviewMapper {
     public PageResponse<ReviewResponse> toPageResponse(Page<Review> reviews) {
         List<ReviewResponse> responses = toReviewResponseList(reviews.getContent());
         // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-        return new PageResponse<ReviewResponse>(reviews.getNumber() + 1, reviews.getSize(),
-                reviews.getTotalPages(), reviews.getTotalElements(), reviews.hasNext(),
-                reviews.hasPrevious(), responses);
+        return new PageResponse<ReviewResponse>(
+            reviews.getNumber() + 1,
+            reviews.getSize(),
+            reviews.getTotalPages(),
+            reviews.getTotalElements(),
+            reviews.hasNext(),
+            reviews.hasPrevious(),
+            responses
+        );
     }
 
-    public CursorPageResponse<ReviewResponse> toCursorPageResponse(List<Review> reviews,
-            Integer limit) {
+    public CursorPageResponse<ReviewResponse> toCursorPageResponse(
+        List<Review> reviews,
+        Integer limit
+    ) {
         Boolean hasNext = reviews.size() > limit;
         if (hasNext) {
             reviews = reviews.subList(0, limit); // 余分な1件を削除

@@ -3,7 +3,8 @@ package com.example.my_books_backend.exception;
 public class UnauthorizedException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public UnauthorizedException() {}
+    public UnauthorizedException() {
+    }
 
     public UnauthorizedException(String message) {
         super(message);
@@ -17,8 +18,12 @@ public class UnauthorizedException extends RuntimeException {
         super(message, cause);
     }
 
-    public UnauthorizedException(String message, Throwable cause, boolean enableSuppression,
-            boolean writableStackTrace) {
+    public UnauthorizedException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

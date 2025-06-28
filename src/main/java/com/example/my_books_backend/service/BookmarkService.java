@@ -17,8 +17,13 @@ public interface BookmarkService {
      * @param bookId 書籍ID（nullの場合はすべてが対象）
      * @return ブックマークリスト
      */
-    PageResponse<BookmarkResponse> getUserBookmarks(User user, Integer page, Integer size,
-            String sortString, String bookId);
+    PageResponse<BookmarkResponse> getUserBookmarks(
+        User user,
+        Integer page,
+        Integer size,
+        String sortString,
+        String bookId
+    );
 
     /**
      * ユーザーが追加したブックマークを取得（カーソルベース）
@@ -29,8 +34,12 @@ public interface BookmarkService {
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return ブックマークリスト
      */
-    CursorPageResponse<BookmarkResponse> getUserBookmarksWithCursor(User user, Long cursor,
-            Integer limit, String sortString);
+    CursorPageResponse<BookmarkResponse> getUserBookmarksWithCursor(
+        User user,
+        Long cursor,
+        Integer limit,
+        String sortString
+    );
 
     /**
      * ブックマークを作成

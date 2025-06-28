@@ -12,18 +12,25 @@ import com.example.my_books_backend.entity.User;
 
 @Repository
 public interface BookmarkRepository
-        extends JpaRepository<Bookmark, Long>, BookmarkRepositoryCustom {
+    extends JpaRepository<Bookmark, Long>, BookmarkRepositoryCustom {
     // ユーザーが追加したブックマークを取得
     Page<Bookmark> findByUserAndIsDeletedFalse(User user, Pageable pageable);
 
     // ユーザーが追加したブックマークを取得（書籍ID指定）
-    Page<Bookmark> findByUserAndIsDeletedFalseAndBookId(User user, Pageable pageable,
-            String bookId);
+    Page<Bookmark> findByUserAndIsDeletedFalseAndBookId(
+        User user,
+        Pageable pageable,
+        String bookId
+    );
 
     List<Bookmark> findByUserAndBookIdAndIsDeletedFalse(User user, String bookId);
 
-    Optional<Bookmark> findByUserAndBookAndChapterNumberAndPageNumber(User user, Book book,
-            Integer chapterNumber, Integer pageNumber);
+    Optional<Bookmark> findByUserAndBookAndChapterNumberAndPageNumber(
+        User user,
+        Book book,
+        Integer chapterNumber,
+        Integer pageNumber
+    );
 
     Integer countByUserIdAndIsDeletedFalse(Long userId);
 }

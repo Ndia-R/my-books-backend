@@ -5,6 +5,11 @@ import com.example.my_books_backend.entity.Bookmark;
 
 public interface BookmarkRepositoryCustom {
     // ユーザーが追加したブックマークを取得（カーソルベース）
-    List<Bookmark> findBookmarksByUserIdWithCursor(Long userId, Long cursor, int limit,
-            String sortField, String sortDirection);
+    List<Bookmark> findBookmarksByUserIdWithCursor(
+        Long userId,
+        Long cursor,
+        int limit,
+        String sortField,
+        String sortDirection
+    );
 }

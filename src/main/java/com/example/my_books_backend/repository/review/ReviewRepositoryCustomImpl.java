@@ -13,17 +13,22 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     private EntityManager entityManager;
 
     @Override
-    public List<Review> findReviewsByUserIdWithCursor(Long userId, Long cursor, int limit, String sortField,
-            String sortDirection) {
+    public List<Review> findReviewsByUserIdWithCursor(
+        Long userId,
+        Long cursor,
+        int limit,
+        String sortField,
+        String sortDirection
+    ) {
 
         // ✅ 1段階の動的クエリ生成（ユーザー別）
         Query query = CursorQueryBuilder.forEntity(Review.class, entityManager)
-                .fromReviews()
-                .filterByUser(userId)
-                .withCursor(cursor)
-                .withLimit(limit)
-                .orderBy(sortField, sortDirection, FieldCategory.REVIEW)
-                .build();
+            .fromReviews()
+            .filterByUser(userId)
+            .withCursor(cursor)
+            .withLimit(limit)
+            .orderBy(sortField, sortDirection, FieldCategory.REVIEW)
+            .build();
 
         @SuppressWarnings("unchecked")
         List<Review> result = query.getResultList();
@@ -31,17 +36,22 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
     }
 
     @Override
-    public List<Review> findReviewsByBookIdWithCursor(String bookId, Long cursor, int limit, String sortField,
-            String sortDirection) {
+    public List<Review> findReviewsByBookIdWithCursor(
+        String bookId,
+        Long cursor,
+        int limit,
+        String sortField,
+        String sortDirection
+    ) {
 
         // ✅ 1段階の動的クエリ生成（書籍別）
         Query query = CursorQueryBuilder.forEntity(Review.class, entityManager)
-                .fromReviews()
-                .filterByBook(bookId)
-                .withCursor(cursor)
-                .withLimit(limit)
-                .orderBy(sortField, sortDirection, FieldCategory.REVIEW)
-                .build();
+            .fromReviews()
+            .filterByBook(bookId)
+            .withCursor(cursor)
+            .withLimit(limit)
+            .orderBy(sortField, sortDirection, FieldCategory.REVIEW)
+            .build();
 
         @SuppressWarnings("unchecked")
         List<Review> result = query.getResultList();

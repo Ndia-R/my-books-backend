@@ -13,13 +13,14 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         // セキュリティスキームの定義
         SecurityScheme securityScheme = new SecurityScheme().type(SecurityScheme.Type.HTTP)
-                .scheme("bearer").bearerFormat("JWT");
+            .scheme("bearer")
+            .bearerFormat("JWT");
 
         // SecurityRequirementの追加
         SecurityRequirement securityRequirement = new SecurityRequirement().addList("bearerAuth");
 
         return new OpenAPI()
-                .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
-                .addSecurityItem(securityRequirement);
+            .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
+            .addSecurityItem(securityRequirement);
     }
 }

@@ -22,12 +22,15 @@ public interface BookRepository extends JpaRepository<Book, String>, BookReposit
 
     // 指定されたジャンルIDのリストを取得（AND条件）
     @Query("""
-            SELECT b FROM Book b
-            JOIN b.genres bg
-            WHERE bg.id IN :genreIds
-            GROUP BY b.id
-            HAVING COUNT(DISTINCT bg.id) = :size
-            """)
-    Page<Book> findBooksHavingAllGenres(@Param("genreIds") List<Long> genreIds,
-            @Param("size") Integer size, Pageable pageable);
+        SELECT b FROM Book b
+        JOIN b.genres bg
+        WHERE bg.id IN :genreIds
+        GROUP BY b.id
+        HAVING COUNT(DISTINCT bg.id) = :size
+        """)
+    Page<Book> findBooksHavingAllGenres(
+        @Param("genreIds") List<Long> genreIds,
+        @Param("size") Integer size,
+        Pageable pageable
+    );
 }

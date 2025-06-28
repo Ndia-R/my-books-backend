@@ -5,8 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RandomStringUtils {
-    private static final String CHARACTERS =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int LENGTH = 12;
     private static final SecureRandom RANDOM = new SecureRandom();
 

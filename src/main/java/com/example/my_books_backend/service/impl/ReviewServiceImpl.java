@@ -40,12 +40,17 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<ReviewResponse> getUserReviews(User user, Integer page, Integer size,
-            String sortString, String bookId) {
+    public PageResponse<ReviewResponse> getUserReviews(
+        User user,
+        Integer page,
+        Integer size,
+        String sortString,
+        String bookId
+    ) {
         Pageable pageable = PageableUtils.createReviewPageable(page, size, sortString);
         Page<Review> reviews = (bookId == null)
-                ? reviewRepository.findByUserAndIsDeletedFalse(user, pageable)
-                : reviewRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
+            ? reviewRepository.findByUserAndIsDeletedFalse(user, pageable)
+            : reviewRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
         return reviewMapper.toPageResponse(reviews);
     }
 
@@ -53,16 +58,25 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<ReviewResponse> getUserReviewsWithCursor(User user, Long cursor,
-            Integer limit, String sortString) {
+    public CursorPageResponse<ReviewResponse> getUserReviewsWithCursor(
+        User user,
+        Long cursor,
+        Integer limit,
+        String sortString
+    ) {
 
         Sort sort = PageableUtils.parseSort(sortString, FieldCategory.REVIEW);
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
 
         // 次のページの有無を判定するために、limit + 1にして、1件多く取得
-        List<Review> reviews = reviewRepository.findReviewsByUserIdWithCursor(user.getId(), cursor,
-                limit + 1, sortField, sortDirection);
+        List<Review> reviews = reviewRepository.findReviewsByUserIdWithCursor(
+            user.getId(),
+            cursor,
+            limit + 1,
+            sortField,
+            sortDirection
+        );
         return reviewMapper.toCursorPageResponse(reviews, limit);
     }
 
@@ -70,8 +84,12 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<ReviewResponse> getBookReviews(String bookId, Integer page, Integer size,
-            String sortString) {
+    public PageResponse<ReviewResponse> getBookReviews(
+        String bookId,
+        Integer page,
+        Integer size,
+        String sortString
+    ) {
         Pageable pageable = PageableUtils.createReviewPageable(page, size, sortString);
         Page<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(bookId, pageable);
         return reviewMapper.toPageResponse(reviews);
@@ -81,16 +99,25 @@ public class ReviewServiceImpl implements ReviewService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<ReviewResponse> getBookReviewsWithCursor(String bookId, Long cursor,
-            Integer limit, String sortString) {
+    public CursorPageResponse<ReviewResponse> getBookReviewsWithCursor(
+        String bookId,
+        Long cursor,
+        Integer limit,
+        String sortString
+    ) {
 
         Sort sort = PageableUtils.parseSort(sortString, FieldCategory.REVIEW);
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
 
         // 次のページの有無を判定するために、limit + 1にして、1件多く取得
-        List<Review> reviews = reviewRepository.findReviewsByBookIdWithCursor(bookId, cursor,
-                limit + 1, sortField, sortDirection);
+        List<Review> reviews = reviewRepository.findReviewsByBookIdWithCursor(
+            bookId,
+            cursor,
+            limit + 1,
+            sortField,
+            sortDirection
+        );
         return reviewMapper.toCursorPageResponse(reviews, limit);
     }
 
@@ -100,8 +127,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewCountsResponse getBookReviewCounts(String bookId) {
         List<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(bookId);
-        Double averageRating =
-                reviews.stream().mapToDouble(Review::getRating).average().orElse(0.0);
+        Double averageRating = reviews.stream().mapToDouble(Review::getRating).average().orElse(0.0);
 
         ReviewCountsResponse response = new ReviewCountsResponse();
         response.setBookId(bookId);
@@ -118,7 +144,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public ReviewResponse createReview(ReviewRequest request, User user) {
         Book book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new NotFoundException("Book not found"));
+            .orElseThrow(() -> new NotFoundException("Book not found"));
 
         Optional<Review> existingReview = reviewRepository.findByUserAndBook(user, book);
 
@@ -151,7 +177,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public ReviewResponse updateReview(Long id, ReviewRequest request, User user) {
         Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Review not found"));
+            .orElseThrow(() -> new NotFoundException("Review not found"));
 
         if (!review.getUser().getId().equals(user.getId())) {
             throw new ForbiddenException("このレビューを編集する権限がありません。");
@@ -183,7 +209,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void deleteReview(Long id, User user) {
         Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Review not found"));
+            .orElseThrow(() -> new NotFoundException("Review not found"));
 
         if (!review.getUser().getId().equals(user.getId())) {
             throw new ForbiddenException("このレビューを削除する権限がありません");

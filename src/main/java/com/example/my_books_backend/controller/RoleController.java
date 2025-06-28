@@ -43,15 +43,19 @@ public class RoleController {
     @PostMapping("")
     public ResponseEntity<RoleResponse> createRole(@Valid @RequestBody RoleRequest request) {
         RoleResponse response = roleService.createRole(request);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(response.getId()).toUri();
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(response.getId())
+            .toUri();
         return ResponseEntity.created(location).body(response);
     }
 
     @Operation(description = "ロール更新")
     @PutMapping("/{id}")
-    public ResponseEntity<RoleResponse> updateRole(@PathVariable Long id,
-            @Valid @RequestBody RoleRequest request) {
+    public ResponseEntity<RoleResponse> updateRole(
+        @PathVariable Long id,
+        @Valid @RequestBody RoleRequest request
+    ) {
         RoleResponse response = roleService.updateRole(id, request);
         return ResponseEntity.ok(response);
     }

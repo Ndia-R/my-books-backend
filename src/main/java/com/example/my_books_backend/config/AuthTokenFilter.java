@@ -36,9 +36,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull FilterChain filterChain
+    )
+        throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
         String method = request.getMethod();
@@ -56,8 +59,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         try {
             authenticationSuccessful = processAuthentication(request, requestId);
         } catch (Exception e) {
-            logger.error("[{}] 認証処理中に予期しないエラーが発生: {} {}", requestId, e.getClass().getSimpleName(),
-                    e.getMessage());
+            logger.error(
+                "[{}] 認証処理中に予期しないエラーが発生: {} {}",
+                requestId,
+                e.getClass().getSimpleName(),
+                e.getMessage()
+            );
             handleAuthenticationError(response, requestId, "認証処理でエラーが発生しました");
             return;
         }
@@ -82,11 +89,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
         // 完全にパブリックなエンドポイント
         boolean isFullyPublic = fullyPublicEndpoints.stream()
-                .anyMatch(endpoint -> pathMatcher.match(endpoint, requestURI));
+            .anyMatch(endpoint -> pathMatcher.match(endpoint, requestURI));
 
         // GETメソッドのみパブリックなエンドポイント
         boolean isPublicGet = "GET".equals(method) && publicGetEndpoints.stream()
-                .anyMatch(endpoint -> pathMatcher.match(endpoint, requestURI));
+            .anyMatch(endpoint -> pathMatcher.match(endpoint, requestURI));
 
         return isFullyPublic || isPublicGet;
     }
@@ -126,8 +133,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     /**
      * 認証コンテキストを設定
      */
-    private boolean setAuthenticationContext(String token, HttpServletRequest request,
-            String requestId) {
+    private boolean setAuthenticationContext(
+        String token,
+        HttpServletRequest request,
+        String requestId
+    ) {
         String email = jwtUtil.getSubjectFromToken(token);
         if (!StringUtils.hasText(email)) {
             logger.warn("[{}] トークンからメールアドレスを取得できません", requestId);
@@ -140,9 +150,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             return false;
         }
 
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(userDetails, null,
-                        userDetails.getAuthorities());
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+            userDetails,
+            null,
+            userDetails.getAuthorities()
+        );
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -178,16 +190,22 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     /**
      * 認証エラー時のレスポンス処理
      */
-    private void handleAuthenticationError(HttpServletResponse response, String requestId,
-            String message) {
+    private void handleAuthenticationError(
+        HttpServletResponse response,
+        String requestId,
+        String message
+    ) {
         try {
             response.setContentType(CONTENT_TYPE_JSON);
             response.setCharacterEncoding(CHARSET_UTF8);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
             String errorJson = String.format(
-                    "{\"error\": \"%s\", \"requestId\": \"%s\", \"timestamp\": \"%s\"}", message,
-                    requestId, System.currentTimeMillis());
+                "{\"error\": \"%s\", \"requestId\": \"%s\", \"timestamp\": \"%s\"}",
+                message,
+                requestId,
+                System.currentTimeMillis()
+            );
 
             response.getWriter().write(errorJson);
             response.getWriter().flush();
@@ -199,16 +217,22 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     /**
      * 未認証アクセス時のレスポンス処理
      */
-    private void handleUnauthorizedAccess(HttpServletResponse response, String requestId,
-            String message) {
+    private void handleUnauthorizedAccess(
+        HttpServletResponse response,
+        String requestId,
+        String message
+    ) {
         try {
             response.setContentType(CONTENT_TYPE_JSON);
             response.setCharacterEncoding(CHARSET_UTF8);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
             String errorJson = String.format(
-                    "{\"error\": \"%s\", \"requestId\": \"%s\", \"timestamp\": \"%s\"}", message,
-                    requestId, System.currentTimeMillis());
+                "{\"error\": \"%s\", \"requestId\": \"%s\", \"timestamp\": \"%s\"}",
+                message,
+                requestId,
+                System.currentTimeMillis()
+            );
 
             response.getWriter().write(errorJson);
             response.getWriter().flush();

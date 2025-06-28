@@ -3,7 +3,8 @@ package com.example.my_books_backend.exception;
 public class ForbiddenException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public ForbiddenException() {}
+    public ForbiddenException() {
+    }
 
     public ForbiddenException(String message) {
         super(message);
@@ -17,8 +18,12 @@ public class ForbiddenException extends RuntimeException {
         super(message, cause);
     }
 
-    public ForbiddenException(String message, Throwable cause, boolean enableSuppression,
-            boolean writableStackTrace) {
+    public ForbiddenException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

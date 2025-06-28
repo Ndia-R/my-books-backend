@@ -28,13 +28,21 @@ public abstract class BookmarkMapper {
     public PageResponse<BookmarkResponse> toPageResponse(Page<Bookmark> bookmarks) {
         List<BookmarkResponse> responses = toBookmarkResponseList(bookmarks.getContent());
         // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-        return new PageResponse<BookmarkResponse>(bookmarks.getNumber() + 1, bookmarks.getSize(),
-                bookmarks.getTotalPages(), bookmarks.getTotalElements(), bookmarks.hasNext(),
-                bookmarks.hasPrevious(), responses);
+        return new PageResponse<BookmarkResponse>(
+            bookmarks.getNumber() + 1,
+            bookmarks.getSize(),
+            bookmarks.getTotalPages(),
+            bookmarks.getTotalElements(),
+            bookmarks.hasNext(),
+            bookmarks.hasPrevious(),
+            responses
+        );
     }
 
-    public CursorPageResponse<BookmarkResponse> toCursorPageResponse(List<Bookmark> bookmarks,
-            Integer limit) {
+    public CursorPageResponse<BookmarkResponse> toCursorPageResponse(
+        List<Bookmark> bookmarks,
+        Integer limit
+    ) {
         Boolean hasNext = bookmarks.size() > limit;
         if (hasNext) {
             bookmarks = bookmarks.subList(0, limit); // 余分な1件を削除

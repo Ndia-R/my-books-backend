@@ -49,124 +49,129 @@ public class BookController {
     @Operation(description = "タイトル検索: 指定されたタイトルから書籍を検索")
     @GetMapping("/search")
     public ResponseEntity<PageResponse<BookResponse>> getBooksByTitleKeyword(
-
-            @Parameter(description = "タイトルに指定された文字列を含む書籍を検索", example = "魔法",
-                    required = true) @RequestParam String q,
-
-            @Parameter(description = "ページ番号（1ベース）",
-                    example = DEFAULT_BOOKS_START_PAGE) @RequestParam(
-                            defaultValue = DEFAULT_BOOKS_START_PAGE) Integer page,
-
-            @Parameter(description = "1ページあたりの件数", example = DEFAULT_BOOKS_PAGE_SIZE) @RequestParam(
-                    defaultValue = DEFAULT_BOOKS_PAGE_SIZE) Integer size,
-
-            @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT,
-                    schema = @Schema(allowableValues = {"title.asc", "title.desc",
-                            "publicationDate.asc", "publicationDate.desc", "reviewCount.asc",
-                            "reviewCount.desc", "averageRating.asc", "averageRating.desc",
-                            "popularity.asc", "popularity.desc"})) @RequestParam(
-                                    defaultValue = DEFAULT_BOOKS_SORT) String sort) {
-
-        PageResponse<BookResponse> response =
-                bookService.getBooksByTitleKeyword(q, page, size, sort);
+        @Parameter(description = "タイトルに指定された文字列を含む書籍を検索", example = "魔法", required = true) @RequestParam String q,
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_BOOKS_START_PAGE) @RequestParam(defaultValue = DEFAULT_BOOKS_START_PAGE) Integer page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_BOOKS_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_BOOKS_PAGE_SIZE) Integer size,
+        @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT, schema = @Schema(allowableValues = {
+            "title.asc",
+            "title.desc",
+            "publicationDate.asc",
+            "publicationDate.desc",
+            "reviewCount.asc",
+            "reviewCount.desc",
+            "averageRating.asc",
+            "averageRating.desc",
+            "popularity.asc",
+            "popularity.desc" })) @RequestParam(defaultValue = DEFAULT_BOOKS_SORT) String sort
+    ) {
+        PageResponse<BookResponse> response = bookService.getBooksByTitleKeyword(q, page, size, sort);
         return ResponseEntity.ok(response);
     }
 
     @Operation(description = "タイトル検索（カーソルベース）: 指定されたタイトルから書籍を検索")
     @GetMapping("/search/cursor")
     public ResponseEntity<CursorPageResponse<BookResponse>> getBooksByTitleKeywordWithCursor(
-
-            @Parameter(description = "タイトルに指定された文字列を含む書籍を検索", example = "魔法",
-                    required = true) @RequestParam String q,
-
-            @Parameter(description = "カーソル（次のページを取得するための起点となるID）") @RequestParam(
-                    required = false) String cursor,
-
-            @Parameter(description = "1ページあたりの件数", example = DEFAULT_BOOKS_PAGE_SIZE) @RequestParam(
-                    defaultValue = DEFAULT_BOOKS_PAGE_SIZE) Integer limit,
-
-            @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT,
-                    schema = @Schema(allowableValues = {"title.asc", "title.desc",
-                            "publicationDate.asc", "publicationDate.desc", "reviewCount.asc",
-                            "reviewCount.desc", "averageRating.asc", "averageRating.desc",
-                            "popularity.asc", "popularity.desc"})) @RequestParam(
-                                    defaultValue = DEFAULT_BOOKS_SORT) String sort) {
-
-        CursorPageResponse<BookResponse> response =
-                bookService.getBooksByTitleKeywordWithCursor(q, cursor, limit, sort);
+        @Parameter(description = "タイトルに指定された文字列を含む書籍を検索", example = "魔法", required = true) @RequestParam String q,
+        @Parameter(description = "カーソル（次のページを取得するための起点となるID）") @RequestParam(required = false) String cursor,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_BOOKS_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_BOOKS_PAGE_SIZE) Integer limit,
+        @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT, schema = @Schema(allowableValues = {
+            "title.asc",
+            "title.desc",
+            "publicationDate.asc",
+            "publicationDate.desc",
+            "reviewCount.asc",
+            "reviewCount.desc",
+            "averageRating.asc",
+            "averageRating.desc",
+            "popularity.asc",
+            "popularity.desc" })) @RequestParam(defaultValue = DEFAULT_BOOKS_SORT) String sort
+    ) {
+        CursorPageResponse<BookResponse> response = bookService.getBooksByTitleKeywordWithCursor(
+            q,
+            cursor,
+            limit,
+            sort
+        );
         return ResponseEntity.ok(response);
     }
 
     @Operation(description = "ジャンル検索: 指定されたジャンルIDと条件に基づいて書籍を検索")
     @GetMapping("/discover")
     public ResponseEntity<PageResponse<BookResponse>> getBooksByGenre(
-
-            @Parameter(description = """
-                    検索対象のジャンルIDをカンマ区切りで指定
-                    - 単一ジャンル: 1
-                    - 複数ジャンル: 1,2,3
-                    """, example = "1,2", required = true) @RequestParam String genreIds,
-
-            @Parameter(description = """
-                    ジャンル検索の条件を指定
-                    - SINGLE: 指定したジャンルのみ（複数指定の場合、最初のジャンルのみ）
-                    - AND: 指定したすべてのジャンル
-                    - OR: 指定したいずれかのジャンル
-                    """, example = "AND", required = true, schema = @Schema(
-                    allowableValues = {"SINGLE", "AND", "OR"})) @RequestParam String condition,
-
-            @Parameter(description = "ページ番号（1ベース）",
-                    example = DEFAULT_BOOKS_START_PAGE) @RequestParam(
-                            defaultValue = DEFAULT_BOOKS_START_PAGE) Integer page,
-
-            @Parameter(description = "1ページあたりの件数", example = DEFAULT_BOOKS_PAGE_SIZE) @RequestParam(
-                    defaultValue = DEFAULT_BOOKS_PAGE_SIZE) Integer size,
-
-            @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT,
-                    schema = @Schema(allowableValues = {"title.asc", "title.desc",
-                            "publicationDate.asc", "publicationDate.desc", "reviewCount.asc",
-                            "reviewCount.desc", "averageRating.asc", "averageRating.desc",
-                            "popularity.asc", "popularity.desc"})) @RequestParam(
-                                    defaultValue = DEFAULT_BOOKS_SORT) String sort) {
-
-        PageResponse<BookResponse> response =
-                bookService.getBooksByGenre(genreIds, condition, page, size, sort);
+        @Parameter(description = """
+            検索対象のジャンルIDをカンマ区切りで指定
+            - 単一ジャンル: 1
+            - 複数ジャンル: 1,2,3
+            """, example = "1,2", required = true) @RequestParam String genreIds,
+        @Parameter(description = """
+            ジャンル検索の条件を指定
+            - SINGLE: 指定したジャンルのみ（複数指定の場合、最初のジャンルのみ）
+            - AND: 指定したすべてのジャンル
+            - OR: 指定したいずれかのジャンル
+            """, example = "AND", required = true, schema = @Schema(allowableValues = { "SINGLE",
+            "AND",
+            "OR" })) @RequestParam String condition,
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_BOOKS_START_PAGE) @RequestParam(defaultValue = DEFAULT_BOOKS_START_PAGE) Integer page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_BOOKS_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_BOOKS_PAGE_SIZE) Integer size,
+        @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT, schema = @Schema(allowableValues = {
+            "title.asc",
+            "title.desc",
+            "publicationDate.asc",
+            "publicationDate.desc",
+            "reviewCount.asc",
+            "reviewCount.desc",
+            "averageRating.asc",
+            "averageRating.desc",
+            "popularity.asc",
+            "popularity.desc" })) @RequestParam(defaultValue = DEFAULT_BOOKS_SORT) String sort
+    ) {
+        PageResponse<BookResponse> response = bookService.getBooksByGenre(
+            genreIds,
+            condition,
+            page,
+            size,
+            sort
+        );
         return ResponseEntity.ok(response);
     }
 
     @Operation(description = "ジャンル検索: 指定されたジャンルIDと条件に基づいて書籍を検索（カーソルベース）")
     @GetMapping("/discover/cursor")
     public ResponseEntity<CursorPageResponse<BookResponse>> getBooksByGenreWithCursor(
-
-            @Parameter(description = """
-                    検索対象のジャンルIDをカンマ区切りで指定
-                    - 単一ジャンル: 1
-                    - 複数ジャンル: 1,2,3
-                    """, example = "1,2", required = true) @RequestParam String genreIds,
-
-            @Parameter(description = """
-                    ジャンル検索の条件を指定
-                    - SINGLE: 指定したジャンルのみ（複数指定の場合、最初のジャンルのみ）
-                    - AND: 指定したすべてのジャンル
-                    - OR: 指定したいずれかのジャンル
-                    """, example = "AND", required = true, schema = @Schema(
-                    allowableValues = {"SINGLE", "AND", "OR"})) @RequestParam String condition,
-
-            @Parameter(description = "カーソル（次のページを取得するための起点となるID）") @RequestParam(
-                    required = false) String cursor,
-
-            @Parameter(description = "1ページあたりの件数", example = DEFAULT_BOOKS_PAGE_SIZE) @RequestParam(
-                    defaultValue = DEFAULT_BOOKS_PAGE_SIZE) Integer limit,
-
-            @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT,
-                    schema = @Schema(allowableValues = {"title.asc", "title.desc",
-                            "publicationDate.asc", "publicationDate.desc", "reviewCount.asc",
-                            "reviewCount.desc", "averageRating.asc", "averageRating.desc",
-                            "popularity.asc", "popularity.desc"})) @RequestParam(
-                                    defaultValue = DEFAULT_BOOKS_SORT) String sort) {
-
-        CursorPageResponse<BookResponse> response =
-                bookService.getBooksByGenreWithCursor(genreIds, condition, cursor, limit, sort);
+        @Parameter(description = """
+            検索対象のジャンルIDをカンマ区切りで指定
+            - 単一ジャンル: 1
+            - 複数ジャンル: 1,2,3
+            """, example = "1,2", required = true) @RequestParam String genreIds,
+        @Parameter(description = """
+            ジャンル検索の条件を指定
+            - SINGLE: 指定したジャンルのみ（複数指定の場合、最初のジャンルのみ）
+            - AND: 指定したすべてのジャンル
+            - OR: 指定したいずれかのジャンル
+            """, example = "AND", required = true, schema = @Schema(allowableValues = { "SINGLE",
+            "AND",
+            "OR" })) @RequestParam String condition,
+        @Parameter(description = "カーソル（次のページを取得するための起点となるID）") @RequestParam(required = false) String cursor,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_BOOKS_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_BOOKS_PAGE_SIZE) Integer limit,
+        @Parameter(description = "ソート条件", example = DEFAULT_BOOKS_SORT, schema = @Schema(allowableValues = {
+            "title.asc",
+            "title.desc",
+            "publicationDate.asc",
+            "publicationDate.desc",
+            "reviewCount.asc",
+            "reviewCount.desc",
+            "averageRating.asc",
+            "averageRating.desc",
+            "popularity.asc",
+            "popularity.desc" })) @RequestParam(defaultValue = DEFAULT_BOOKS_SORT) String sort
+    ) {
+        CursorPageResponse<BookResponse> response = bookService.getBooksByGenreWithCursor(
+            genreIds,
+            condition,
+            cursor,
+            limit,
+            sort
+        );
         return ResponseEntity.ok(response);
     }
 
@@ -180,7 +185,8 @@ public class BookController {
     @Operation(description = "特定の書籍の目次")
     @GetMapping("/{id}/toc")
     public ResponseEntity<BookTableOfContentsResponse> getBookTableOfContents(
-            @PathVariable String id) {
+        @PathVariable String id
+    ) {
         BookTableOfContentsResponse response = bookService.getBookTableOfContents(id);
         return ResponseEntity.ok(response);
     }
@@ -188,32 +194,28 @@ public class BookController {
     @Operation(description = "特定の書籍の閲覧ページ")
     @GetMapping("/{id}/chapters/{chapter}/pages/{page}")
     public ResponseEntity<BookChapterPageContentResponse> getBookChapterPageContent(
-            @PathVariable String id, @PathVariable Integer chapter, @PathVariable Integer page) {
-        BookChapterPageContentResponse response =
-                bookService.getBookChapterPageContent(id, chapter, page);
+        @PathVariable String id,
+        @PathVariable Integer chapter,
+        @PathVariable Integer page
+    ) {
+        BookChapterPageContentResponse response = bookService.getBookChapterPageContent(id, chapter, page);
         return ResponseEntity.ok(response);
     }
 
     @Operation(description = "特定の書籍のレビューリスト")
     @GetMapping("/{id}/reviews")
     public ResponseEntity<PageResponse<ReviewResponse>> getBookReviews(
-
-            @PathVariable String id,
-
-            @Parameter(description = "ページ番号（1ベース）",
-                    example = DEFAULT_REVIEWS_START_PAGE) @RequestParam(
-                            defaultValue = DEFAULT_REVIEWS_START_PAGE) Integer page,
-
-            @Parameter(description = "1ページあたりの件数",
-                    example = DEFAULT_REVIEWS_PAGE_SIZE) @RequestParam(
-                            defaultValue = DEFAULT_REVIEWS_PAGE_SIZE) Integer size,
-
-            @Parameter(description = "ソート条件", example = DEFAULT_REVIEWS_SORT,
-                    schema = @Schema(
-                            allowableValues = {"updatedAt.asc", "updatedAt.desc", "createdAt.asc",
-                                    "createdAt.desc", "rating.asc", "rating.desc"})) @RequestParam(
-                                            defaultValue = DEFAULT_REVIEWS_SORT) String sort) {
-
+        @PathVariable String id,
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_REVIEWS_START_PAGE) @RequestParam(defaultValue = DEFAULT_REVIEWS_START_PAGE) Integer page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_REVIEWS_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_REVIEWS_PAGE_SIZE) Integer size,
+        @Parameter(description = "ソート条件", example = DEFAULT_REVIEWS_SORT, schema = @Schema(allowableValues = {
+            "updatedAt.asc",
+            "updatedAt.desc",
+            "createdAt.asc",
+            "createdAt.desc",
+            "rating.asc",
+            "rating.desc" })) @RequestParam(defaultValue = DEFAULT_REVIEWS_SORT) String sort
+    ) {
         PageResponse<ReviewResponse> response = reviewService.getBookReviews(id, page, size, sort);
         return ResponseEntity.ok(response);
     }
@@ -221,24 +223,23 @@ public class BookController {
     @Operation(description = "特定の書籍のレビューリスト（カーソルベース）")
     @GetMapping("/{id}/reviews/cursor")
     public ResponseEntity<CursorPageResponse<ReviewResponse>> getBookReviewsWithCursor(
-
-            @PathVariable String id,
-
-            @Parameter(description = "カーソル（次のページを取得するための起点となるID）") @RequestParam(
-                    required = false) Long cursor,
-
-            @Parameter(description = "1ページあたりの件数",
-                    example = DEFAULT_REVIEWS_PAGE_SIZE) @RequestParam(
-                            defaultValue = DEFAULT_REVIEWS_PAGE_SIZE) Integer limit,
-
-            @Parameter(description = "ソート条件", example = DEFAULT_REVIEWS_SORT,
-                    schema = @Schema(
-                            allowableValues = {"updatedAt.asc", "updatedAt.desc", "createdAt.asc",
-                                    "createdAt.desc", "rating.asc", "rating.desc"})) @RequestParam(
-                                            defaultValue = DEFAULT_REVIEWS_SORT) String sort) {
-
-        CursorPageResponse<ReviewResponse> response =
-                reviewService.getBookReviewsWithCursor(id, cursor, limit, sort);
+        @PathVariable String id,
+        @Parameter(description = "カーソル（次のページを取得するための起点となるID）") @RequestParam(required = false) Long cursor,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_REVIEWS_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_REVIEWS_PAGE_SIZE) Integer limit,
+        @Parameter(description = "ソート条件", example = DEFAULT_REVIEWS_SORT, schema = @Schema(allowableValues = {
+            "updatedAt.asc",
+            "updatedAt.desc",
+            "createdAt.asc",
+            "createdAt.desc",
+            "rating.asc",
+            "rating.desc" })) @RequestParam(defaultValue = DEFAULT_REVIEWS_SORT) String sort
+    ) {
+        CursorPageResponse<ReviewResponse> response = reviewService.getBookReviewsWithCursor(
+            id,
+            cursor,
+            limit,
+            sort
+        );
         return ResponseEntity.ok(response);
     }
 

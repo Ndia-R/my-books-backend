@@ -14,17 +14,10 @@ public class PageableUtils {
     private static final Sort.Direction DEFAULT_SORT_DIRECTION = Sort.Direction.ASC;
 
     // Enumベースで統一管理された許可フィールド
-    public static final List<String> BOOK_ALLOWED_FIELDS =
-            SortableField.getCamelCaseFields(FieldCategory.BOOK);
-
-    public static final List<String> REVIEW_ALLOWED_FIELDS =
-            SortableField.getCamelCaseFields(FieldCategory.REVIEW);
-
-    public static final List<String> FAVORITE_ALLOWED_FIELDS =
-            SortableField.getCamelCaseFields(FieldCategory.FAVORITE);
-
-    public static final List<String> BOOKMARK_ALLOWED_FIELDS =
-            SortableField.getCamelCaseFields(FieldCategory.BOOKMARK);
+    public static final List<String> BOOK_ALLOWED_FIELDS = SortableField.getCamelCaseFields(FieldCategory.BOOK);
+    public static final List<String> REVIEW_ALLOWED_FIELDS = SortableField.getCamelCaseFields(FieldCategory.REVIEW);
+    public static final List<String> FAVORITE_ALLOWED_FIELDS = SortableField.getCamelCaseFields(FieldCategory.FAVORITE);
+    public static final List<String> BOOKMARK_ALLOWED_FIELDS = SortableField.getCamelCaseFields(FieldCategory.BOOKMARK);
 
     // 対象に合わせたPageable作成
     public static Pageable createBookPageable(int page, int size, String sort) {
@@ -44,8 +37,12 @@ public class PageableUtils {
     }
 
     // pageable作成
-    private static Pageable createPageable(int page, int size, String sortString,
-            FieldCategory category) {
+    private static Pageable createPageable(
+        int page,
+        int size,
+        String sortString,
+        FieldCategory category
+    ) {
         // pageableは内部的に0ベースなので、1ベース→0ベースへ
         page = Math.max(0, page - 1);
 

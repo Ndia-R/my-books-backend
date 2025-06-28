@@ -27,8 +27,12 @@ public interface BookService {
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return 検索結果
      */
-    PageResponse<BookResponse> getBooksByTitleKeyword(String keyword, Integer page, Integer size,
-            String sortString);
+    PageResponse<BookResponse> getBooksByTitleKeyword(
+        String keyword,
+        Integer page,
+        Integer size,
+        String sortString
+    );
 
     /**
      * タイトルで書籍を検索したリストを取得（カーソルベース）
@@ -39,8 +43,12 @@ public interface BookService {
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return 検索結果
      */
-    CursorPageResponse<BookResponse> getBooksByTitleKeywordWithCursor(String keyword, String cursor,
-            Integer limit, String sortString);
+    CursorPageResponse<BookResponse> getBooksByTitleKeywordWithCursor(
+        String keyword,
+        String cursor,
+        Integer limit,
+        String sortString
+    );
 
     /**
      * ジャンルIDで書籍を検索したリストを取得
@@ -52,8 +60,13 @@ public interface BookService {
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return 検索結果
      */
-    PageResponse<BookResponse> getBooksByGenre(String genreIdsQuery, String conditionQuery,
-            Integer page, Integer size, String sortString);
+    PageResponse<BookResponse> getBooksByGenre(
+        String genreIdsQuery,
+        String conditionQuery,
+        Integer page,
+        Integer size,
+        String sortString
+    );
 
     /**
      * ジャンルIDで書籍を検索したリストを取得（カーソルベース）
@@ -65,8 +78,13 @@ public interface BookService {
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return 検索結果
      */
-    CursorPageResponse<BookResponse> getBooksByGenreWithCursor(String genreIdsQuery,
-            String conditionQuery, String cursor, Integer limit, String sortString);
+    CursorPageResponse<BookResponse> getBooksByGenreWithCursor(
+        String genreIdsQuery,
+        String conditionQuery,
+        String cursor,
+        Integer limit,
+        String sortString
+    );
 
     /**
      * 指定された書籍の詳細情報を取得
@@ -92,6 +110,9 @@ public interface BookService {
      * @param pageNumber ページ番号
      * @return 書籍のコンテンツ情報
      */
-    BookChapterPageContentResponse getBookChapterPageContent(String bookId, Integer chapterNumber,
-            Integer pageNumber);
+    BookChapterPageContentResponse getBookChapterPageContent(
+        String bookId,
+        Integer chapterNumber,
+        Integer pageNumber
+    );
 }

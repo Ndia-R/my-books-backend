@@ -38,7 +38,7 @@ public class GenreServiceImpl implements GenreService {
     @Cacheable(value = "getGenreById", key = "#p0")
     public GenreResponse getGenreById(Long id) {
         Genre genre = genreRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Genre not found"));
+            .orElseThrow(() -> new NotFoundException("Genre not found"));
         return genreMapper.toGenreResponse(genre);
     }
 
@@ -61,11 +61,11 @@ public class GenreServiceImpl implements GenreService {
      */
     @Override
     @Transactional
-    @Caching(evict = {@CacheEvict(value = "getGenreById", key = "#p0"),
-            @CacheEvict(value = "getAllGenres", allEntries = true)})
+    @Caching(evict = { @CacheEvict(value = "getGenreById", key = "#p0"),
+        @CacheEvict(value = "getAllGenres", allEntries = true) })
     public GenreResponse updateGenre(Long id, GenreRequest request) {
         Genre genre = genreRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Genre not found"));
+            .orElseThrow(() -> new NotFoundException("Genre not found"));
 
         String name = request.getName();
         String description = request.getDescription();
@@ -86,8 +86,8 @@ public class GenreServiceImpl implements GenreService {
      */
     @Override
     @Transactional
-    @Caching(evict = {@CacheEvict(value = "getGenreById", key = "#p0"),
-            @CacheEvict(value = "getAllGenres", allEntries = true)})
+    @Caching(evict = { @CacheEvict(value = "getGenreById", key = "#p0"),
+        @CacheEvict(value = "getAllGenres", allEntries = true) })
     public void deleteGenre(Long id) {
         genreRepository.deleteById(id);
     }

@@ -18,8 +18,13 @@ public interface FavoriteService {
      * @param bookId 書籍ID（nullの場合はすべてが対象）
      * @return お気に入りリスト
      */
-    PageResponse<FavoriteResponse> getUserFavorites(User user, Integer page, Integer size,
-            String sortString, String bookId);
+    PageResponse<FavoriteResponse> getUserFavorites(
+        User user,
+        Integer page,
+        Integer size,
+        String sortString,
+        String bookId
+    );
 
     /**
      * ユーザーが追加したお気に入りを取得（カーソルベース）
@@ -30,8 +35,12 @@ public interface FavoriteService {
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return お気に入りリスト
      */
-    CursorPageResponse<FavoriteResponse> getUserFavoritesWithCursor(User user, Long cursor,
-            Integer limit, String sortString);
+    CursorPageResponse<FavoriteResponse> getUserFavoritesWithCursor(
+        User user,
+        Long cursor,
+        Integer limit,
+        String sortString
+    );
 
     /**
      * 書籍に対するお気に入り数を取得

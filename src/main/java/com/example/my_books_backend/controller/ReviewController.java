@@ -27,26 +27,35 @@ public class ReviewController {
 
     @Operation(description = "レビュー作成")
     @PostMapping("")
-    public ResponseEntity<ReviewResponse> createReview(@Valid @RequestBody ReviewRequest request,
-            @AuthenticationPrincipal User user) {
+    public ResponseEntity<ReviewResponse> createReview(
+        @Valid @RequestBody ReviewRequest request,
+        @AuthenticationPrincipal User user
+    ) {
         ReviewResponse response = reviewService.createReview(request, user);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(response.getId()).toUri();
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(response.getId())
+            .toUri();
         return ResponseEntity.created(location).body(response);
     }
 
     @Operation(description = "レビュー更新")
     @PutMapping("/{id}")
-    public ResponseEntity<ReviewResponse> updateReview(@PathVariable Long id,
-            @Valid @RequestBody ReviewRequest request, @AuthenticationPrincipal User user) {
+    public ResponseEntity<ReviewResponse> updateReview(
+        @PathVariable Long id,
+        @Valid @RequestBody ReviewRequest request,
+        @AuthenticationPrincipal User user
+    ) {
         ReviewResponse response = reviewService.updateReview(id, request, user);
         return ResponseEntity.ok(response);
     }
 
     @Operation(description = "レビュー削除")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReview(@PathVariable Long id,
-            @AuthenticationPrincipal User user) {
+    public ResponseEntity<Void> deleteReview(
+        @PathVariable Long id,
+        @AuthenticationPrincipal User user
+    ) {
         reviewService.deleteReview(id, user);
         return ResponseEntity.noContent().build();
     }

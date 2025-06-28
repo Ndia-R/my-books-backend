@@ -45,30 +45,40 @@ public class SecurityConfig {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         http.sessionManagement(
-                session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        );
 
         List<String> fullyPublicEndpoints = securityEndpointsConfig.getFullyPublicEndpoints();
         List<String> publicGetEndpoints = securityEndpointsConfig.getPublicGetEndpoints();
 
-        http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(fullyPublicEndpoints.toArray(new String[0])).permitAll()
+        http.authorizeHttpRequests(
+            authorize -> authorize
+                .requestMatchers(fullyPublicEndpoints.toArray(new String[0]))
+                .permitAll()
                 .requestMatchers(HttpMethod.GET, publicGetEndpoints.toArray(new String[0]))
-                .permitAll().anyRequest().authenticated());
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+        );
 
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         // Controllerクラスで"/logout"のエンドポイントを用意しても、Spring Securityのデフォルトの
         // "/logout"が呼ばれるので、カスタムのログアウト処理をデフォルトのログアウトに追加設定する
-        http.logout(logout -> logout.logoutUrl("/logout")
-                .logoutSuccessHandler(customLogoutSuccessHandler()).invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID"));
+        http.logout(
+            logout -> logout.logoutUrl("/logout")
+                .logoutSuccessHandler(customLogoutSuccessHandler())
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+        );
 
         return http.build();
     }
 
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        AuthenticationConfiguration authenticationConfiguration
+    ) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -97,8 +107,11 @@ public class SecurityConfig {
     public LogoutSuccessHandler customLogoutSuccessHandler() {
         return new LogoutSuccessHandler() {
             @Override
-            public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
-                    Authentication authentication) throws IOException, ServletException {
+            public void onLogoutSuccess(
+                HttpServletRequest request,
+                HttpServletResponse response,
+                Authentication authentication
+            ) throws IOException, ServletException {
                 Cookie cookie = jwtUtil.getInvalidateRefreshTokenCookie();
                 response.addCookie(cookie);
                 response.setStatus(HttpServletResponse.SC_OK);

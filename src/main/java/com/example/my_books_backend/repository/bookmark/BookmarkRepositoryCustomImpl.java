@@ -13,17 +13,22 @@ public class BookmarkRepositoryCustomImpl implements BookmarkRepositoryCustom {
     private EntityManager entityManager;
 
     @Override
-    public List<Bookmark> findBookmarksByUserIdWithCursor(Long userId, Long cursor, int limit, String sortField,
-            String sortDirection) {
+    public List<Bookmark> findBookmarksByUserIdWithCursor(
+        Long userId,
+        Long cursor,
+        int limit,
+        String sortField,
+        String sortDirection
+    ) {
 
         // ✅ 1段階の動的クエリ生成（Fluent Builder Pattern）
         Query query = CursorQueryBuilder.forEntity(Bookmark.class, entityManager)
-                .fromBookmarks()
-                .filterByUser(userId)
-                .withCursor(cursor)
-                .withLimit(limit)
-                .orderBy(sortField, sortDirection, FieldCategory.BOOKMARK)
-                .build();
+            .fromBookmarks()
+            .filterByUser(userId)
+            .withCursor(cursor)
+            .withLimit(limit)
+            .orderBy(sortField, sortDirection, FieldCategory.BOOKMARK)
+            .build();
 
         @SuppressWarnings("unchecked")
         List<Bookmark> result = query.getResultList();

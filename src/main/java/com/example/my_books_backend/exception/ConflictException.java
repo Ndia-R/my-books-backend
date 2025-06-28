@@ -3,7 +3,8 @@ package com.example.my_books_backend.exception;
 public class ConflictException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public ConflictException() {}
+    public ConflictException() {
+    }
 
     public ConflictException(String message) {
         super(message);
@@ -17,8 +18,12 @@ public class ConflictException extends RuntimeException {
         super(message, cause);
     }
 
-    public ConflictException(String message, Throwable cause, boolean enableSuppression,
-            boolean writableStackTrace) {
+    public ConflictException(
+        String message,
+        Throwable cause,
+        boolean enableSuppression,
+        boolean writableStackTrace
+    ) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

@@ -13,17 +13,22 @@ public class FavoriteRepositoryCustomImpl implements FavoriteRepositoryCustom {
     private EntityManager entityManager;
 
     @Override
-    public List<Favorite> findFavoritesByUserIdWithCursor(Long userId, Long cursor, int limit, String sortField,
-            String sortDirection) {
+    public List<Favorite> findFavoritesByUserIdWithCursor(
+        Long userId,
+        Long cursor,
+        int limit,
+        String sortField,
+        String sortDirection
+    ) {
 
         // ✅ 1段階の動的クエリ生成（Fluent Builder Pattern）
         Query query = CursorQueryBuilder.forEntity(Favorite.class, entityManager)
-                .fromFavorites()
-                .filterByUser(userId)
-                .withCursor(cursor)
-                .withLimit(limit)
-                .orderBy(sortField, sortDirection, FieldCategory.FAVORITE)
-                .build();
+            .fromFavorites()
+            .filterByUser(userId)
+            .withCursor(cursor)
+            .withLimit(limit)
+            .orderBy(sortField, sortDirection, FieldCategory.FAVORITE)
+            .build();
 
         @SuppressWarnings("unchecked")
         List<Favorite> result = query.getResultList();

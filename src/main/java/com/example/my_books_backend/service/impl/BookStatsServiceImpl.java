@@ -26,15 +26,11 @@ public class BookStatsServiceImpl implements BookStatsService {
         List<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(bookId);
 
         int reviewCount = reviews.size();
-
-        double averageRating =
-                reviews.stream().mapToDouble(Review::getRating).average().orElse(0.0);
-
-        double popularity =
-                reviewCount == 0 ? 0.0 : (reviewCount * averageRating) / (reviewCount + 10);
+        double averageRating = reviews.stream().mapToDouble(Review::getRating).average().orElse(0.0);
+        double popularity = reviewCount == 0 ? 0.0 : (reviewCount * averageRating) / (reviewCount + 10);
 
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new NotFoundException("Book not found"));
+            .orElseThrow(() -> new NotFoundException("Book not found"));
 
         book.setReviewCount(reviewCount);
         book.setAverageRating(Math.round(averageRating * 100.0) / 100.0);

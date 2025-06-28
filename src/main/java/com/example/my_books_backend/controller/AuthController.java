@@ -23,16 +23,20 @@ public class AuthController {
 
     @Operation(description = "ログイン")
     @PostMapping("/login")
-    public ResponseEntity<AccessTokenResponse> login(@Valid @RequestBody LoginRequest request,
-            HttpServletResponse response) {
+    public ResponseEntity<AccessTokenResponse> login(
+        @Valid @RequestBody LoginRequest request,
+        HttpServletResponse response
+    ) {
         AccessTokenResponse loginResponse = authService.login(request, response);
         return ResponseEntity.ok(loginResponse);
     }
 
     @Operation(description = "サインアップ")
     @PostMapping("/signup")
-    public ResponseEntity<AccessTokenResponse> signup(@Valid @RequestBody SignupRequest request,
-            HttpServletResponse response) {
+    public ResponseEntity<AccessTokenResponse> signup(
+        @Valid @RequestBody SignupRequest request,
+        HttpServletResponse response
+    ) {
         AccessTokenResponse userResponse = authService.signup(request, response);
         return ResponseEntity.ok(userResponse);
     }

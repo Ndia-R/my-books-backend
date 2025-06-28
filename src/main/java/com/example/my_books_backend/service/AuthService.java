@@ -33,7 +33,9 @@ public class AuthService {
     private final JwtUtils jwtUtil;
 
     /**
-     * ユーザーのログイン処理 メールアドレスとパスワードを検証し、認証成功時にアクセストークンとリフレッシュトークンを発行する。 リフレッシュトークンはCookieとして設定。
+     * ユーザーのログイン処理 メールアドレスとパスワードを検証し、
+     * 認証成功時にアクセストークンとリフレッシュトークンを発行する。
+     * リフレッシュトークンはCookieとして設定。
      * 
      * @param request ログインリクエスト（メールアドレスとパスワードを含む）
      * @param response HTTPレスポンス（Cookieの設定に使用）
@@ -42,9 +44,12 @@ public class AuthService {
     public AccessTokenResponse login(LoginRequest request, HttpServletResponse response) {
         Authentication authentication;
         try {
-            authentication =
-                    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                            request.getEmail(), request.getPassword()));
+            authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    request.getEmail(),
+                    request.getPassword()
+                )
+            );
         } catch (AuthenticationException e) {
             throw new UnauthorizedException("ログインに失敗しました。メールアドレスまたはパスワードが無効です。");
         }
@@ -62,7 +67,9 @@ public class AuthService {
     }
 
     /**
-     * 新規ユーザーのサインアップ処理 ユーザー情報を検証し、新規ユーザーを作成した後、アクセストークンとリフレッシュトークンを発行する。 リフレッシュトークンはCookieとして設定。
+     * 新規ユーザーのサインアップ処理 ユーザー情報を検証し、
+     * 新規ユーザーを作成した後、アクセストークンとリフレッシュトークンを発行する。
+     * リフレッシュトークンはCookieとして設定。
      * 
      * @param request サインアップリクエスト（メールアドレス、パスワード、名前、アバターパスを含む）
      * @param response HTTPレスポンス（Cookieの設定に使用）
@@ -106,7 +113,9 @@ public class AuthService {
     }
 
     /**
-     * リフレッシュトークンを使用して新しいアクセストークンを発行。 リフレッシュトークンを検証し、有効な場合は新しいアクセストークンを返す。 同時に認証コンテキストも更新。
+     * リフレッシュトークンを使用して新しいアクセストークンを発行。
+     * リフレッシュトークンを検証し、有効な場合は新しいアクセストークンを返す。
+     * 同時に認証コンテキストも更新。
      * 
      * @param request HTTPリクエスト（リフレッシュトークンの取得に使用）
      * @return 新しいアクセストークンを含むレスポンス
@@ -121,8 +130,11 @@ public class AuthService {
         String email = jwtUtil.getSubjectFromToken(refreshToken);
         User user = (User) userDetailsService.loadUserByUsername(email);
 
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+            user,
+            null,
+            user.getAuthorities()
+        );
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 

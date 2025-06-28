@@ -18,8 +18,13 @@ public interface ReviewService {
      * @param bookId 書籍ID（nullの場合はすべてが対象）
      * @return レビューリスト
      */
-    PageResponse<ReviewResponse> getUserReviews(User user, Integer page, Integer size,
-            String sortString, String bookId);
+    PageResponse<ReviewResponse> getUserReviews(
+        User user,
+        Integer page,
+        Integer size,
+        String sortString,
+        String bookId
+    );
 
     /**
      * ユーザーが投稿したレビューを取得（カーソルベース）
@@ -30,8 +35,12 @@ public interface ReviewService {
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return レビューリスト
      */
-    CursorPageResponse<ReviewResponse> getUserReviewsWithCursor(User user, Long cursor,
-            Integer limit, String sortString);
+    CursorPageResponse<ReviewResponse> getUserReviewsWithCursor(
+        User user,
+        Long cursor,
+        Integer limit,
+        String sortString
+    );
 
     /**
      * 書籍に対するレビューを取得
@@ -42,8 +51,12 @@ public interface ReviewService {
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return レビューリスト
      */
-    PageResponse<ReviewResponse> getBookReviews(String bookId, Integer page, Integer size,
-            String sortString);
+    PageResponse<ReviewResponse> getBookReviews(
+        String bookId,
+        Integer page,
+        Integer size,
+        String sortString
+    );
 
     /**
      * 書籍に対するレビューを取得（カーソルベース）
@@ -54,8 +67,12 @@ public interface ReviewService {
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return レビューリスト
      */
-    CursorPageResponse<ReviewResponse> getBookReviewsWithCursor(String bookId, Long cursor,
-            Integer limit, String sorString);
+    CursorPageResponse<ReviewResponse> getBookReviewsWithCursor(
+        String bookId,
+        Long cursor,
+        Integer limit,
+        String sorString
+    );
 
     /**
      * 書籍に対するレビュー数などを取得 （レビュー数・平均評価点）

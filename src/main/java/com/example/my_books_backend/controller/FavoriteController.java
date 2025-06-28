@@ -27,17 +27,23 @@ public class FavoriteController {
     @Operation(description = "お気に入り追加")
     @PostMapping("")
     public ResponseEntity<FavoriteResponse> createFavorite(
-            @Valid @RequestBody FavoriteRequest request, @AuthenticationPrincipal User user) {
+        @Valid @RequestBody FavoriteRequest request,
+        @AuthenticationPrincipal User user
+    ) {
         FavoriteResponse response = favoriteService.createFavorite(request, user);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(response.getId()).toUri();
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(response.getId())
+            .toUri();
         return ResponseEntity.created(location).body(response);
     }
 
     @Operation(description = "お気に入り削除")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFavorite(@PathVariable Long id,
-            @AuthenticationPrincipal User user) {
+    public ResponseEntity<Void> deleteFavorite(
+        @PathVariable Long id,
+        @AuthenticationPrincipal User user
+    ) {
         favoriteService.deleteFavorite(id, user);
         return ResponseEntity.noContent().build();
     }

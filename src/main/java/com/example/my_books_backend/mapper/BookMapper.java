@@ -38,9 +38,15 @@ public interface BookMapper {
     default PageResponse<BookResponse> toPageResponse(Page<Book> books) {
         List<BookResponse> responses = toBookResponseList(books.getContent());
         // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-        return new PageResponse<BookResponse>(books.getNumber() + 1, books.getSize(),
-                books.getTotalPages(), books.getTotalElements(), books.hasNext(),
-                books.hasPrevious(), responses);
+        return new PageResponse<BookResponse>(
+            books.getNumber() + 1,
+            books.getSize(),
+            books.getTotalPages(),
+            books.getTotalElements(),
+            books.hasNext(),
+            books.hasPrevious(),
+            responses
+        );
     }
 
     default CursorPageResponse<BookResponse> toCursorPageResponse(List<Book> books, Integer limit) {

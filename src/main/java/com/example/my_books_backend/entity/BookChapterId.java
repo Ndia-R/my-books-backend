@@ -18,4 +18,3 @@ public class BookChapterId implements Serializable {
     @Column(name = "chapter_number")
     private Integer chapterNumber;
 }
-

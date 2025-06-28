@@ -35,8 +35,7 @@ public class Book extends EntityBase {
     private String description;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "book_genres", joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id"))
+    @JoinTable(name = "book_genres", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private List<Genre> genres;
 
     @Column(name = "authors", nullable = false)

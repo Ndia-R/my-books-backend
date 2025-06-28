@@ -12,13 +12,16 @@ import com.example.my_books_backend.entity.User;
 
 @Repository
 public interface FavoriteRepository
-        extends JpaRepository<Favorite, Long>, FavoriteRepositoryCustom {
+    extends JpaRepository<Favorite, Long>, FavoriteRepositoryCustom {
     // ユーザーが追加したお気に入りを取得
     Page<Favorite> findByUserAndIsDeletedFalse(User user, Pageable pageable);
 
     // ユーザーが追加したお気に入りを取得（書籍ID指定）
-    Page<Favorite> findByUserAndIsDeletedFalseAndBookId(User user, Pageable pageable,
-            String bookId);
+    Page<Favorite> findByUserAndIsDeletedFalseAndBookId(
+        User user,
+        Pageable pageable,
+        String bookId
+    );
 
     List<Favorite> findByUserAndBookIdAndIsDeletedFalse(User user, String bookId);
 

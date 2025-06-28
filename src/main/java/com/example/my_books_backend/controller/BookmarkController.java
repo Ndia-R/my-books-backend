@@ -28,25 +28,34 @@ public class BookmarkController {
     @Operation(description = "ブックマーク追加")
     @PostMapping("")
     public ResponseEntity<BookmarkResponse> createBookmark(
-            @Valid @RequestBody BookmarkRequest request, @AuthenticationPrincipal User user) {
+        @Valid @RequestBody BookmarkRequest request,
+        @AuthenticationPrincipal User user
+    ) {
         BookmarkResponse response = bookmarkService.createBookmark(request, user);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(response.getId()).toUri();
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(response.getId())
+            .toUri();
         return ResponseEntity.created(location).body(response);
     }
 
     @Operation(description = "ブックマーク更新")
     @PutMapping("/{id}")
-    public ResponseEntity<BookmarkResponse> updateBookmark(@PathVariable Long id,
-            @Valid @RequestBody BookmarkRequest request, @AuthenticationPrincipal User user) {
+    public ResponseEntity<BookmarkResponse> updateBookmark(
+        @PathVariable Long id,
+        @Valid @RequestBody BookmarkRequest request,
+        @AuthenticationPrincipal User user
+    ) {
         BookmarkResponse response = bookmarkService.updateBookmark(id, request, user);
         return ResponseEntity.ok(response);
     }
 
     @Operation(description = "ブックマーク削除")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBookmark(@PathVariable Long id,
-            @AuthenticationPrincipal User user) {
+    public ResponseEntity<Void> deleteBookmark(
+        @PathVariable Long id,
+        @AuthenticationPrincipal User user
+    ) {
         bookmarkService.deleteBookmark(id, user);
         return ResponseEntity.noContent().build();
     }

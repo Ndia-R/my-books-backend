@@ -43,15 +43,19 @@ public class GenreController {
     @PostMapping("")
     public ResponseEntity<GenreResponse> createGenre(@Valid @RequestBody GenreRequest request) {
         GenreResponse response = genreService.createGenre(request);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(response.getId()).toUri();
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(response.getId())
+            .toUri();
         return ResponseEntity.created(location).body(response);
     }
 
     @Operation(description = "ジャンル更新")
     @PutMapping("/{id}")
-    public ResponseEntity<GenreResponse> updateGenre(@PathVariable Long id,
-            @Valid @RequestBody GenreRequest request) {
+    public ResponseEntity<GenreResponse> updateGenre(
+        @PathVariable Long id,
+        @Valid @RequestBody GenreRequest request
+    ) {
         GenreResponse respons = genreService.updateGenre(id, request);
         return ResponseEntity.ok(respons);
     }

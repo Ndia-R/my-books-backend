@@ -27,13 +27,21 @@ public abstract class FavoriteMapper {
     public PageResponse<FavoriteResponse> toPageResponse(Page<Favorite> favorites) {
         List<FavoriteResponse> responses = toFavoriteResponseList(favorites.getContent());
         // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-        return new PageResponse<FavoriteResponse>(favorites.getNumber() + 1, favorites.getSize(),
-                favorites.getTotalPages(), favorites.getTotalElements(), favorites.hasNext(),
-                favorites.hasPrevious(), responses);
+        return new PageResponse<FavoriteResponse>(
+            favorites.getNumber() + 1,
+            favorites.getSize(),
+            favorites.getTotalPages(),
+            favorites.getTotalElements(),
+            favorites.hasNext(),
+            favorites.hasPrevious(),
+            responses
+        );
     }
 
-    public CursorPageResponse<FavoriteResponse> toCursorPageResponse(List<Favorite> favorites,
-            Integer limit) {
+    public CursorPageResponse<FavoriteResponse> toCursorPageResponse(
+        List<Favorite> favorites,
+        Integer limit
+    ) {
         Boolean hasNext = favorites.size() > limit;
         if (hasNext) {
             favorites = favorites.subList(0, limit); // 余分な1件を削除

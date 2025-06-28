@@ -37,22 +37,29 @@ public class JwtUtils {
     public String generateAccessToken(User user) {
         String email = user.getEmail();
         String name = user.getName();
-        String roles = user.getRoles().stream().map(role -> role.getName().toString())
-                .collect(Collectors.joining(","));
+        String roles = user.getRoles()
+            .stream()
+            .map(role -> role.getName().toString())
+            .collect(Collectors.joining(","));
 
-        return JWT.create().withSubject(email).withClaim("name", name).withClaim("roles", roles)
-                .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + accessExpiration * 1000))
-                .sign(getAlgorithm());
+        return JWT.create()
+            .withSubject(email)
+            .withClaim("name", name)
+            .withClaim("roles", roles)
+            .withIssuedAt(new Date())
+            .withExpiresAt(new Date(System.currentTimeMillis() + accessExpiration * 1000))
+            .sign(getAlgorithm());
     }
 
     // リフレッシュトークン生成
     public String generateRefreshToken(User user) {
         String email = user.getEmail();
 
-        return JWT.create().withSubject(email).withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + refreshExpiration * 1000))
-                .sign(getAlgorithm());
+        return JWT.create()
+            .withSubject(email)
+            .withIssuedAt(new Date())
+            .withExpiresAt(new Date(System.currentTimeMillis() + refreshExpiration * 1000))
+            .sign(getAlgorithm());
     }
 
     // リフレッシュトークンからCookieを作成
@@ -141,8 +148,9 @@ public class JwtUtils {
         try {
             DecodedJWT jwt = JWT.decode(token);
             String rolesString = jwt.getClaim("roles").asString();
-            return rolesString != null ? Arrays.asList(rolesString.split(","))
-                    : Collections.emptyList();
+            return rolesString != null
+                ? Arrays.asList(rolesString.split(","))
+                : Collections.emptyList();
         } catch (JWTVerificationException e) {
             logger.error("JWT解析エラー: {}", e.getMessage());
             return Collections.emptyList();

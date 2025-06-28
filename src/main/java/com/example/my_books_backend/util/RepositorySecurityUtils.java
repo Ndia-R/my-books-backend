@@ -17,7 +17,7 @@ public final class RepositorySecurityUtils {
      * ✅ SQLインジェクション対策：フィールド名の厳格なバリデーション Enumベースのホワイトリストでカラム名を検証し、安全なsnake_caseを返す
      * 
      * @param sortField ソート対象フィールド（camelCase）
-     * @param category フィールドカテゴリ
+     * @param category  フィールドカテゴリ
      * @return 検証済みのsnake_caseカラム名
      * @throws IllegalArgumentException 無効なフィールドの場合
      */
@@ -27,9 +27,13 @@ public final class RepositorySecurityUtils {
         } catch (IllegalArgumentException e) {
             // セキュリティログ出力（実際のプロダクションでは適切なロガーを使用）
             throw new IllegalArgumentException(
-                    String.format("Security violation: Invalid sort field '%s' for category '%s'",
-                            sortField, category),
-                    e);
+                String.format(
+                    "Security violation: Invalid sort field '%s' for category '%s'",
+                    sortField,
+                    category
+                ),
+                e
+            );
         }
     }
 
@@ -49,9 +53,12 @@ public final class RepositorySecurityUtils {
         } else if ("desc".equals(normalized)) {
             return false;
         } else {
-            throw new IllegalArgumentException(String.format(
+            throw new IllegalArgumentException(
+                String.format(
                     "Security violation: Invalid sort direction '%s'. Only 'asc' or 'desc' allowed.",
-                    sortDirection));
+                    sortDirection
+                )
+            );
         }
     }
 
@@ -120,7 +127,8 @@ public final class RepositorySecurityUtils {
             Long id = genreIds.get(i);
             if (id == null || id <= 0) {
                 throw new IllegalArgumentException(
-                        String.format("Invalid genre ID at index %d: %s", i, id));
+                    String.format("Invalid genre ID at index %d: %s", i, id)
+                );
             }
         }
     }

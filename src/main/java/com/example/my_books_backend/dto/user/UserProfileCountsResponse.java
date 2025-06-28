@@ -12,4 +12,3 @@ public class UserProfileCountsResponse {
     private Integer bookmarkCount;
     private Integer reviewCount;
 }
-

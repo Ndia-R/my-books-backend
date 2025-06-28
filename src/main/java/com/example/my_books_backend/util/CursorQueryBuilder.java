@@ -155,8 +155,7 @@ public class CursorQueryBuilder {
             // DISTINCT削除、GROUP BY/HAVING追加は後でbuild()時に処理
         } else {
             // OR条件の場合はDISTINCTを使用
-            this.baseSelect =
-                    "SELECT DISTINCT " + tableAlias + ".* FROM " + tableName + " " + tableAlias;
+            this.baseSelect = "SELECT DISTINCT " + tableAlias + ".* FROM " + tableName + " " + tableAlias;
         }
 
         return this;
@@ -188,8 +187,7 @@ public class CursorQueryBuilder {
     /**
      * ソート設定
      */
-    public CursorQueryBuilder orderBy(String sortField, String sortDirection,
-            FieldCategory category) {
+    public CursorQueryBuilder orderBy(String sortField, String sortDirection, FieldCategory category) {
         // セキュリティチェックはbuild()時に実行
         this.sortField = sortField;
         this.sortDirection = sortDirection;
@@ -202,8 +200,7 @@ public class CursorQueryBuilder {
      */
     public Query build() {
         // ✅ セキュリティチェック
-        String columnName =
-                RepositorySecurityUtils.validateAndGetColumnName(sortField, fieldCategory);
+        String columnName = RepositorySecurityUtils.validateAndGetColumnName(sortField, fieldCategory);
         boolean isAsc = RepositorySecurityUtils.validateSortDirection(sortDirection);
 
         String comparison = isAsc ? ">" : "<";
@@ -227,12 +224,12 @@ public class CursorQueryBuilder {
         }
 
         // ORDER BY句
-        String orderByClause = "\nORDER BY " + tableAlias + "." + columnName + " " + orderDirection
-                + ", " + tableAlias + ".id ASC";
+        String orderByClause = "\nORDER BY " + tableAlias + "." + columnName + " " + orderDirection + ", " + tableAlias
+            + ".id ASC";
 
         // 最終SQL構築
-        String sql = baseSelect + joins + "\nWHERE " + finalWhereClause + groupByHaving
-                + orderByClause + "\nLIMIT :limit";
+        String sql = baseSelect + joins + "\nWHERE " + finalWhereClause + groupByHaving + orderByClause
+            + "\nLIMIT :limit";
 
         // ✅ Queryオブジェクト作成とパラメータ設定
         Query query = entityManager.createNativeQuery(sql, entityClass);
@@ -271,12 +268,22 @@ public class CursorQueryBuilder {
     }
 
     private String buildCursorCondition(String columnName, String comparison) {
-        return String.format("(:cursor IS NULL OR "
-                + "(%s.%s %s (SELECT %s2.%s FROM %s %s2 WHERE %s2.id = :cursor) OR "
-                + "(%s.%s = (SELECT %s2.%s FROM %s %s2 WHERE %s2.id = :cursor) AND %s.id > :cursor)))",
-                tableAlias, columnName, comparison, tableAlias, columnName, tableName, tableAlias,
-                tableAlias, tableAlias, columnName, tableAlias, columnName, tableName, tableAlias,
-                tableAlias);
+        // WITH句やJOINを使ってサブクエリを1回に削減
+        return String.format(
+            "(:cursor IS NULL OR " +
+                "EXISTS (SELECT 1 FROM %s cursor_ref WHERE cursor_ref.id = :cursor AND " +
+                "(%s.%s %s cursor_ref.%s OR " +
+                "(%s.%s = cursor_ref.%s AND %s.id > :cursor))))",
+            tableName,
+            tableAlias,
+            columnName,
+            comparison,
+            columnName,
+            tableAlias,
+            columnName,
+            columnName,
+            tableAlias
+        );
     }
 
     private String generateGenreCondition(List<Long> genreIds) {
@@ -292,8 +299,10 @@ public class CursorQueryBuilder {
             throw new IllegalArgumentException("Too many genres (max: 50): " + genreCount);
         }
 
-        return java.util.stream.IntStream.range(0, genreCount).mapToObj(i -> ":genreId" + i)
-                .collect(java.util.stream.Collectors.joining(","));
+        return java.util.stream.IntStream
+            .range(0, genreCount)
+            .mapToObj(i -> ":genreId" + i)
+            .collect(java.util.stream.Collectors.joining(","));
     }
 
     private void setGenreIdParameters(Query query, List<Long> genreIds) {

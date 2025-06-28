@@ -13,17 +13,22 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
     private EntityManager entityManager;
 
     @Override
-    public List<Book> findBooksByTitleKeywordWithCursor(String keyword, String cursor, int limit, String sortField,
-            String sortDirection) {
+    public List<Book> findBooksByTitleKeywordWithCursor(
+        String keyword,
+        String cursor,
+        int limit,
+        String sortField,
+        String sortDirection
+    ) {
 
         // ✅ 1段階の動的クエリ生成（Fluent Builder Pattern）
         Query query = CursorQueryBuilder.forEntity(Book.class, entityManager)
-                .fromBooks()
-                .filterByTitleKeyword(keyword)
-                .withCursor(cursor)
-                .withLimit(limit)
-                .orderBy(sortField, sortDirection, FieldCategory.BOOK)
-                .build();
+            .fromBooks()
+            .filterByTitleKeyword(keyword)
+            .withCursor(cursor)
+            .withLimit(limit)
+            .orderBy(sortField, sortDirection, FieldCategory.BOOK)
+            .build();
 
         @SuppressWarnings("unchecked")
         List<Book> result = query.getResultList();
@@ -31,8 +36,13 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
     }
 
     @Override
-    public List<Book> findBooksByGenresOrWithCursor(List<Long> genreIds, String cursor, int limit, String sortField,
-            String sortDirection) {
+    public List<Book> findBooksByGenresOrWithCursor(
+        List<Long> genreIds,
+        String cursor,
+        int limit,
+        String sortField,
+        String sortDirection
+    ) {
 
         if (genreIds == null || genreIds.isEmpty()) {
             return List.of();
@@ -40,12 +50,12 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
 
         // ✅ 1段階の動的クエリ生成（OR条件）
         Query query = CursorQueryBuilder.forEntity(Book.class, entityManager)
-                .fromBooks()
-                .filterByGenresOr(genreIds)
-                .withCursor(cursor)
-                .withLimit(limit)
-                .orderBy(sortField, sortDirection, FieldCategory.BOOK)
-                .build();
+            .fromBooks()
+            .filterByGenresOr(genreIds)
+            .withCursor(cursor)
+            .withLimit(limit)
+            .orderBy(sortField, sortDirection, FieldCategory.BOOK)
+            .build();
 
         @SuppressWarnings("unchecked")
         List<Book> result = query.getResultList();
@@ -53,8 +63,13 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
     }
 
     @Override
-    public List<Book> findBooksByGenresAndWithCursor(List<Long> genreIds, String cursor, int limit, String sortField,
-            String sortDirection) {
+    public List<Book> findBooksByGenresAndWithCursor(
+        List<Long> genreIds,
+        String cursor,
+        int limit,
+        String sortField,
+        String sortDirection
+    ) {
 
         if (genreIds == null || genreIds.isEmpty()) {
             return List.of();
@@ -62,12 +77,12 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
 
         // ✅ 1段階の動的クエリ生成（AND条件）
         Query query = CursorQueryBuilder.forEntity(Book.class, entityManager)
-                .fromBooks()
-                .filterByGenresAnd(genreIds)
-                .withCursor(cursor)
-                .withLimit(limit)
-                .orderBy(sortField, sortDirection, FieldCategory.BOOK)
-                .build();
+            .fromBooks()
+            .filterByGenresAnd(genreIds)
+            .withCursor(cursor)
+            .withLimit(limit)
+            .orderBy(sortField, sortDirection, FieldCategory.BOOK)
+            .build();
 
         @SuppressWarnings("unchecked")
         List<Book> result = query.getResultList();

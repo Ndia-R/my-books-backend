@@ -44,30 +44,41 @@ public class BookmarkServiceImpl implements BookmarkService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<BookmarkResponse> getUserBookmarks(User user, Integer page, Integer size,
-            String sortString, String bookId) {
+    public PageResponse<BookmarkResponse> getUserBookmarks(
+        User user,
+        Integer page,
+        Integer size,
+        String sortString,
+        String bookId
+    ) {
         Pageable pageable = PageableUtils.createBookmarkPageable(page, size, sortString);
         Page<Bookmark> bookmarkPage = (bookId == null)
-                ? bookmarkRepository.findByUserAndIsDeletedFalse(user, pageable)
-                : bookmarkRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
+            ? bookmarkRepository.findByUserAndIsDeletedFalse(user, pageable)
+            : bookmarkRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
         PageResponse<BookmarkResponse> response = bookmarkMapper.toPageResponse(bookmarkPage);
 
         // 書籍の目次のタイトルを取得し、章番号とタイトルのマップを作成する
-        Set<String> bookIds = bookmarkPage.getContent().stream()
-                .map(bookmark -> bookmark.getBook().getId()).collect(Collectors.toSet());
+        Set<String> bookIds = bookmarkPage.getContent()
+            .stream()
+            .map(bookmark -> bookmark.getBook().getId())
+            .collect(Collectors.toSet());
 
         Map<String, Map<Integer, String>> bookChapterTitleMaps = new HashMap<>();
         for (String _bookId : bookIds) {
             List<BookChapter> bookChapters = bookChapterRepository.findByBookId(_bookId);
-            Map<Integer, String> chapterTitleMap = bookChapters.stream().collect(Collectors.toMap(
-                    bookChapter -> bookChapter.getId().getChapterNumber(), BookChapter::getTitle));
+            Map<Integer, String> chapterTitleMap = bookChapters.stream()
+                .collect(
+                    Collectors.toMap(
+                        bookChapter -> bookChapter.getId().getChapterNumber(),
+                        BookChapter::getTitle
+                    )
+                );
             bookChapterTitleMaps.put(_bookId, chapterTitleMap);
         }
 
         // 章番号に対応するタイトルをレスポンスに追加する
         response.getData().forEach(bookmark -> {
-            Map<Integer, String> chapterTitleMap =
-                    bookChapterTitleMaps.get(bookmark.getBook().getId());
+            Map<Integer, String> chapterTitleMap = bookChapterTitleMaps.get(bookmark.getBook().getId());
             if (chapterTitleMap != null) {
                 String chapterTitle = chapterTitleMap.get(bookmark.getChapterNumber());
                 if (chapterTitle != null) {
@@ -83,36 +94,48 @@ public class BookmarkServiceImpl implements BookmarkService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<BookmarkResponse> getUserBookmarksWithCursor(User user, Long cursor,
-            Integer limit, String sortString) {
-
+    public CursorPageResponse<BookmarkResponse> getUserBookmarksWithCursor(
+        User user,
+        Long cursor,
+        Integer limit,
+        String sortString
+    ) {
         Sort sort = PageableUtils.parseSort(sortString, FieldCategory.BOOKMARK);
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
 
         // 次のページの有無を判定するために、limit + 1にして、1件多く取得
-        List<Bookmark> bookmarks = bookmarkRepository.findBookmarksByUserIdWithCursor(user.getId(),
-                cursor, limit + 1, sortField, sortDirection);
+        List<Bookmark> bookmarks = bookmarkRepository.findBookmarksByUserIdWithCursor(
+            user.getId(),
+            cursor,
+            limit + 1,
+            sortField,
+            sortDirection
+        );
 
-        CursorPageResponse<BookmarkResponse> response =
-                bookmarkMapper.toCursorPageResponse(bookmarks, limit);
+        CursorPageResponse<BookmarkResponse> response = bookmarkMapper.toCursorPageResponse(bookmarks, limit);
 
         // 書籍の目次のタイトルを取得し、章番号とタイトルのマップを作成する
-        Set<String> bookIds = bookmarks.stream().map(bookmark -> bookmark.getBook().getId())
-                .collect(Collectors.toSet());
+        Set<String> bookIds = bookmarks.stream()
+            .map(bookmark -> bookmark.getBook().getId())
+            .collect(Collectors.toSet());
 
         Map<String, Map<Integer, String>> bookChapterTitleMaps = new HashMap<>();
         for (String bookId : bookIds) {
             List<BookChapter> bookChapters = bookChapterRepository.findByBookId(bookId);
-            Map<Integer, String> chapterTitleMap = bookChapters.stream().collect(Collectors.toMap(
-                    bookChapter -> bookChapter.getId().getChapterNumber(), BookChapter::getTitle));
+            Map<Integer, String> chapterTitleMap = bookChapters.stream()
+                .collect(
+                    Collectors.toMap(
+                        bookChapter -> bookChapter.getId().getChapterNumber(),
+                        BookChapter::getTitle
+                    )
+                );
             bookChapterTitleMaps.put(bookId, chapterTitleMap);
         }
 
         // 章番号に対応するタイトルをレスポンスに追加する
         response.getData().forEach(bookmark -> {
-            Map<Integer, String> chapterTitleMap =
-                    bookChapterTitleMaps.get(bookmark.getBook().getId());
+            Map<Integer, String> chapterTitleMap = bookChapterTitleMaps.get(bookmark.getBook().getId());
             if (chapterTitleMap != null) {
                 String chapterTitle = chapterTitleMap.get(bookmark.getChapterNumber());
                 if (chapterTitle != null) {
@@ -131,11 +154,14 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Transactional
     public BookmarkResponse createBookmark(BookmarkRequest request, User user) {
         Book book = bookRepository.findById(request.getBookId())
-                .orElseThrow(() -> new NotFoundException("Book not found"));
+            .orElseThrow(() -> new NotFoundException("Book not found"));
 
-        Optional<Bookmark> existingBookmark =
-                bookmarkRepository.findByUserAndBookAndChapterNumberAndPageNumber(user, book,
-                        request.getChapterNumber(), request.getPageNumber());
+        Optional<Bookmark> existingBookmark = bookmarkRepository.findByUserAndBookAndChapterNumberAndPageNumber(
+            user,
+            book,
+            request.getChapterNumber(),
+            request.getPageNumber()
+        );
 
         Bookmark bookmark = new Bookmark();
         if (existingBookmark.isPresent()) {
@@ -163,7 +189,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Transactional
     public BookmarkResponse updateBookmark(Long id, BookmarkRequest request, User user) {
         Bookmark bookmark = bookmarkRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Bookmark not found"));
+            .orElseThrow(() -> new NotFoundException("Bookmark not found"));
 
         if (!bookmark.getUser().getId().equals(user.getId())) {
             throw new ForbiddenException("このブックマークを編集する権限がありません。");
@@ -186,7 +212,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Transactional
     public void deleteBookmark(Long id, User user) {
         Bookmark bookmark = bookmarkRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Bookmark not found"));
+            .orElseThrow(() -> new NotFoundException("Bookmark not found"));
 
         if (!bookmark.getUser().getId().equals(user.getId())) {
             throw new ForbiddenException("このブックマークを削除する権限がありません");

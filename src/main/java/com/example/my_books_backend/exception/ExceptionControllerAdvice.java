@@ -18,55 +18,93 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({NotFoundException.class})
+    @ExceptionHandler({ NotFoundException.class })
     public ResponseEntity<Object> handleNotFound(NotFoundException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
-        return this.handleExceptionInternal(ex, errorResponse, new HttpHeaders(),
-                HttpStatus.NOT_FOUND, request);
+        return this.handleExceptionInternal(
+            ex,
+            errorResponse,
+            new HttpHeaders(),
+            HttpStatus.NOT_FOUND,
+            request
+        );
     }
 
-    @ExceptionHandler({BadRequestException.class})
+    @ExceptionHandler({ BadRequestException.class })
     public ResponseEntity<Object> handleBadRequest(BadRequestException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-        return this.handleExceptionInternal(ex, errorResponse, new HttpHeaders(),
-                HttpStatus.BAD_REQUEST, request);
+        return this.handleExceptionInternal(
+            ex,
+            errorResponse,
+            new HttpHeaders(),
+            HttpStatus.BAD_REQUEST,
+            request
+        );
     }
 
-    @ExceptionHandler({ValidationException.class})
+    @ExceptionHandler({ ValidationException.class })
     public ResponseEntity<Object> handleBadRequest(ValidationException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-        return this.handleExceptionInternal(ex, errorResponse, new HttpHeaders(),
-                HttpStatus.BAD_REQUEST, request);
+        return this.handleExceptionInternal(
+            ex,
+            errorResponse,
+            new HttpHeaders(),
+            HttpStatus.BAD_REQUEST,
+            request
+        );
     }
 
-    @ExceptionHandler({ConflictException.class})
+    @ExceptionHandler({ ConflictException.class })
     public ResponseEntity<Object> handleConflict(ConflictException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
-        return this.handleExceptionInternal(ex, errorResponse, new HttpHeaders(),
-                HttpStatus.CONFLICT, request);
+        return this.handleExceptionInternal(
+            ex,
+            errorResponse,
+            new HttpHeaders(),
+            HttpStatus.CONFLICT,
+            request
+        );
     }
 
-    @ExceptionHandler({UnauthorizedException.class})
+    @ExceptionHandler({ UnauthorizedException.class })
     public ResponseEntity<Object> handleUnauthorized(UnauthorizedException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
-        return this.handleExceptionInternal(ex, errorResponse, new HttpHeaders(),
-                HttpStatus.UNAUTHORIZED, request);
+        return this.handleExceptionInternal(
+            ex,
+            errorResponse,
+            new HttpHeaders(),
+            HttpStatus.UNAUTHORIZED,
+            request
+        );
     }
 
-    @ExceptionHandler({ForbiddenException.class})
+    @ExceptionHandler({ ForbiddenException.class })
     public ResponseEntity<Object> handleForbidden(ForbiddenException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
-        return this.handleExceptionInternal(ex, errorResponse, new HttpHeaders(),
-                HttpStatus.FORBIDDEN, request);
+        return this.handleExceptionInternal(
+            ex,
+            errorResponse,
+            new HttpHeaders(),
+            HttpStatus.FORBIDDEN,
+            request
+        );
     }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            @NonNull MethodArgumentNotValidException ex, @NonNull HttpHeaders headers,
-            @NonNull HttpStatusCode status, @NonNull WebRequest request) {
+        @NonNull MethodArgumentNotValidException ex,
+        @NonNull HttpHeaders headers,
+        @NonNull HttpStatusCode status,
+        @NonNull WebRequest request
+    ) {
         ErrorResponse errorResponse = buildErrorResponse(ex.getBindingResult());
-        return this.handleExceptionInternal(ex, errorResponse, headers, HttpStatus.BAD_REQUEST,
-                request);
+        return this.handleExceptionInternal(
+            ex,
+            errorResponse,
+            headers,
+            HttpStatus.BAD_REQUEST,
+            request
+        );
     }
 
     private ErrorResponse buildErrorResponse(BindingResult bindingResult) {
@@ -75,8 +113,7 @@ public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
         for (final FieldError error : fieldErrors) {
             errorMessages.add(error.getField() + ": " + error.getDefaultMessage());
         }
-        ErrorResponse errorResponse =
-                new ErrorResponse(String.join(",", errorMessages), HttpStatus.BAD_REQUEST);
+        ErrorResponse errorResponse = new ErrorResponse(String.join(",", errorMessages), HttpStatus.BAD_REQUEST);
         return errorResponse;
     }
 }

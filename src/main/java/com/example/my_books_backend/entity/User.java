@@ -44,8 +44,7 @@ public class User extends EntityBase implements UserDetails {
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
     @Column(name = "name", nullable = false)
@@ -69,7 +68,8 @@ public class User extends EntityBase implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
         this.roles.forEach(
-                role -> authorities.add(new SimpleGrantedAuthority(role.getName().toString())));
+            role -> authorities.add(new SimpleGrantedAuthority(role.getName().toString()))
+        );
         return authorities;
     }
 

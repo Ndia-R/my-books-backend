@@ -9,8 +9,15 @@ public class SecurityEndpointsConfig {
 
     // 完全にパブリックなエンドポイント
     public List<String> getFullyPublicEndpoints() {
-        return Arrays.asList("/login", "/signup", "/logout", "/refresh-token", "/v3/api-docs/**",
-                "/swagger-ui/**", "/swagger-ui.html");
+        return Arrays.asList(
+            "/login",
+            "/signup",
+            "/logout",
+            "/refresh-token",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
+        );
     }
 
     // GETメソッドのみパブリックなエンドポイント
