@@ -20,20 +20,20 @@ public class PageableUtils {
     public static final List<String> BOOKMARK_ALLOWED_FIELDS = SortableField.getCamelCaseFields(FieldCategory.BOOKMARK);
 
     // 対象に合わせたPageable作成
-    public static Pageable createBookPageable(int page, int size, String sort) {
-        return createPageable(page, size, sort, FieldCategory.BOOK);
+    public static Pageable createBookPageable(int page, int size, String sortString) {
+        return createPageable(page, size, sortString, FieldCategory.BOOK);
     }
 
-    public static Pageable createReviewPageable(int page, int size, String sort) {
-        return createPageable(page, size, sort, FieldCategory.REVIEW);
+    public static Pageable createReviewPageable(int page, int size, String sortString) {
+        return createPageable(page, size, sortString, FieldCategory.REVIEW);
     }
 
-    public static Pageable createFavoritePageable(int page, int size, String sort) {
-        return createPageable(page, size, sort, FieldCategory.FAVORITE);
+    public static Pageable createFavoritePageable(int page, int size, String sortString) {
+        return createPageable(page, size, sortString, FieldCategory.FAVORITE);
     }
 
-    public static Pageable createBookmarkPageable(int page, int size, String sort) {
-        return createPageable(page, size, sort, FieldCategory.BOOKMARK);
+    public static Pageable createBookmarkPageable(int page, int size, String sortString) {
+        return createPageable(page, size, sortString, FieldCategory.BOOKMARK);
     }
 
     // pageable作成
