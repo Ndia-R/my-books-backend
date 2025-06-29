@@ -20,10 +20,8 @@ public class FavoriteRepositoryCustomImpl implements FavoriteRepositoryCustom {
         String sortField,
         String sortDirection
     ) {
-
-        // ✅ 1段階の動的クエリ生成（Fluent Builder Pattern）
-        Query query = CursorQueryBuilder.forEntity(Favorite.class, entityManager)
-            .fromFavorites()
+        Query query = CursorQueryBuilder
+            .forEntity(Favorite.class, entityManager)
             .filterByUser(userId)
             .withCursor(cursor)
             .withLimit(limit)

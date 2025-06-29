@@ -20,10 +20,9 @@ public class BookmarkRepositoryCustomImpl implements BookmarkRepositoryCustom {
         String sortField,
         String sortDirection
     ) {
-
-        // ✅ 1段階の動的クエリ生成（Fluent Builder Pattern）
-        Query query = CursorQueryBuilder.forEntity(Bookmark.class, entityManager)
-            .fromBookmarks()
+        // 動的クエリ生成
+        Query query = CursorQueryBuilder
+            .forEntity(Bookmark.class, entityManager)
             .filterByUser(userId)
             .withCursor(cursor)
             .withLimit(limit)

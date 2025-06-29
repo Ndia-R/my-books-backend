@@ -78,12 +78,13 @@ public final class RepositorySecurityUtils {
         if (bookId == null || bookId.trim().isEmpty()) {
             throw new IllegalArgumentException("Book ID cannot be null or empty");
         }
-        if (bookId.length() > 100) { // 適切な最大長を設定
+        if (bookId.length() > 255) { // より適切な最大長に調整
             throw new IllegalArgumentException("Book ID too long: " + bookId.length());
         }
-        // 英数字、ハイフン、アンダースコアのみ許可
-        if (!bookId.matches("^[a-zA-Z0-9_-]+$")) {
-            throw new IllegalArgumentException("Invalid book ID format: " + bookId);
+        // より柔軟な文字許可（日本語やUnicode文字を含む）
+        // 制御文字、改行文字、タブ文字は除外
+        if (bookId.matches(".*[\\p{Cntrl}\\r\\n\\t].*")) {
+            throw new IllegalArgumentException("Book ID contains invalid control characters");
         }
     }
 

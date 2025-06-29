@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.example.my_books_backend.entity.enums.SortableField.FieldCategory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -11,25 +13,20 @@ import jakarta.persistence.Query;
 /**
  * セキュアなカーソルベースクエリビルダー
  * SQLインジェクション対策とパフォーマンス最適化を実装
- * 
- * 主な改善点:
- * 1. ホワイトリストベースのテーブル・カラム検証
- * 2. EXISTSサブクエリの削除によるパフォーマンス向上（10倍高速化）
- * 3. 型安全性の向上
- * 4. セキュリティログの強化
  */
 public class CursorQueryBuilder {
+    private static final Logger logger = LoggerFactory.getLogger(CursorQueryBuilder.class);
 
     // セキュリティ: ホワイトリスト定義（テーブル構成）
     private static final Map<String, TableConfig> ALLOWED_TABLES = Map.of(
         "books",
-        new TableConfig("books", "b", FieldCategory.BOOK),
+        new TableConfig("books", "b"),
         "bookmarks",
-        new TableConfig("bookmarks", "bm", FieldCategory.BOOKMARK),
+        new TableConfig("bookmarks", "bm"),
         "favorites",
-        new TableConfig("favorites", "f", FieldCategory.FAVORITE),
+        new TableConfig("favorites", "f"),
         "reviews",
-        new TableConfig("reviews", "r", FieldCategory.REVIEW)
+        new TableConfig("reviews", "r")
     );
 
     /**
@@ -38,12 +35,10 @@ public class CursorQueryBuilder {
     private static class TableConfig {
         final String tableName;
         final String alias;
-        final FieldCategory category;
 
-        TableConfig(String tableName, String alias, FieldCategory category) {
+        TableConfig(String tableName, String alias) {
             this.tableName = tableName;
             this.alias = alias;
-            this.category = category;
         }
     }
 
@@ -128,25 +123,6 @@ public class CursorQueryBuilder {
             com.example.my_books_backend.entity.Review.class,
             "reviews"
         );
-    }
-
-    // ===== テーブル設定メソッド（後方互換性） =====
-
-    public CursorQueryBuilder fromBooks() {
-        // 既に初期化済みなので何もしない（後方互換性のため）
-        return this;
-    }
-
-    public CursorQueryBuilder fromBookmarks() {
-        return this;
-    }
-
-    public CursorQueryBuilder fromFavorites() {
-        return this;
-    }
-
-    public CursorQueryBuilder fromReviews() {
-        return this;
     }
 
     // ===== フィルターメソッド =====
@@ -261,10 +237,10 @@ public class CursorQueryBuilder {
                 hasCursorCondition = true;
             } catch (Exception e) {
                 // カーソル値取得に失敗した場合は、カーソル条件を無視してログ出力
-                // 本番環境では適切なロガーを使用
-                System.err.println(
-                    "Warning: Failed to fetch cursor value for cursor: " + cursor
-                        + ". Ignoring cursor condition. Error: " + e.getMessage()
+                logger.warn(
+                    "Failed to fetch cursor value for cursor: {}. Ignoring cursor condition. Error: {}",
+                    cursor,
+                    e.getMessage()
                 );
                 // カーソル条件なしでクエリを続行
             }

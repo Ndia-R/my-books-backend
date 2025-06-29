@@ -113,7 +113,14 @@ public class BookServiceImpl implements BookService {
         Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
 
         List<Long> genreIds = Arrays.stream(genreIdsQuery.split(","))
-            .map(Long::parseLong)
+            .map(String::trim)
+            .map(s -> {
+                try {
+                    return Long.parseLong(s);
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("Invalid genre ID: " + s);
+                }
+            })
             .collect(Collectors.toList());
 
         Boolean isAndCondition = "AND".equals(conditionQuery);
@@ -147,7 +154,14 @@ public class BookServiceImpl implements BookService {
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
 
         List<Long> genreIds = Arrays.stream(genreIdsQuery.split(","))
-            .map(Long::parseLong)
+            .map(String::trim)
+            .map(s -> {
+                try {
+                    return Long.parseLong(s);
+                } catch (NumberFormatException e) {
+                    throw new BadRequestException("Invalid genre ID: " + s);
+                }
+            })
             .collect(Collectors.toList());
 
         Boolean isAndCondition = "AND".equals(conditionQuery);
