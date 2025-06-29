@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.CursorPageResponse;
@@ -19,7 +18,6 @@ import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.BookChapter;
 import com.example.my_books_backend.entity.Bookmark;
 import com.example.my_books_backend.entity.User;
-import com.example.my_books_backend.entity.enums.SortableField.FieldCategory;
 import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.ForbiddenException;
 import com.example.my_books_backend.exception.NotFoundException;
@@ -100,17 +98,12 @@ public class BookmarkServiceImpl implements BookmarkService {
         Integer limit,
         String sortString
     ) {
-        Sort sort = PageableUtils.parseSort(sortString, FieldCategory.BOOKMARK);
-        String sortField = sort.iterator().next().getProperty();
-        String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
-
         // 次のページの有無を判定するために、limit + 1にして、1件多く取得
         List<Bookmark> bookmarks = bookmarkRepository.findBookmarksByUserIdWithCursor(
             user.getId(),
             cursor,
             limit + 1,
-            sortField,
-            sortDirection
+            sortString
         );
 
         CursorPageResponse<BookmarkResponse> response = bookmarkMapper.toCursorPageResponse(bookmarks, limit);

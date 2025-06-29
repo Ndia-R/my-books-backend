@@ -9,8 +9,7 @@ public interface BookRepositoryCustom {
         String keyword,
         String cursor,
         int limit,
-        String sortField,
-        String sortDirection
+        String sortString
     );
 
     // ジャンル検索 OR条件（カーソルベース）
@@ -18,8 +17,7 @@ public interface BookRepositoryCustom {
         List<Long> genreIds,
         String cursor,
         int limit,
-        String sortField,
-        String sortDirection
+        String sortString
     );
 
     // ジャンル検索 AND条件（カーソルベース）
@@ -27,7 +25,6 @@ public interface BookRepositoryCustom {
         List<Long> genreIds,
         String cursor,
         int limit,
-        String sortField,
-        String sortDirection
+        String sortString
     );
 }

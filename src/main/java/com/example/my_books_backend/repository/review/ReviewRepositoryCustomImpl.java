@@ -2,7 +2,6 @@ package com.example.my_books_backend.repository.review;
 
 import java.util.List;
 import com.example.my_books_backend.entity.Review;
-import com.example.my_books_backend.entity.enums.SortableField.FieldCategory;
 import com.example.my_books_backend.util.CursorQueryBuilder;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -17,16 +16,15 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
         Long userId,
         Long cursor,
         int limit,
-        String sortField,
-        String sortDirection
+        String sortString
     ) {
 
         Query query = CursorQueryBuilder
-            .forEntity(Review.class, entityManager)
+            .of(Review.class, entityManager)
             .filterByUser(userId) // ユーザー別
             .withCursor(cursor)
             .withLimit(limit)
-            .orderBy(sortField, sortDirection, FieldCategory.REVIEW)
+            .orderBy(sortString)
             .build();
 
         @SuppressWarnings("unchecked")
@@ -39,16 +37,15 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
         String bookId,
         Long cursor,
         int limit,
-        String sortField,
-        String sortDirection
+        String sortString
     ) {
 
         Query query = CursorQueryBuilder
-            .forEntity(Review.class, entityManager)
+            .of(Review.class, entityManager)
             .filterByBook(bookId) // 書籍別
             .withCursor(cursor)
             .withLimit(limit)
-            .orderBy(sortField, sortDirection, FieldCategory.REVIEW)
+            .orderBy(sortString)
             .build();
 
         @SuppressWarnings("unchecked")

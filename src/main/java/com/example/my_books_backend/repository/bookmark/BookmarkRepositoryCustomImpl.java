@@ -2,7 +2,6 @@ package com.example.my_books_backend.repository.bookmark;
 
 import java.util.List;
 import com.example.my_books_backend.entity.Bookmark;
-import com.example.my_books_backend.entity.enums.SortableField.FieldCategory;
 import com.example.my_books_backend.util.CursorQueryBuilder;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -17,15 +16,14 @@ public class BookmarkRepositoryCustomImpl implements BookmarkRepositoryCustom {
         Long userId,
         Long cursor,
         int limit,
-        String sortField,
-        String sortDirection
+        String sortString
     ) {
         Query query = CursorQueryBuilder
-            .forEntity(Bookmark.class, entityManager)
+            .of(Bookmark.class, entityManager)
             .filterByUser(userId)
             .withCursor(cursor)
             .withLimit(limit)
-            .orderBy(sortField, sortDirection, FieldCategory.BOOKMARK)
+            .orderBy(sortString)
             .build();
 
         @SuppressWarnings("unchecked")

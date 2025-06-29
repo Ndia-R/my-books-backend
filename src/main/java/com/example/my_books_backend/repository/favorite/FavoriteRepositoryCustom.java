@@ -9,7 +9,6 @@ public interface FavoriteRepositoryCustom {
         Long userId,
         Long cursor,
         int limit,
-        String sortField,
-        String sortDirection
+        String sortString
     );
 }

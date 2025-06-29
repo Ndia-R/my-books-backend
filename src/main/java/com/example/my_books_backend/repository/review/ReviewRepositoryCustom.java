@@ -9,8 +9,7 @@ public interface ReviewRepositoryCustom {
         String bookId,
         Long cursor,
         int limit,
-        String sortField,
-        String sortDirection
+        String sortString
     );
 
     // ユーザーが投稿したレビューを取得（カーソルベース）
@@ -18,7 +17,6 @@ public interface ReviewRepositoryCustom {
         Long userId,
         Long cursor,
         int limit,
-        String sortField,
-        String sortDirection
+        String sortString
     );
 }

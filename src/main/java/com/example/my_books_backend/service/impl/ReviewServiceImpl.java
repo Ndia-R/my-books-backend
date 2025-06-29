@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.CursorPageResponse;
@@ -15,7 +14,6 @@ import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Review;
 import com.example.my_books_backend.entity.User;
-import com.example.my_books_backend.entity.enums.SortableField.FieldCategory;
 import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.ForbiddenException;
 import com.example.my_books_backend.exception.NotFoundException;
@@ -64,17 +62,12 @@ public class ReviewServiceImpl implements ReviewService {
         Integer limit,
         String sortString
     ) {
-        Sort sort = PageableUtils.parseSort(sortString, FieldCategory.REVIEW);
-        String sortField = sort.iterator().next().getProperty();
-        String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
-
         // 次のページの有無を判定するために、limit + 1にして、1件多く取得
         List<Review> reviews = reviewRepository.findReviewsByUserIdWithCursor(
             user.getId(),
             cursor,
             limit + 1,
-            sortField,
-            sortDirection
+            sortString
         );
         return reviewMapper.toCursorPageResponse(reviews, limit);
     }
@@ -104,17 +97,12 @@ public class ReviewServiceImpl implements ReviewService {
         Integer limit,
         String sortString
     ) {
-        Sort sort = PageableUtils.parseSort(sortString, FieldCategory.REVIEW);
-        String sortField = sort.iterator().next().getProperty();
-        String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
-
         // 次のページの有無を判定するために、limit + 1にして、1件多く取得
         List<Review> reviews = reviewRepository.findReviewsByBookIdWithCursor(
             bookId,
             cursor,
             limit + 1,
-            sortField,
-            sortDirection
+            sortString
         );
         return reviewMapper.toCursorPageResponse(reviews, limit);
     }

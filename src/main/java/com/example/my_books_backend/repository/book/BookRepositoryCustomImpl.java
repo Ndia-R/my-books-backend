@@ -2,7 +2,6 @@ package com.example.my_books_backend.repository.book;
 
 import java.util.List;
 import com.example.my_books_backend.entity.Book;
-import com.example.my_books_backend.entity.enums.SortableField.FieldCategory;
 import com.example.my_books_backend.util.CursorQueryBuilder;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -17,19 +16,18 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         String keyword,
         String cursor,
         int limit,
-        String sortField,
-        String sortDirection
+        String sortString
     ) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return List.of();
         }
 
         Query query = CursorQueryBuilder
-            .forEntity(Book.class, entityManager)
+            .of(Book.class, entityManager)
             .filterByTitleKeyword(keyword)
             .withCursor(cursor)
             .withLimit(limit)
-            .orderBy(sortField, sortDirection, FieldCategory.BOOK)
+            .orderBy(sortString)
             .build();
 
         @SuppressWarnings("unchecked")
@@ -42,8 +40,7 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         List<Long> genreIds,
         String cursor,
         int limit,
-        String sortField,
-        String sortDirection
+        String sortString
     ) {
         if (genreIds == null || genreIds.isEmpty()) {
             return List.of();
@@ -51,11 +48,11 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
 
         // OR条件
         Query query = CursorQueryBuilder
-            .forEntity(Book.class, entityManager)
+            .of(Book.class, entityManager)
             .filterByGenresOr(genreIds)
             .withCursor(cursor)
             .withLimit(limit)
-            .orderBy(sortField, sortDirection, FieldCategory.BOOK)
+            .orderBy(sortString)
             .build();
 
         @SuppressWarnings("unchecked")
@@ -68,8 +65,7 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         List<Long> genreIds,
         String cursor,
         int limit,
-        String sortField,
-        String sortDirection
+        String sortString
     ) {
         if (genreIds == null || genreIds.isEmpty()) {
             return List.of();
@@ -77,11 +73,11 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
 
         // AND条件
         Query query = CursorQueryBuilder
-            .forEntity(Book.class, entityManager)
+            .of(Book.class, entityManager)
             .filterByGenresAnd(genreIds)
             .withCursor(cursor)
             .withLimit(limit)
-            .orderBy(sortField, sortDirection, FieldCategory.BOOK)
+            .orderBy(sortString)
             .build();
 
         @SuppressWarnings("unchecked")

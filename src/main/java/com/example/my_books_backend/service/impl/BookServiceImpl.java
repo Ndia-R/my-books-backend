@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.example.my_books_backend.dto.genre.GenreResponse;
 import com.example.my_books_backend.dto.CursorPageResponse;
@@ -30,7 +29,6 @@ import com.example.my_books_backend.repository.BookChapterPageContentRepository;
 import com.example.my_books_backend.service.BookService;
 import com.example.my_books_backend.service.GenreService;
 import com.example.my_books_backend.util.PageableUtils;
-import com.example.my_books_backend.entity.enums.SortableField.FieldCategory;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -78,17 +76,12 @@ public class BookServiceImpl implements BookService {
         Integer limit,
         String sortString
     ) {
-        Sort sort = PageableUtils.parseSort(sortString, FieldCategory.BOOK);
-        String sortField = sort.iterator().next().getProperty();
-        String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
-
         // 次のページの有無を判定するために、limit + 1にして、1件多く取得
         List<Book> books = bookRepository.findBooksByTitleKeywordWithCursor(
             keyword,
             cursor,
             limit + 1,
-            sortField,
-            sortDirection
+            sortString
         );
         return bookMapper.toCursorPageResponse(books, limit);
     }
@@ -148,10 +141,6 @@ public class BookServiceImpl implements BookService {
             throw new BadRequestException("検索条件が不正です。");
         }
 
-        Sort sort = PageableUtils.parseSort(sortString, FieldCategory.BOOK);
-        String sortField = sort.iterator().next().getProperty();
-        String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
-
         List<Long> genreIds = Arrays.stream(genreIdsQuery.split(","))
             .map(String::trim)
             .map(s -> {
@@ -171,15 +160,13 @@ public class BookServiceImpl implements BookService {
                 genreIds,
                 cursor,
                 limit + 1,
-                sortField,
-                sortDirection
+                sortString
             )
             : bookRepository.findBooksByGenresOrWithCursor(
                 genreIds,
                 cursor,
                 limit + 1,
-                sortField,
-                sortDirection
+                sortString
             );
 
         return bookMapper.toCursorPageResponse(books, limit);
