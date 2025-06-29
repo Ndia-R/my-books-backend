@@ -196,7 +196,6 @@ public class CursorQueryBuilder {
         if (cursor != null) {
             validateCursorType(cursor);
             this.cursor = cursor;
-            // カーソル値はbuild()時に取得（エラーハンドリング改善）
         }
         return this;
     }

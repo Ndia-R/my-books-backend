@@ -62,7 +62,6 @@ public class FavoriteServiceImpl implements FavoriteService {
         Integer limit,
         String sortString
     ) {
-
         Sort sort = PageableUtils.parseSort(sortString, FieldCategory.FAVORITE);
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();

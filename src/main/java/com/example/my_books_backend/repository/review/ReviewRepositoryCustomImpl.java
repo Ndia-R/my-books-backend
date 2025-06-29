@@ -20,10 +20,10 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
         String sortField,
         String sortDirection
     ) {
-        // ユーザー別
+
         Query query = CursorQueryBuilder
             .forEntity(Review.class, entityManager)
-            .filterByUser(userId)
+            .filterByUser(userId) // ユーザー別
             .withCursor(cursor)
             .withLimit(limit)
             .orderBy(sortField, sortDirection, FieldCategory.REVIEW)
@@ -42,10 +42,10 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
         String sortField,
         String sortDirection
     ) {
-        // 書籍別
+
         Query query = CursorQueryBuilder
             .forEntity(Review.class, entityManager)
-            .filterByBook(bookId)
+            .filterByBook(bookId) // 書籍別
             .withCursor(cursor)
             .withLimit(limit)
             .orderBy(sortField, sortDirection, FieldCategory.REVIEW)

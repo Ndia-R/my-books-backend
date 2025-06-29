@@ -78,7 +78,6 @@ public class BookServiceImpl implements BookService {
         Integer limit,
         String sortString
     ) {
-
         Sort sort = PageableUtils.parseSort(sortString, FieldCategory.BOOK);
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();

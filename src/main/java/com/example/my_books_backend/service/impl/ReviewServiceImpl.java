@@ -64,7 +64,6 @@ public class ReviewServiceImpl implements ReviewService {
         Integer limit,
         String sortString
     ) {
-
         Sort sort = PageableUtils.parseSort(sortString, FieldCategory.REVIEW);
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();
@@ -105,7 +104,6 @@ public class ReviewServiceImpl implements ReviewService {
         Integer limit,
         String sortString
     ) {
-
         Sort sort = PageableUtils.parseSort(sortString, FieldCategory.REVIEW);
         String sortField = sort.iterator().next().getProperty();
         String sortDirection = sort.iterator().next().getDirection().name().toLowerCase();

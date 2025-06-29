@@ -20,6 +20,10 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         String sortField,
         String sortDirection
     ) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return List.of();
+        }
+
         Query query = CursorQueryBuilder
             .forEntity(Book.class, entityManager)
             .filterByTitleKeyword(keyword)
@@ -41,7 +45,6 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         String sortField,
         String sortDirection
     ) {
-
         if (genreIds == null || genreIds.isEmpty()) {
             return List.of();
         }
@@ -68,7 +71,6 @@ public class BookRepositoryCustomImpl implements BookRepositoryCustom {
         String sortField,
         String sortDirection
     ) {
-
         if (genreIds == null || genreIds.isEmpty()) {
             return List.of();
         }

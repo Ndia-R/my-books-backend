@@ -20,7 +20,6 @@ public class BookmarkRepositoryCustomImpl implements BookmarkRepositoryCustom {
         String sortField,
         String sortDirection
     ) {
-        // 動的クエリ生成
         Query query = CursorQueryBuilder
             .forEntity(Bookmark.class, entityManager)
             .filterByUser(userId)
