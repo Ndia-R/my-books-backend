@@ -18,7 +18,7 @@ import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.ForbiddenException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.FavoriteMapper;
-import com.example.my_books_backend.repository.book.BookRepository;
+import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.repository.favorite.FavoriteRepository;
 import com.example.my_books_backend.service.FavoriteService;
 import com.example.my_books_backend.util.PageableUtils;

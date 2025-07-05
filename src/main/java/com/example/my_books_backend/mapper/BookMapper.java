@@ -6,9 +6,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
+
 import com.example.my_books_backend.dto.book.BookResponse;
-import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
+import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Genre;
@@ -49,13 +51,14 @@ public interface BookMapper {
         );
     }
 
-    default CursorPageResponse<BookResponse> toCursorPageResponse(List<Book> books, Integer limit) {
-        Boolean hasNext = books.size() > limit;
-        if (hasNext) {
-            books = books.subList(0, limit); // 余分な1件を削除
-        }
-        String endCursor = hasNext ? books.get(books.size() - 1).getId() : null;
-        List<BookResponse> responses = toBookResponseList(books);
-        return new CursorPageResponse<BookResponse>(endCursor, hasNext, responses);
+    default SliceResponse<BookResponse> toSliceResponse(Slice<Book> books) {
+        List<BookResponse> responses = toBookResponseList(books.getContent());
+        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
+        return new SliceResponse<BookResponse>(
+            books.getNumber() + 1,
+            books.getSize(),
+            books.hasNext(),
+            responses
+        );
     }
 }

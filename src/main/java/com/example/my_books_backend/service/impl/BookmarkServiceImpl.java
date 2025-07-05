@@ -23,7 +23,7 @@ import com.example.my_books_backend.exception.ForbiddenException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.BookmarkMapper;
 import com.example.my_books_backend.repository.BookChapterRepository;
-import com.example.my_books_backend.repository.book.BookRepository;
+import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.repository.bookmark.BookmarkRepository;
 import com.example.my_books_backend.service.BookmarkService;
 import com.example.my_books_backend.util.PageableUtils;

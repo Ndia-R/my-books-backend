@@ -5,10 +5,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import com.example.my_books_backend.dto.genre.GenreResponse;
-import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
+import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.book_chapter.BookChapterResponse;
@@ -24,7 +25,7 @@ import com.example.my_books_backend.exception.BadRequestException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.BookMapper;
 import com.example.my_books_backend.repository.BookChapterRepository;
-import com.example.my_books_backend.repository.book.BookRepository;
+import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.repository.BookChapterPageContentRepository;
 import com.example.my_books_backend.service.BookService;
 import com.example.my_books_backend.service.GenreService;
@@ -45,10 +46,28 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public PageResponse<BookResponse> getBooks(Integer page, Integer size, String sortString) {
+    public PageResponse<BookResponse> getBooks(
+        Integer page,
+        Integer size,
+        String sortString
+    ) {
         Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
         Page<Book> books = bookRepository.findByIsDeletedFalse(pageable);
         return bookMapper.toPageResponse(books);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SliceResponse<BookResponse> getBooksForScroll(
+        Integer page,
+        Integer size,
+        String sortString
+    ) {
+        Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
+        Slice<Book> books = bookRepository.findSliceByIsDeletedFalse(pageable);
+        return bookMapper.toSliceResponse(books);
     }
 
     /**
@@ -70,20 +89,15 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<BookResponse> getBooksByTitleKeywordWithCursor(
+    public SliceResponse<BookResponse> getBooksByTitleKeywordForScroll(
         String keyword,
-        String cursor,
-        Integer limit,
+        Integer page,
+        Integer size,
         String sortString
     ) {
-        // 次のページの有無を判定するために、limit + 1にして、1件多く取得
-        List<Book> books = bookRepository.findBooksByTitleKeywordWithCursor(
-            keyword,
-            cursor,
-            limit + 1,
-            sortString
-        );
-        return bookMapper.toCursorPageResponse(books, limit);
+        Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
+        Slice<Book> books = bookRepository.findSliceByTitleContainingAndIsDeletedFalse(keyword, pageable);
+        return bookMapper.toSliceResponse(books);
     }
 
     /**
@@ -128,11 +142,11 @@ public class BookServiceImpl implements BookService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<BookResponse> getBooksByGenreWithCursor(
+    public SliceResponse<BookResponse> getBooksByGenreForScroll(
         String genreIdsQuery,
         String conditionQuery,
-        String cursor,
-        Integer limit,
+        Integer page,
+        Integer size,
         String sortString
     ) {
         if (!("SINGLE".equals(conditionQuery)
@@ -140,6 +154,7 @@ public class BookServiceImpl implements BookService {
             || "OR".equals(conditionQuery))) {
             throw new BadRequestException("検索条件が不正です。");
         }
+        Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
 
         List<Long> genreIds = Arrays.stream(genreIdsQuery.split(","))
             .map(String::trim)
@@ -154,22 +169,11 @@ public class BookServiceImpl implements BookService {
 
         Boolean isAndCondition = "AND".equals(conditionQuery);
 
-        // 次のページの有無を判定するために、limit + 1にして、1件多く取得
-        List<Book> books = isAndCondition
-            ? bookRepository.findBooksByGenresAndWithCursor(
-                genreIds,
-                cursor,
-                limit + 1,
-                sortString
-            )
-            : bookRepository.findBooksByGenresOrWithCursor(
-                genreIds,
-                cursor,
-                limit + 1,
-                sortString
-            );
+        Slice<Book> books = isAndCondition
+            ? bookRepository.findSliceBooksHavingAllGenres(genreIds, genreIds.size(), pageable)
+            : bookRepository.findSliceDistinctByGenres_IdInAndIsDeletedFalse(genreIds, pageable);
 
-        return bookMapper.toCursorPageResponse(books, limit);
+        return bookMapper.toSliceResponse(books);
     }
 
     /**

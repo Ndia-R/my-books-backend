@@ -1,7 +1,7 @@
 package com.example.my_books_backend.service;
 
-import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
+import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.book_chapter.BookTableOfContentsResponse;
@@ -9,17 +9,35 @@ import com.example.my_books_backend.dto.book_chapter_page_content.BookChapterPag
 
 public interface BookService {
     /**
-     * 書籍一覧取得
+     * 書籍一覧取得（ページネーション用）
      * 
      * @param page ページ番号（1ベース）
      * @param size 1ページあたりの最大結果件数
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return 最新の書籍リスト
      */
-    PageResponse<BookResponse> getBooks(Integer page, Integer size, String sortString);
+    PageResponse<BookResponse> getBooks(
+        Integer page,
+        Integer size,
+        String sortString
+    );
 
     /**
-     * タイトルで書籍を検索したリストを取得
+     * 書籍一覧取得（無限スクロール用）
+     * 
+     * @param page ページ番号（1ベース）
+     * @param size 1ページあたりの最大結果件数
+     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
+     * @return 最新の書籍リスト
+     */
+    SliceResponse<BookResponse> getBooksForScroll(
+        Integer page,
+        Integer size,
+        String sortString
+    );
+
+    /**
+     * タイトルで書籍を検索したリストを取得（ページネーション用）
      * 
      * @param keyword 検索キーワード
      * @param page ページ番号（1ベース）
@@ -35,23 +53,23 @@ public interface BookService {
     );
 
     /**
-     * タイトルで書籍を検索したリストを取得（カーソルベース）
+     * タイトルで書籍を検索したリストを取得（無限スクロール用）
      * 
      * @param keyword 検索キーワード
-     * @param cursor カーソルID（nullの場合は先頭からlimit分のデータが返却される）
-     * @param limit 1ページあたりの最大結果件数
+     * @param page ページ番号（1ベース）
+     * @param size 1ページあたりの最大結果件数
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return 検索結果
      */
-    CursorPageResponse<BookResponse> getBooksByTitleKeywordWithCursor(
+    SliceResponse<BookResponse> getBooksByTitleKeywordForScroll(
         String keyword,
-        String cursor,
-        Integer limit,
+        Integer page,
+        Integer size,
         String sortString
     );
 
     /**
-     * ジャンルIDで書籍を検索したリストを取得
+     * ジャンルIDで書籍を検索したリストを取得（ページネーション用）
      * 
      * @param genreIdsQuery カンマ区切りのジャンルIDリスト（例："1,2,3"）
      * @param conditionQuery 検索条件（"SINGLE"、"AND"、"OR"のいずれか）
@@ -69,20 +87,20 @@ public interface BookService {
     );
 
     /**
-     * ジャンルIDで書籍を検索したリストを取得（カーソルベース）
+     * ジャンルIDで書籍を検索したリストを取得（無限スクロール用）
      * 
      * @param genreIdsQuery カンマ区切りのジャンルIDリスト（例："1,2,3"）
      * @param conditionQuery 検索条件（"SINGLE"、"AND"、"OR"のいずれか）
-     * @param cursor カーソルID（nullの場合は先頭からlimit分のデータが返却される）
-     * @param limit 1ページあたりの最大結果件数
+     * @param page ページ番号（1ベース）
+     * @param size 1ページあたりの最大結果件数
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return 検索結果
      */
-    CursorPageResponse<BookResponse> getBooksByGenreWithCursor(
+    SliceResponse<BookResponse> getBooksByGenreForScroll(
         String genreIdsQuery,
         String conditionQuery,
-        String cursor,
-        Integer limit,
+        Integer page,
+        Integer size,
         String sortString
     );
 
