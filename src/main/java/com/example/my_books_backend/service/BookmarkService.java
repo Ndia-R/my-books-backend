@@ -1,14 +1,14 @@
 package com.example.my_books_backend.service;
 
-import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
+import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.entity.User;
 
 public interface BookmarkService {
     /**
-     * ユーザーが追加したブックマークを取得
+     * ユーザーが追加したブックマークを取得（ページネーション用）
      * 
      * @param user ユーザーエンティティ
      * @param page ページ番号（1ベース）
@@ -26,19 +26,21 @@ public interface BookmarkService {
     );
 
     /**
-     * ユーザーが追加したブックマークを取得（カーソルベース）
+     * ユーザーが追加したブックマークを取得（無限スクロール用）
      * 
      * @param user ユーザーエンティティ
-     * @param cursor カーソルID（nullの場合は先頭からlimit分のデータが返却される）
-     * @param limit 1ページあたりの最大結果件数
+     * @param page ページ番号（1ベース）
+     * @param size 1ページあたりの最大結果件数
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
+     * @param bookId 書籍ID（nullの場合はすべてが対象）
      * @return ブックマークリスト
      */
-    CursorPageResponse<BookmarkResponse> getUserBookmarksWithCursor(
+    SliceResponse<BookmarkResponse> getUserBookmarksForScroll(
         User user,
-        Long cursor,
-        Integer limit,
-        String sortString
+        Integer page,
+        Integer size,
+        String sortString,
+        String bookId
     );
 
     /**

@@ -1,7 +1,7 @@
 package com.example.my_books_backend.service;
 
-import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
+import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.dto.review.ReviewRequest;
@@ -9,7 +9,7 @@ import com.example.my_books_backend.dto.review.ReviewResponse;
 
 public interface ReviewService {
     /**
-     * ユーザーが投稿したレビューを取得
+     * ユーザーが投稿したレビューを取得（ページネーション用）
      * 
      * @param user ユーザーエンティティ
      * @param page ページ番号（1ベース）
@@ -27,23 +27,25 @@ public interface ReviewService {
     );
 
     /**
-     * ユーザーが投稿したレビューを取得（カーソルベース）
+     * ユーザーが投稿したレビューを取得（ページネーション用）
      * 
      * @param user ユーザーエンティティ
-     * @param cursor カーソルID（nullの場合は先頭からlimit分のデータが返却される）
-     * @param limit 1ページあたりの最大結果件数
+     * @param page ページ番号（1ベース）
+     * @param size 1ページあたりの最大結果件数
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
+     * @param bookId 書籍ID（nullの場合はすべてが対象）
      * @return レビューリスト
      */
-    CursorPageResponse<ReviewResponse> getUserReviewsWithCursor(
+    SliceResponse<ReviewResponse> getUserReviewsForScroll(
         User user,
-        Long cursor,
-        Integer limit,
-        String sortString
+        Integer page,
+        Integer size,
+        String sortString,
+        String bookId
     );
 
     /**
-     * 書籍に対するレビューを取得
+     * 書籍に対するレビューを取得（ページネーション用）
      * 
      * @param bookId 書籍ID
      * @param page ページ番号（1ベース）
@@ -59,19 +61,19 @@ public interface ReviewService {
     );
 
     /**
-     * 書籍に対するレビューを取得（カーソルベース）
+     * 書籍に対するレビューを取得（無限スクロール用）
      * 
      * @param bookId 書籍ID
-     * @param cursor カーソルID（nullの場合は先頭からlimit分のデータが返却される）
-     * @param limit 1ページあたりの最大結果件数
+     * @param page ページ番号（1ベース）
+     * @param size 1ページあたりの最大結果件数
      * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
      * @return レビューリスト
      */
-    CursorPageResponse<ReviewResponse> getBookReviewsWithCursor(
+    SliceResponse<ReviewResponse> getBookReviewsForScroll(
         String bookId,
-        Long cursor,
-        Integer limit,
-        String sorString
+        Integer page,
+        Integer size,
+        String sortString
     );
 
     /**

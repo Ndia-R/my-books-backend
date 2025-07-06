@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
@@ -203,7 +202,7 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(description = "特定の書籍のレビューリスト")
+    @Operation(description = "特定の書籍のレビューリスト（ページネーション用）")
     @GetMapping("/{id}/reviews")
     public ResponseEntity<PageResponse<ReviewResponse>> getBookReviews(
         @PathVariable String id,
@@ -221,12 +220,12 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(description = "特定の書籍のレビューリスト（カーソルベース）")
-    @GetMapping("/{id}/reviews/cursor")
-    public ResponseEntity<CursorPageResponse<ReviewResponse>> getBookReviewsWithCursor(
+    @Operation(description = "特定の書籍のレビューリスト（無限スクロール用）")
+    @GetMapping("/{id}/reviews/scroll")
+    public ResponseEntity<SliceResponse<ReviewResponse>> getBookReviewsForScroll(
         @PathVariable String id,
-        @Parameter(description = "カーソル（次のページを取得するための起点となるID）") @RequestParam(required = false) Long cursor,
-        @Parameter(description = "1ページあたりの件数", example = DEFAULT_REVIEWS_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_REVIEWS_PAGE_SIZE) Integer limit,
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_REVIEWS_START_PAGE) @RequestParam(defaultValue = DEFAULT_REVIEWS_START_PAGE) Integer page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_REVIEWS_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_REVIEWS_PAGE_SIZE) Integer size,
         @Parameter(description = "ソート条件", example = DEFAULT_REVIEWS_SORT, schema = @Schema(allowableValues = {
             "updatedAt.asc",
             "updatedAt.desc",
@@ -235,12 +234,7 @@ public class BookController {
             "rating.asc",
             "rating.desc" })) @RequestParam(defaultValue = DEFAULT_REVIEWS_SORT) String sort
     ) {
-        CursorPageResponse<ReviewResponse> response = reviewService.getBookReviewsWithCursor(
-            id,
-            cursor,
-            limit,
-            sort
-        );
+        SliceResponse<ReviewResponse> response = reviewService.getBookReviewsForScroll(id, page, size, sort);
         return ResponseEntity.ok(response);
     }
 

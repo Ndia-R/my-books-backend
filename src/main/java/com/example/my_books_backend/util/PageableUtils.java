@@ -3,8 +3,7 @@ package com.example.my_books_backend.util;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import com.example.my_books_backend.entity.enums.SortableField;
-import com.example.my_books_backend.entity.enums.SortableField.FieldCategory;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PageableUtils {
@@ -13,35 +12,24 @@ public class PageableUtils {
     private static final String DEFAULT_SORT_FIELD = "id";
     private static final Sort.Direction DEFAULT_SORT_DIRECTION = Sort.Direction.ASC;
 
-    // Enumベースで統一管理された許可フィールド
-    public static final List<String> BOOK_ALLOWED_FIELDS = SortableField.getCamelCaseFields(FieldCategory.BOOK);
-    public static final List<String> REVIEW_ALLOWED_FIELDS = SortableField.getCamelCaseFields(FieldCategory.REVIEW);
-    public static final List<String> FAVORITE_ALLOWED_FIELDS = SortableField.getCamelCaseFields(FieldCategory.FAVORITE);
-    public static final List<String> BOOKMARK_ALLOWED_FIELDS = SortableField.getCamelCaseFields(FieldCategory.BOOKMARK);
+    public static final List<String> BOOK_ALLOWED_FIELDS = new ArrayList<>(
+        List.of("title", "publicationDate", "reviewCount", "averageRating", "popularity")
+    );
+    public static final List<String> REVIEW_ALLOWED_FIELDS = new ArrayList<>(
+        List.of("updatedAt", "createdAt", "rating")
+    );
+    public static final List<String> FAVORITE_ALLOWED_FIELDS = new ArrayList<>(
+        List.of("updatedAt", "createdAt")
+    );
+    public static final List<String> BOOKMARK_ALLOWED_FIELDS = new ArrayList<>(
+        List.of("updatedAt", "createdAt")
+    );
 
-    // 対象に合わせたPageable作成
-    public static Pageable createBookPageable(int page, int size, String sortString) {
-        return createPageable(page, size, sortString, FieldCategory.BOOK);
-    }
-
-    public static Pageable createReviewPageable(int page, int size, String sortString) {
-        return createPageable(page, size, sortString, FieldCategory.REVIEW);
-    }
-
-    public static Pageable createFavoritePageable(int page, int size, String sortString) {
-        return createPageable(page, size, sortString, FieldCategory.FAVORITE);
-    }
-
-    public static Pageable createBookmarkPageable(int page, int size, String sortString) {
-        return createPageable(page, size, sortString, FieldCategory.BOOKMARK);
-    }
-
-    // pageable作成
-    private static Pageable createPageable(
+    public static Pageable createPageable(
         int page,
         int size,
         String sortString,
-        FieldCategory category
+        List<String> category
     ) {
         // pageableは内部的に0ベースなので、1ベース→0ベースへ
         page = Math.max(0, page - 1);
@@ -56,7 +44,7 @@ public class PageableUtils {
     }
 
     // ソート条件の解析
-    public static Sort parseSort(String sortString, FieldCategory category) {
+    private static Sort parseSort(String sortString, List<String> category) {
         if (sortString == null || sortString.trim().isEmpty()) {
             return Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_FIELD);
         }
@@ -67,7 +55,7 @@ public class PageableUtils {
         }
 
         String sortField = sortParams[0].trim();
-        if (!SortableField.isValidField(sortField, category)) {
+        if (!category.contains(sortField)) {
             sortField = DEFAULT_SORT_FIELD;
         }
 

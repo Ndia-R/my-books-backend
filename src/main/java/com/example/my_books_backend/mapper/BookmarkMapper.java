@@ -5,9 +5,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
-import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
+import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.entity.Bookmark;
 
 @Mapper(componentModel = "spring")
@@ -39,16 +40,14 @@ public abstract class BookmarkMapper {
         );
     }
 
-    public CursorPageResponse<BookmarkResponse> toCursorPageResponse(
-        List<Bookmark> bookmarks,
-        Integer limit
-    ) {
-        Boolean hasNext = bookmarks.size() > limit;
-        if (hasNext) {
-            bookmarks = bookmarks.subList(0, limit); // 余分な1件を削除
-        }
-        String endCursor = hasNext ? bookmarks.get(bookmarks.size() - 1).getId().toString() : null;
-        List<BookmarkResponse> responses = toBookmarkResponseList(bookmarks);
-        return new CursorPageResponse<BookmarkResponse>(endCursor, hasNext, responses);
+    public SliceResponse<BookmarkResponse> toSliceResponse(Slice<Bookmark> bookmarks) {
+        List<BookmarkResponse> responses = toBookmarkResponseList(bookmarks.getContent());
+        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
+        return new SliceResponse<BookmarkResponse>(
+            bookmarks.getNumber() + 1,
+            bookmarks.getSize(),
+            bookmarks.hasNext(),
+            responses
+        );
     }
 }

@@ -4,7 +4,7 @@ import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Review;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.repository.BookRepository;
-import com.example.my_books_backend.repository.review.ReviewRepository;
+import com.example.my_books_backend.repository.ReviewRepository;
 import com.example.my_books_backend.service.BookStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

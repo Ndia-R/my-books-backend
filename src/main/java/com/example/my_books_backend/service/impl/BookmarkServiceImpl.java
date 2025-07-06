@@ -8,10 +8,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
+import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.entity.Book;
@@ -24,7 +25,7 @@ import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.BookmarkMapper;
 import com.example.my_books_backend.repository.BookChapterRepository;
 import com.example.my_books_backend.repository.BookRepository;
-import com.example.my_books_backend.repository.bookmark.BookmarkRepository;
+import com.example.my_books_backend.repository.BookmarkRepository;
 import com.example.my_books_backend.service.BookmarkService;
 import com.example.my_books_backend.util.PageableUtils;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +50,12 @@ public class BookmarkServiceImpl implements BookmarkService {
         String sortString,
         String bookId
     ) {
-        Pageable pageable = PageableUtils.createBookmarkPageable(page, size, sortString);
+        Pageable pageable = PageableUtils.createPageable(
+            page,
+            size,
+            sortString,
+            PageableUtils.BOOK_ALLOWED_FIELDS
+        );
         Page<Bookmark> bookmarkPage = (bookId == null)
             ? bookmarkRepository.findByUserAndIsDeletedFalse(user, pageable)
             : bookmarkRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
@@ -92,30 +98,33 @@ public class BookmarkServiceImpl implements BookmarkService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<BookmarkResponse> getUserBookmarksWithCursor(
+    public SliceResponse<BookmarkResponse> getUserBookmarksForScroll(
         User user,
-        Long cursor,
-        Integer limit,
-        String sortString
+        Integer page,
+        Integer size,
+        String sortString,
+        String bookId
     ) {
-        // 次のページの有無を判定するために、limit + 1にして、1件多く取得
-        List<Bookmark> bookmarks = bookmarkRepository.findBookmarksByUserIdWithCursor(
-            user.getId(),
-            cursor,
-            limit + 1,
-            sortString
+        Pageable pageable = PageableUtils.createPageable(
+            page,
+            size,
+            sortString,
+            PageableUtils.BOOKMARK_ALLOWED_FIELDS
         );
-
-        CursorPageResponse<BookmarkResponse> response = bookmarkMapper.toCursorPageResponse(bookmarks, limit);
+        Slice<Bookmark> bookmarkPage = (bookId == null)
+            ? bookmarkRepository.findSliceByUserAndIsDeletedFalse(user, pageable)
+            : bookmarkRepository.findSliceByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
+        SliceResponse<BookmarkResponse> response = bookmarkMapper.toSliceResponse(bookmarkPage);
 
         // 書籍の目次のタイトルを取得し、章番号とタイトルのマップを作成する
-        Set<String> bookIds = bookmarks.stream()
+        Set<String> bookIds = bookmarkPage.getContent()
+            .stream()
             .map(bookmark -> bookmark.getBook().getId())
             .collect(Collectors.toSet());
 
         Map<String, Map<Integer, String>> bookChapterTitleMaps = new HashMap<>();
-        for (String bookId : bookIds) {
-            List<BookChapter> bookChapters = bookChapterRepository.findByBookId(bookId);
+        for (String _bookId : bookIds) {
+            List<BookChapter> bookChapters = bookChapterRepository.findByBookId(_bookId);
             Map<Integer, String> chapterTitleMap = bookChapters.stream()
                 .collect(
                     Collectors.toMap(
@@ -123,7 +132,7 @@ public class BookmarkServiceImpl implements BookmarkService {
                         BookChapter::getTitle
                     )
                 );
-            bookChapterTitleMaps.put(bookId, chapterTitleMap);
+            bookChapterTitleMaps.put(_bookId, chapterTitleMap);
         }
 
         // 章番号に対応するタイトルをレスポンスに追加する

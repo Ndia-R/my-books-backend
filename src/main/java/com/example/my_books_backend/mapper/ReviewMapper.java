@@ -5,8 +5,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import com.example.my_books_backend.dto.CursorPageResponse;
+import org.springframework.data.domain.Slice;
 import com.example.my_books_backend.dto.PageResponse;
+import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.entity.Review;
 
@@ -40,16 +41,14 @@ public abstract class ReviewMapper {
         );
     }
 
-    public CursorPageResponse<ReviewResponse> toCursorPageResponse(
-        List<Review> reviews,
-        Integer limit
-    ) {
-        Boolean hasNext = reviews.size() > limit;
-        if (hasNext) {
-            reviews = reviews.subList(0, limit); // 余分な1件を削除
-        }
-        String endCursor = hasNext ? reviews.get(reviews.size() - 1).getId().toString() : null;
-        List<ReviewResponse> responses = toReviewResponseList(reviews);
-        return new CursorPageResponse<ReviewResponse>(endCursor, hasNext, responses);
+    public SliceResponse<ReviewResponse> toSliceResponse(Slice<Review> reviews) {
+        List<ReviewResponse> responses = toReviewResponseList(reviews.getContent());
+        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
+        return new SliceResponse<ReviewResponse>(
+            reviews.getNumber() + 1,
+            reviews.getSize(),
+            reviews.hasNext(),
+            responses
+        );
     }
 }

@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.user.UserProfileCountsResponse;
 import com.example.my_books_backend.dto.user.UserProfileResponse;
-import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
+import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.dto.review.ReviewResponse;
@@ -58,7 +58,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(description = "ユーザーが投稿したレビューリスト")
+    @Operation(description = "ユーザーが投稿したレビューリスト（ページネーション用）")
     @GetMapping("/reviews")
     public ResponseEntity<PageResponse<ReviewResponse>> getUserReviews(
         @AuthenticationPrincipal User user,
@@ -77,30 +77,26 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(description = "ユーザーが投稿したレビューリスト（カーソルベース）")
-    @GetMapping("/reviews/cursor")
-    public ResponseEntity<CursorPageResponse<ReviewResponse>> getUserReviewsWithCursor(
+    @Operation(description = "ユーザーが投稿したレビューリスト（無限スクロール用）")
+    @GetMapping("/reviews/scroll")
+    public ResponseEntity<SliceResponse<ReviewResponse>> getUserReviewsForScroll(
         @AuthenticationPrincipal User user,
-        @Parameter(description = "カーソル（次のページを取得するための起点となるID）") @RequestParam(required = false) Long cursor,
-        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Integer limit,
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Integer size,
         @Parameter(description = "ソート条件", example = DEFAULT_SORT, schema = @Schema(allowableValues = {
             "updatedAt.asc",
             "updatedAt.desc",
             "createdAt.asc",
             "createdAt.desc",
             "rating.asc",
-            "rating.desc" })) @RequestParam(defaultValue = DEFAULT_SORT) String sort
+            "rating.desc" })) @RequestParam(defaultValue = DEFAULT_SORT) String sort,
+        @RequestParam(required = false) String bookId
     ) {
-        CursorPageResponse<ReviewResponse> response = reviewService.getUserReviewsWithCursor(
-            user,
-            cursor,
-            limit,
-            sort
-        );
+        SliceResponse<ReviewResponse> response = reviewService.getUserReviewsForScroll(user, page, size, sort, bookId);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(description = "ユーザーが追加したお気に入りリスト")
+    @Operation(description = "ユーザーが追加したお気に入りリスト（ページネーション用）")
     @GetMapping("/favorites")
     public ResponseEntity<PageResponse<FavoriteResponse>> getUserFavorites(
         @AuthenticationPrincipal User user,
@@ -123,28 +119,30 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(description = "ユーザーが追加したお気に入りリスト（カーソルベース）")
-    @GetMapping("/favorites/cursor")
-    public ResponseEntity<CursorPageResponse<FavoriteResponse>> getUserFavoritesWithCursor(
+    @Operation(description = "ユーザーが追加したお気に入りリスト（無限スクロール用）")
+    @GetMapping("/favorites/scroll")
+    public ResponseEntity<SliceResponse<FavoriteResponse>> getUserFavoritesForScroll(
         @AuthenticationPrincipal User user,
-        @Parameter(description = "カーソル（次のページを取得するための起点となるID）") @RequestParam(required = false) Long cursor,
-        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Integer limit,
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Integer size,
         @Parameter(description = "ソート条件", example = DEFAULT_SORT, schema = @Schema(allowableValues = {
             "updatedAt.asc",
             "updatedAt.desc",
             "createdAt.asc",
-            "createdAt.desc" })) @RequestParam(defaultValue = DEFAULT_SORT) String sort
+            "createdAt.desc" })) @RequestParam(defaultValue = DEFAULT_SORT) String sort,
+        @RequestParam(required = false) String bookId
     ) {
-        CursorPageResponse<FavoriteResponse> response = favoriteService.getUserFavoritesWithCursor(
+        SliceResponse<FavoriteResponse> response = favoriteService.getUserFavoritesForScroll(
             user,
-            cursor,
-            limit,
-            sort
+            page,
+            size,
+            sort,
+            bookId
         );
         return ResponseEntity.ok(response);
     }
 
-    @Operation(description = "ユーザーが追加したブックマークリスト")
+    @Operation(description = "ユーザーが追加したブックマークリスト（ページネーション用）")
     @GetMapping("/bookmarks")
     public ResponseEntity<PageResponse<BookmarkResponse>> getUserBookmarks(
         @AuthenticationPrincipal User user,
@@ -167,25 +165,27 @@ public class UserController {
         return ResponseEntity.ok(responses);
     }
 
-    @Operation(description = "ユーザーが追加したブックマークリスト（カーソルベース）")
-    @GetMapping("/bookmarks/cursor")
-    public ResponseEntity<CursorPageResponse<BookmarkResponse>> getUserBookmarksWithCursor(
+    @Operation(description = "ユーザーが追加したブックマークリスト（無限スクロール用）")
+    @GetMapping("/bookmarks/scroll")
+    public ResponseEntity<SliceResponse<BookmarkResponse>> getUserBookmarksForScroll(
         @AuthenticationPrincipal User user,
-        @Parameter(description = "カーソル（次のページを取得するための起点となるID）") @RequestParam(required = false) Long cursor,
-        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Integer limit,
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Integer size,
         @Parameter(description = "ソート条件", example = DEFAULT_SORT, schema = @Schema(allowableValues = {
             "updatedAt.asc",
             "updatedAt.desc",
             "createdAt.asc",
-            "createdAt.desc" })) @RequestParam(defaultValue = DEFAULT_SORT) String sort
+            "createdAt.desc" })) @RequestParam(defaultValue = DEFAULT_SORT) String sort,
+        @RequestParam(required = false) String bookId
     ) {
-        CursorPageResponse<BookmarkResponse> response = bookmarkService.getUserBookmarksWithCursor(
+        SliceResponse<BookmarkResponse> responses = bookmarkService.getUserBookmarksForScroll(
             user,
-            cursor,
-            limit,
-            sort
+            page,
+            size,
+            sort,
+            bookId
         );
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responses);
     }
 
     @Operation(description = "ユーザーのプロフィール情報を更新")

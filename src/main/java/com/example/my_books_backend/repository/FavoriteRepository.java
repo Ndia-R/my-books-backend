@@ -1,9 +1,10 @@
-package com.example.my_books_backend.repository.favorite;
+package com.example.my_books_backend.repository;
 
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import com.example.my_books_backend.entity.Book;
@@ -12,16 +13,16 @@ import com.example.my_books_backend.entity.User;
 
 @Repository
 public interface FavoriteRepository
-    extends JpaRepository<Favorite, Long>, FavoriteRepositoryCustom {
+    extends JpaRepository<Favorite, Long> {
     // ユーザーが追加したお気に入りを取得
     Page<Favorite> findByUserAndIsDeletedFalse(User user, Pageable pageable);
 
+    Slice<Favorite> findSliceByUserAndIsDeletedFalse(User user, Pageable pageable);
+
     // ユーザーが追加したお気に入りを取得（書籍ID指定）
-    Page<Favorite> findByUserAndIsDeletedFalseAndBookId(
-        User user,
-        Pageable pageable,
-        String bookId
-    );
+    Page<Favorite> findByUserAndIsDeletedFalseAndBookId(User user, Pageable pageable, String bookId);
+
+    Slice<Favorite> findSliceByUserAndIsDeletedFalseAndBookId(User user, Pageable pageable, String bookId);
 
     List<Favorite> findByUserAndBookIdAndIsDeletedFalse(User user, String bookId);
 

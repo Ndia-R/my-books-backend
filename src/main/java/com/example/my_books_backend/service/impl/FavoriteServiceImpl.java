@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
-import com.example.my_books_backend.dto.CursorPageResponse;
 import com.example.my_books_backend.dto.PageResponse;
+import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Favorite;
@@ -19,7 +20,7 @@ import com.example.my_books_backend.exception.ForbiddenException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.FavoriteMapper;
 import com.example.my_books_backend.repository.BookRepository;
-import com.example.my_books_backend.repository.favorite.FavoriteRepository;
+import com.example.my_books_backend.repository.FavoriteRepository;
 import com.example.my_books_backend.service.FavoriteService;
 import com.example.my_books_backend.util.PageableUtils;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,12 @@ public class FavoriteServiceImpl implements FavoriteService {
         String sortString,
         String bookId
     ) {
-        Pageable pageable = PageableUtils.createFavoritePageable(page, size, sortString);
+        Pageable pageable = PageableUtils.createPageable(
+            page,
+            size,
+            sortString,
+            PageableUtils.FAVORITE_ALLOWED_FIELDS
+        );
         Page<Favorite> favorites = (bookId == null)
             ? favoriteRepository.findByUserAndIsDeletedFalse(user, pageable)
             : favoriteRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
@@ -54,20 +60,23 @@ public class FavoriteServiceImpl implements FavoriteService {
      * {@inheritDoc}
      */
     @Override
-    public CursorPageResponse<FavoriteResponse> getUserFavoritesWithCursor(
+    public SliceResponse<FavoriteResponse> getUserFavoritesForScroll(
         User user,
-        Long cursor,
-        Integer limit,
-        String sortString
+        Integer page,
+        Integer size,
+        String sortString,
+        String bookId
     ) {
-        // 次のページの有無を判定するために、limit + 1にして、1件多く取得
-        List<Favorite> favorites = favoriteRepository.findFavoritesByUserIdWithCursor(
-            user.getId(),
-            cursor,
-            limit + 1,
-            sortString
+        Pageable pageable = PageableUtils.createPageable(
+            page,
+            size,
+            sortString,
+            PageableUtils.FAVORITE_ALLOWED_FIELDS
         );
-        return favoriteMapper.toCursorPageResponse(favorites, limit);
+        Slice<Favorite> favorites = (bookId == null)
+            ? favoriteRepository.findSliceByUserAndIsDeletedFalse(user, pageable)
+            : favoriteRepository.findSliceByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
+        return favoriteMapper.toSliceResponse(favorites);
     }
 
     /**

@@ -5,8 +5,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import com.example.my_books_backend.dto.CursorPageResponse;
+import org.springframework.data.domain.Slice;
 import com.example.my_books_backend.dto.PageResponse;
+import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.entity.Favorite;
 
@@ -38,16 +39,14 @@ public abstract class FavoriteMapper {
         );
     }
 
-    public CursorPageResponse<FavoriteResponse> toCursorPageResponse(
-        List<Favorite> favorites,
-        Integer limit
-    ) {
-        Boolean hasNext = favorites.size() > limit;
-        if (hasNext) {
-            favorites = favorites.subList(0, limit); // 余分な1件を削除
-        }
-        String endCursor = hasNext ? favorites.get(favorites.size() - 1).getId().toString() : null;
-        List<FavoriteResponse> responses = toFavoriteResponseList(favorites);
-        return new CursorPageResponse<FavoriteResponse>(endCursor, hasNext, responses);
+    public SliceResponse<FavoriteResponse> toSliceResponse(Slice<Favorite> favorites) {
+        List<FavoriteResponse> responses = toFavoriteResponseList(favorites.getContent());
+        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
+        return new SliceResponse<FavoriteResponse>(
+            favorites.getNumber() + 1,
+            favorites.getSize(),
+            favorites.hasNext(),
+            responses
+        );
     }
 }

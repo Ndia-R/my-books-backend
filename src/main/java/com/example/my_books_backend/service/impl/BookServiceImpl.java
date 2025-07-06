@@ -51,7 +51,12 @@ public class BookServiceImpl implements BookService {
         Integer size,
         String sortString
     ) {
-        Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
+        Pageable pageable = PageableUtils.createPageable(
+            page,
+            size,
+            sortString,
+            PageableUtils.BOOK_ALLOWED_FIELDS
+        );
         Page<Book> books = bookRepository.findByIsDeletedFalse(pageable);
         return bookMapper.toPageResponse(books);
     }
@@ -65,7 +70,12 @@ public class BookServiceImpl implements BookService {
         Integer size,
         String sortString
     ) {
-        Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
+        Pageable pageable = PageableUtils.createPageable(
+            page,
+            size,
+            sortString,
+            PageableUtils.BOOK_ALLOWED_FIELDS
+        );
         Slice<Book> books = bookRepository.findSliceByIsDeletedFalse(pageable);
         return bookMapper.toSliceResponse(books);
     }
@@ -80,7 +90,12 @@ public class BookServiceImpl implements BookService {
         Integer size,
         String sortString
     ) {
-        Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
+        Pageable pageable = PageableUtils.createPageable(
+            page,
+            size,
+            sortString,
+            PageableUtils.BOOK_ALLOWED_FIELDS
+        );
         Page<Book> books = bookRepository.findByTitleContainingAndIsDeletedFalse(keyword, pageable);
         return bookMapper.toPageResponse(books);
     }
@@ -95,7 +110,12 @@ public class BookServiceImpl implements BookService {
         Integer size,
         String sortString
     ) {
-        Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
+        Pageable pageable = PageableUtils.createPageable(
+            page,
+            size,
+            sortString,
+            PageableUtils.BOOK_ALLOWED_FIELDS
+        );
         Slice<Book> books = bookRepository.findSliceByTitleContainingAndIsDeletedFalse(keyword, pageable);
         return bookMapper.toSliceResponse(books);
     }
@@ -116,7 +136,12 @@ public class BookServiceImpl implements BookService {
             || "OR".equals(conditionQuery))) {
             throw new BadRequestException("検索条件が不正です。");
         }
-        Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
+        Pageable pageable = PageableUtils.createPageable(
+            page,
+            size,
+            sortString,
+            PageableUtils.BOOK_ALLOWED_FIELDS
+        );
 
         List<Long> genreIds = Arrays.stream(genreIdsQuery.split(","))
             .map(String::trim)
@@ -154,7 +179,12 @@ public class BookServiceImpl implements BookService {
             || "OR".equals(conditionQuery))) {
             throw new BadRequestException("検索条件が不正です。");
         }
-        Pageable pageable = PageableUtils.createBookPageable(page, size, sortString);
+        Pageable pageable = PageableUtils.createPageable(
+            page,
+            size,
+            sortString,
+            PageableUtils.BOOK_ALLOWED_FIELDS
+        );
 
         List<Long> genreIds = Arrays.stream(genreIdsQuery.split(","))
             .map(String::trim)
