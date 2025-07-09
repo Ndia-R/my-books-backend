@@ -1,9 +1,6 @@
 package com.example.my_books_backend.service.impl;
 
 import java.util.List;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.genre.GenreRequest;
@@ -25,7 +22,6 @@ public class GenreServiceImpl implements GenreService {
      * {@inheritDoc}
      */
     @Override
-    @Cacheable("getAllGenres")
     public List<GenreResponse> getAllGenres() {
         List<Genre> genres = genreRepository.findAll();
         return genreMapper.toGenreResponseList(genres);
@@ -35,7 +31,6 @@ public class GenreServiceImpl implements GenreService {
      * {@inheritDoc}
      */
     @Override
-    @Cacheable(value = "getGenreById", key = "#p0")
     public GenreResponse getGenreById(Long id) {
         Genre genre = genreRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Genre not found"));
@@ -46,8 +41,16 @@ public class GenreServiceImpl implements GenreService {
      * {@inheritDoc}
      */
     @Override
+    public List<GenreResponse> getGenresByIds(List<Long> ids) {
+        List<Genre> genres = genreRepository.findAllById(ids);
+        return genreMapper.toGenreResponseList(genres);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @Transactional
-    @CacheEvict(value = "getAllGenres", allEntries = true)
     public GenreResponse createGenre(GenreRequest request) {
         Genre genre = new Genre();
         genre.setName(request.getName());
@@ -61,8 +64,6 @@ public class GenreServiceImpl implements GenreService {
      */
     @Override
     @Transactional
-    @Caching(evict = { @CacheEvict(value = "getGenreById", key = "#p0"),
-        @CacheEvict(value = "getAllGenres", allEntries = true) })
     public GenreResponse updateGenre(Long id, GenreRequest request) {
         Genre genre = genreRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Genre not found"));
@@ -86,8 +87,6 @@ public class GenreServiceImpl implements GenreService {
      */
     @Override
     @Transactional
-    @Caching(evict = { @CacheEvict(value = "getGenreById", key = "#p0"),
-        @CacheEvict(value = "getAllGenres", allEntries = true) })
     public void deleteGenre(Long id) {
         genreRepository.deleteById(id);
     }

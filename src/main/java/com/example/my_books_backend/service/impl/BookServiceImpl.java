@@ -145,13 +145,7 @@ public class BookServiceImpl implements BookService {
 
         List<Long> genreIds = Arrays.stream(genreIdsQuery.split(","))
             .map(String::trim)
-            .map(s -> {
-                try {
-                    return Long.parseLong(s);
-                } catch (NumberFormatException e) {
-                    throw new BadRequestException("Invalid genre ID: " + s);
-                }
-            })
+            .map(this::parseGenreId)
             .collect(Collectors.toList());
 
         Boolean isAndCondition = "AND".equals(conditionQuery);
@@ -188,13 +182,7 @@ public class BookServiceImpl implements BookService {
 
         List<Long> genreIds = Arrays.stream(genreIdsQuery.split(","))
             .map(String::trim)
-            .map(s -> {
-                try {
-                    return Long.parseLong(s);
-                } catch (NumberFormatException e) {
-                    throw new BadRequestException("Invalid genre ID: " + s);
-                }
-            })
+            .map(this::parseGenreId)
             .collect(Collectors.toList());
 
         Boolean isAndCondition = "AND".equals(conditionQuery);
@@ -214,13 +202,9 @@ public class BookServiceImpl implements BookService {
         Book book = bookRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Book not found"));
 
-        List<GenreResponse> allGenres = genreService.getAllGenres();
-
         List<Long> bookGenreIds = book.getGenres().stream().map(Genre::getId).collect(Collectors.toList());
 
-        List<GenreResponse> relevantGenres = allGenres.stream()
-            .filter(genre -> bookGenreIds.contains(genre.getId()))
-            .collect(Collectors.toList());
+        List<GenreResponse> relevantGenres = genreService.getGenresByIds(bookGenreIds);
 
         BookDetailsResponse response = bookMapper.toBookDetailsResponse(book);
         response.setGenres(relevantGenres);
@@ -295,5 +279,15 @@ public class BookServiceImpl implements BookService {
         response.setContent(pageContent.getContent());
 
         return response;
+    }
+
+    // ----プライベートメソッド----
+
+    private Long parseGenreId(String id) {
+        try {
+            return Long.parseLong(id);
+        } catch (NumberFormatException e) {
+            throw new BadRequestException("Invalid genre ID: " + id);
+        }
     }
 }

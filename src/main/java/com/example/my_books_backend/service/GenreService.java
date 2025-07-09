@@ -21,6 +21,14 @@ public interface GenreService {
     GenreResponse getGenreById(Long id);
 
     /**
+     * 指定されたジャンルを取得（複数指定）
+     * 
+     * @param ids ジャンルID
+     * @return ジャンル
+     */
+    List<GenreResponse> getGenresByIds(List<Long> ids);
+
+    /**
      * ジャンルを作成
      * 
      * @param request ジャンル作成リクエスト
