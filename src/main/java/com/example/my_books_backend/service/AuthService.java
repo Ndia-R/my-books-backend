@@ -7,6 +7,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.auth.LoginRequest;
 import com.example.my_books_backend.dto.auth.SignupRequest;
 import com.example.my_books_backend.dto.auth.AccessTokenResponse;
@@ -25,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
@@ -75,6 +77,7 @@ public class AuthService {
      * @param response HTTPレスポンス（Cookieの設定に使用）
      * @return アクセストークンを含むレスポンス
      */
+    @Transactional
     public AccessTokenResponse signup(SignupRequest request, HttpServletResponse response) {
         String email = request.getEmail();
         String password = request.getPassword();

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.genre.GenreResponse;
 import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.SliceResponse;
@@ -34,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookChapterRepository bookChapterRepository;
