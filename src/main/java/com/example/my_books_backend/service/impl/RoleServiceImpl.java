@@ -1,9 +1,6 @@
 package com.example.my_books_backend.service.impl;
 
 import java.util.List;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.role.RoleRequest;
@@ -18,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
@@ -26,7 +24,6 @@ public class RoleServiceImpl implements RoleService {
      * {@inheritDoc}
      */
     @Override
-    @Cacheable("getAllRoles")
     public List<RoleResponse> getAllRoles() {
         List<Role> roles = roleRepository.findAll();
         return roleMapper.toRoleResponseList(roles);
@@ -36,7 +33,6 @@ public class RoleServiceImpl implements RoleService {
      * {@inheritDoc}
      */
     @Override
-    @Cacheable(value = "getRoleById", key = "#p0")
     public RoleResponse getRoleById(Long id) {
         Role role = roleRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Role not found"));
@@ -48,7 +44,6 @@ public class RoleServiceImpl implements RoleService {
      */
     @Override
     @Transactional
-    @CacheEvict(value = "getAllRoles", allEntries = true)
     public RoleResponse createRole(RoleRequest request) {
         Role role = new Role();
         role.setName(request.getName());
@@ -62,8 +57,6 @@ public class RoleServiceImpl implements RoleService {
      */
     @Override
     @Transactional
-    @Caching(evict = { @CacheEvict(value = "getRoleById", key = "#p0"),
-        @CacheEvict(value = "getAllRoles", allEntries = true) })
     public RoleResponse updateRole(Long id, RoleRequest request) {
         Role role = roleRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Role not found"));
@@ -87,8 +80,6 @@ public class RoleServiceImpl implements RoleService {
      */
     @Override
     @Transactional
-    @Caching(evict = { @CacheEvict(value = "getRoleById", key = "#p0"),
-        @CacheEvict(value = "getAllRoles", allEntries = true) })
     public void deleteRole(Long id) {
         roleRepository.deleteById(id);
     }
