@@ -5,11 +5,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Slice;
 import com.example.my_books_backend.dto.PageResponse;
-import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.entity.Favorite;
+import com.example.my_books_backend.util.PageableUtils;
 
 @Mapper(componentModel = "spring")
 public abstract class FavoriteMapper {
@@ -27,26 +26,6 @@ public abstract class FavoriteMapper {
 
     public PageResponse<FavoriteResponse> toPageResponse(Page<Favorite> favorites) {
         List<FavoriteResponse> responses = toFavoriteResponseList(favorites.getContent());
-        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-        return new PageResponse<FavoriteResponse>(
-            favorites.getNumber() + 1,
-            favorites.getSize(),
-            favorites.getTotalPages(),
-            favorites.getTotalElements(),
-            favorites.hasNext(),
-            favorites.hasPrevious(),
-            responses
-        );
-    }
-
-    public SliceResponse<FavoriteResponse> toSliceResponse(Slice<Favorite> favorites) {
-        List<FavoriteResponse> responses = toFavoriteResponseList(favorites.getContent());
-        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-        return new SliceResponse<FavoriteResponse>(
-            favorites.getNumber() + 1,
-            favorites.getSize(),
-            favorites.hasNext(),
-            responses
-        );
+        return PageableUtils.toPageResponse(favorites, responses);
     }
 }

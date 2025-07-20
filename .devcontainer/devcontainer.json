@@ -1,6 +1,6 @@
 {
   "name": "my-books-backend",
-  "dockerComposeFile": "docker-compose.yml",
+  "dockerComposeFile": "../docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspace",
   "shutdownAction": "stopCompose",

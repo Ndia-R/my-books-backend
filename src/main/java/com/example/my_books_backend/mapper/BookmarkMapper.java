@@ -5,11 +5,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Slice;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.dto.PageResponse;
-import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.entity.Bookmark;
+import com.example.my_books_backend.util.PageableUtils;
 
 @Mapper(componentModel = "spring")
 public abstract class BookmarkMapper {
@@ -28,26 +27,6 @@ public abstract class BookmarkMapper {
 
     public PageResponse<BookmarkResponse> toPageResponse(Page<Bookmark> bookmarks) {
         List<BookmarkResponse> responses = toBookmarkResponseList(bookmarks.getContent());
-        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-        return new PageResponse<BookmarkResponse>(
-            bookmarks.getNumber() + 1,
-            bookmarks.getSize(),
-            bookmarks.getTotalPages(),
-            bookmarks.getTotalElements(),
-            bookmarks.hasNext(),
-            bookmarks.hasPrevious(),
-            responses
-        );
-    }
-
-    public SliceResponse<BookmarkResponse> toSliceResponse(Slice<Bookmark> bookmarks) {
-        List<BookmarkResponse> responses = toBookmarkResponseList(bookmarks.getContent());
-        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-        return new SliceResponse<BookmarkResponse>(
-            bookmarks.getNumber() + 1,
-            bookmarks.getSize(),
-            bookmarks.hasNext(),
-            responses
-        );
+        return PageableUtils.toPageResponse(bookmarks, responses);
     }
 }

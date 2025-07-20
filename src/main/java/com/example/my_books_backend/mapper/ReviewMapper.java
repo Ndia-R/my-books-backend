@@ -5,11 +5,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Slice;
 import com.example.my_books_backend.dto.PageResponse;
-import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.review.ReviewResponse;
 import com.example.my_books_backend.entity.Review;
+import com.example.my_books_backend.util.PageableUtils;
 
 @Mapper(componentModel = "spring")
 public abstract class ReviewMapper {
@@ -29,26 +28,6 @@ public abstract class ReviewMapper {
 
     public PageResponse<ReviewResponse> toPageResponse(Page<Review> reviews) {
         List<ReviewResponse> responses = toReviewResponseList(reviews.getContent());
-        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-        return new PageResponse<ReviewResponse>(
-            reviews.getNumber() + 1,
-            reviews.getSize(),
-            reviews.getTotalPages(),
-            reviews.getTotalElements(),
-            reviews.hasNext(),
-            reviews.hasPrevious(),
-            responses
-        );
-    }
-
-    public SliceResponse<ReviewResponse> toSliceResponse(Slice<Review> reviews) {
-        List<ReviewResponse> responses = toReviewResponseList(reviews.getContent());
-        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-        return new SliceResponse<ReviewResponse>(
-            reviews.getNumber() + 1,
-            reviews.getSize(),
-            reviews.hasNext(),
-            responses
-        );
+        return PageableUtils.toPageResponse(reviews, responses);
     }
 }

@@ -4,13 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.genre.GenreResponse;
 import com.example.my_books_backend.dto.PageResponse;
-import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.book_chapter.BookChapterResponse;
@@ -59,27 +58,23 @@ public class BookServiceImpl implements BookService {
             sortString,
             PageableUtils.BOOK_ALLOWED_FIELDS
         );
-        Page<Book> books = bookRepository.findByIsDeletedFalse(pageable);
-        return bookMapper.toPageResponse(books);
-    }
+        Page<Book> pageObj = bookRepository.findByIsDeletedFalse(pageable);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SliceResponse<BookResponse> getBooksForScroll(
-        Integer page,
-        Integer size,
-        String sortString
-    ) {
-        Pageable pageable = PageableUtils.createPageable(
-            page,
-            size,
-            sortString,
-            PageableUtils.BOOK_ALLOWED_FIELDS
+        // 2クエリ戦略：IDリストから関連データを含むリストを取得
+        List<String> ids = pageObj.getContent().stream().map(Book::getId).toList();
+        List<Book> list = bookRepository.findAllByIdInWithRelations(ids);
+
+        // ソート順序を復元
+        List<Book> sortedList = PageableUtils.restoreSortOrder(ids, list, Book::getId);
+
+        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
+        Page<Book> updatedPageObj = new PageImpl<>(
+            sortedList,
+            pageable,
+            pageObj.getTotalElements()
         );
-        Slice<Book> books = bookRepository.findSliceByIsDeletedFalse(pageable);
-        return bookMapper.toSliceResponse(books);
+
+        return bookMapper.toPageResponse(updatedPageObj);
     }
 
     /**
@@ -98,28 +93,23 @@ public class BookServiceImpl implements BookService {
             sortString,
             PageableUtils.BOOK_ALLOWED_FIELDS
         );
-        Page<Book> books = bookRepository.findByTitleContainingAndIsDeletedFalse(keyword, pageable);
-        return bookMapper.toPageResponse(books);
-    }
+        Page<Book> pageObj = bookRepository.findByTitleContainingAndIsDeletedFalse(keyword, pageable);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SliceResponse<BookResponse> getBooksByTitleKeywordForScroll(
-        String keyword,
-        Integer page,
-        Integer size,
-        String sortString
-    ) {
-        Pageable pageable = PageableUtils.createPageable(
-            page,
-            size,
-            sortString,
-            PageableUtils.BOOK_ALLOWED_FIELDS
+        // 2クエリ戦略：IDリストから関連データを含むリストを取得
+        List<String> ids = pageObj.getContent().stream().map(Book::getId).toList();
+        List<Book> list = bookRepository.findAllByIdInWithRelations(ids);
+
+        // ソート順序を復元
+        List<Book> sortedList = PageableUtils.restoreSortOrder(ids, list, Book::getId);
+
+        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
+        Page<Book> updatedPageObj = new PageImpl<>(
+            sortedList,
+            pageable,
+            pageObj.getTotalElements()
         );
-        Slice<Book> books = bookRepository.findSliceByTitleContainingAndIsDeletedFalse(keyword, pageable);
-        return bookMapper.toSliceResponse(books);
+
+        return bookMapper.toPageResponse(updatedPageObj);
     }
 
     /**
@@ -152,48 +142,25 @@ public class BookServiceImpl implements BookService {
 
         Boolean isAndCondition = "AND".equals(conditionQuery);
 
-        Page<Book> books = isAndCondition
+        Page<Book> pageObj = isAndCondition
             ? bookRepository.findBooksHavingAllGenres(genreIds, genreIds.size(), pageable)
             : bookRepository.findDistinctByGenres_IdInAndIsDeletedFalse(genreIds, pageable);
 
-        return bookMapper.toPageResponse(books);
-    }
+        // 2クエリ戦略：IDリストから関連データを含むリストを取得
+        List<String> ids = pageObj.getContent().stream().map(Book::getId).toList();
+        List<Book> list = bookRepository.findAllByIdInWithRelations(ids);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SliceResponse<BookResponse> getBooksByGenreForScroll(
-        String genreIdsQuery,
-        String conditionQuery,
-        Integer page,
-        Integer size,
-        String sortString
-    ) {
-        if (!("SINGLE".equals(conditionQuery)
-            || "AND".equals(conditionQuery)
-            || "OR".equals(conditionQuery))) {
-            throw new BadRequestException("検索条件が不正です。");
-        }
-        Pageable pageable = PageableUtils.createPageable(
-            page,
-            size,
-            sortString,
-            PageableUtils.BOOK_ALLOWED_FIELDS
+        // ソート順序を復元
+        List<Book> sortedList = PageableUtils.restoreSortOrder(ids, list, Book::getId);
+
+        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
+        Page<Book> updatedPageObj = new PageImpl<>(
+            sortedList,
+            pageable,
+            pageObj.getTotalElements()
         );
 
-        List<Long> genreIds = Arrays.stream(genreIdsQuery.split(","))
-            .map(String::trim)
-            .map(this::parseGenreId)
-            .collect(Collectors.toList());
-
-        Boolean isAndCondition = "AND".equals(conditionQuery);
-
-        Slice<Book> books = isAndCondition
-            ? bookRepository.findSliceBooksHavingAllGenres(genreIds, genreIds.size(), pageable)
-            : bookRepository.findSliceDistinctByGenres_IdInAndIsDeletedFalse(genreIds, pageable);
-
-        return bookMapper.toSliceResponse(books);
+        return bookMapper.toPageResponse(updatedPageObj);
     }
 
     /**

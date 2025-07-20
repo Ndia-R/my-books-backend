@@ -1,7 +1,6 @@
 package com.example.my_books_backend.service;
 
 import com.example.my_books_backend.dto.PageResponse;
-import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.dto.review.ReviewRequest;
@@ -27,24 +26,6 @@ public interface ReviewService {
     );
 
     /**
-     * ユーザーが投稿したレビューを取得（ページネーション用）
-     * 
-     * @param user ユーザーエンティティ
-     * @param page ページ番号（1ベース）
-     * @param size 1ページあたりの最大結果件数
-     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
-     * @param bookId 書籍ID（nullの場合はすべてが対象）
-     * @return レビューリスト
-     */
-    SliceResponse<ReviewResponse> getUserReviewsForScroll(
-        User user,
-        Integer page,
-        Integer size,
-        String sortString,
-        String bookId
-    );
-
-    /**
      * 書籍に対するレビューを取得（ページネーション用）
      * 
      * @param bookId 書籍ID
@@ -54,22 +35,6 @@ public interface ReviewService {
      * @return レビューリスト
      */
     PageResponse<ReviewResponse> getBookReviews(
-        String bookId,
-        Integer page,
-        Integer size,
-        String sortString
-    );
-
-    /**
-     * 書籍に対するレビューを取得（無限スクロール用）
-     * 
-     * @param bookId 書籍ID
-     * @param page ページ番号（1ベース）
-     * @param size 1ページあたりの最大結果件数
-     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
-     * @return レビューリスト
-     */
-    SliceResponse<ReviewResponse> getBookReviewsForScroll(
         String bookId,
         Integer page,
         Integer size,

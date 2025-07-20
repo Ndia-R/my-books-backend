@@ -33,7 +33,12 @@ public class JwtUtils {
 
     private static final String REFRESH_TOKEN_KEY = "refreshToken";
 
-    // アクセストークン生成
+    /**
+     * アクセストークン生成
+     * 
+     * @param user ユーザーエンティティ
+     * @return アクセストークン
+     */
     public String generateAccessToken(User user) {
         String email = user.getEmail();
         String name = user.getName();
@@ -51,7 +56,12 @@ public class JwtUtils {
             .sign(getAlgorithm());
     }
 
-    // リフレッシュトークン生成
+    /**
+     * リフレッシュトークン生成
+     * 
+     * @param user ユーザーエンティティ
+     * @return リフレッシュトークン
+     */
     public String generateRefreshToken(User user) {
         String email = user.getEmail();
 
@@ -62,7 +72,12 @@ public class JwtUtils {
             .sign(getAlgorithm());
     }
 
-    // リフレッシュトークンからCookieを作成
+    /**
+     * リフレッシュトークンからCookieを作成
+     * 
+     * @param refreshToken リフレッシュトークン
+     * @return Cookie
+     */
     public Cookie createRefreshTokenCookie(String refreshToken) {
         Cookie cookie = new Cookie(REFRESH_TOKEN_KEY, refreshToken);
         cookie.setHttpOnly(true);
@@ -73,7 +88,11 @@ public class JwtUtils {
         return cookie;
     }
 
-    // リフレッシュトークンを無効にしたCookieを取得
+    /**
+     * リフレッシュトークンを無効にしたCookieを取得
+     * 
+     * @return Cookie
+     */
     public Cookie getInvalidateRefreshTokenCookie() {
         Cookie cookie = new Cookie(REFRESH_TOKEN_KEY, "");
         cookie.setHttpOnly(true);
@@ -84,7 +103,12 @@ public class JwtUtils {
         return cookie;
     }
 
-    // リフレッシュトークンをCookieから取得
+    /**
+     * リフレッシュトークンをCookieから取得
+     * 
+     * @param request リクエスト
+     * @return リフレッシュトークン
+     */
     public String getRefreshTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 
@@ -98,7 +122,12 @@ public class JwtUtils {
         return null;
     }
 
-    // トークンの検証
+    /**
+     * トークンの検証
+     * 
+     * @param token トークン
+     * @return 検証結果
+     */
     public boolean validateToken(String token) {
         try {
             JWTVerifier verifier = JWT.require(getAlgorithm()).build();
@@ -110,7 +139,12 @@ public class JwtUtils {
         }
     }
 
-    // トークンからサブジェクトを取得
+    /**
+     * トークンからサブジェクトを取得
+     * 
+     * @param token トークン
+     * @return サブジェクト
+     */
     public String getSubjectFromToken(String token) {
         try {
             DecodedJWT jwt = JWT.decode(token);
@@ -121,7 +155,12 @@ public class JwtUtils {
         }
     }
 
-    // トークンからJTIを取得
+    /**
+     * トークンからJTIを取得
+     * 
+     * @param token トークン
+     * @return JTI
+     */
     public String getJtiFromToken(String token) {
         try {
             DecodedJWT jwt = JWT.decode(token);
@@ -132,7 +171,12 @@ public class JwtUtils {
         }
     }
 
-    // トークンから有効期限を取得
+    /**
+     * トークンから有効期限を取得
+     * 
+     * @param token トークン
+     * @return 有効期限
+     */
     public Date getExpiryTimeFromToken(String token) {
         try {
             DecodedJWT jwt = JWT.decode(token);
@@ -143,7 +187,12 @@ public class JwtUtils {
         }
     }
 
-    // トークンのロールを取得
+    /**
+     * トークンのロールを取得
+     * 
+     * @param token トークン
+     * @return ロール
+     */
     public List<String> getRolesFromToken(String token) {
         try {
             DecodedJWT jwt = JWT.decode(token);
@@ -157,7 +206,11 @@ public class JwtUtils {
         }
     }
 
-    // Algorithmの取得
+    /**
+     * Algorithmの取得
+     * 
+     * @return Algorithm
+     */
     private Algorithm getAlgorithm() {
         return Algorithm.HMAC256(secret);
     }

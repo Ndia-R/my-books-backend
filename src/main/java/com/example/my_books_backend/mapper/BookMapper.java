@@ -6,14 +6,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Slice;
-
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.PageResponse;
-import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Genre;
+import com.example.my_books_backend.util.PageableUtils;
 
 @Mapper(componentModel = "spring")
 public interface BookMapper {
@@ -39,26 +37,6 @@ public interface BookMapper {
 
     default PageResponse<BookResponse> toPageResponse(Page<Book> books) {
         List<BookResponse> responses = toBookResponseList(books.getContent());
-        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-        return new PageResponse<BookResponse>(
-            books.getNumber() + 1,
-            books.getSize(),
-            books.getTotalPages(),
-            books.getTotalElements(),
-            books.hasNext(),
-            books.hasPrevious(),
-            responses
-        );
-    }
-
-    default SliceResponse<BookResponse> toSliceResponse(Slice<Book> books) {
-        List<BookResponse> responses = toBookResponseList(books.getContent());
-        // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-        return new SliceResponse<BookResponse>(
-            books.getNumber() + 1,
-            books.getSize(),
-            books.hasNext(),
-            responses
-        );
+        return PageableUtils.toPageResponse(books, responses);
     }
 }

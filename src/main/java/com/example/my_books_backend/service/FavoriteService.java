@@ -4,12 +4,11 @@ import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.dto.PageResponse;
-import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
 
 public interface FavoriteService {
     /**
-     * ユーザーが追加したお気に入りを取得（ページネーション用）
+     * ユーザーが追加したお気に入りを取得
      * 
      * @param user ユーザーエンティティ
      * @param page ページ番号（1ベース）
@@ -19,24 +18,6 @@ public interface FavoriteService {
      * @return お気に入りリスト
      */
     PageResponse<FavoriteResponse> getUserFavorites(
-        User user,
-        Integer page,
-        Integer size,
-        String sortString,
-        String bookId
-    );
-
-    /**
-    * ユーザーが追加したお気に入りを取得（無限スクロール用）
-    * 
-    * @param user ユーザーエンティティ
-    * @param page ページ番号（1ベース）
-    * @param size 1ページあたりの最大結果件数
-    * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
-    * @param bookId 書籍ID（nullの場合はすべてが対象）
-    * @return お気に入りリスト
-    */
-    SliceResponse<FavoriteResponse> getUserFavoritesForScroll(
         User user,
         Integer page,
         Integer size,

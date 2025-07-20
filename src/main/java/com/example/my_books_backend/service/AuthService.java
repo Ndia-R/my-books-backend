@@ -26,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
@@ -43,6 +42,7 @@ public class AuthService {
      * @param response HTTPレスポンス（Cookieの設定に使用）
      * @return アクセストークンを含むレスポンス
      */
+    @Transactional(readOnly = true)
     public AccessTokenResponse login(LoginRequest request, HttpServletResponse response) {
         Authentication authentication;
         try {
@@ -123,6 +123,7 @@ public class AuthService {
      * @param request HTTPリクエスト（リフレッシュトークンの取得に使用）
      * @return 新しいアクセストークンを含むレスポンス
      */
+    @Transactional(readOnly = true)
     public AccessTokenResponse refreshAccessToken(HttpServletRequest request) {
         String refreshToken = jwtUtil.getRefreshTokenFromCookie(request);
 

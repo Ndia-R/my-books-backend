@@ -81,6 +81,9 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional
     public void deleteRole(Long id) {
+        if (!roleRepository.existsById(id)) {
+            throw new NotFoundException("Role not found");
+        }
         roleRepository.deleteById(id);
     }
 }

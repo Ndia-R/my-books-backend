@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +43,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
-    private String DEFAULT_AVATAR_PATH = "";
+    private final String DEFAULT_AVATAR_PATH = "";
 
     /**
      * {@inheritDoc}

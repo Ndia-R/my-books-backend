@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageResponse<T> {
-    private int currentPage; // ページ番号は1ベース
-    private int pageSize;
-    private int totalPages;
-    private long totalItems;
-    private boolean hasNext;
-    private boolean hasPrevious;
+    private Integer currentPage; // ページ番号は1ベース
+    private Integer pageSize;
+    private Integer totalPages;
+    private Long totalItems;
+    private Boolean hasNext;
+    private Boolean hasPrevious;
     private List<T> data;
 }

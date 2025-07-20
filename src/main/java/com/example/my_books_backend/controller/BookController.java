@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.PageResponse;
-import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.book_chapter.BookTableOfContentsResponse;
@@ -34,12 +33,10 @@ public class BookController {
     private static final String DEFAULT_BOOKS_START_PAGE = "1";
     private static final String DEFAULT_BOOKS_PAGE_SIZE = "20";
     private static final String DEFAULT_BOOKS_SORT = "popularity.desc";
-    private static final String DEFAULT_BOOKS_RESPONSE_TYPE = "page";
 
     private static final String DEFAULT_REVIEWS_START_PAGE = "1";
     private static final String DEFAULT_REVIEWS_PAGE_SIZE = "3";
     private static final String DEFAULT_REVIEWS_SORT = "updatedAt.desc";
-    private static final String DEFAULT_REVIEWS_RESPONSE_TYPE = "page";
 
     @Operation(description = "最新の書籍リスト（１０冊）")
     @GetMapping("/new-releases")
@@ -50,7 +47,7 @@ public class BookController {
 
     @Operation(description = "タイトル検索: 指定されたタイトルから書籍を検索")
     @GetMapping("/search")
-    public ResponseEntity<?> getBooksByTitleKeyword(
+    public ResponseEntity<PageResponse<BookResponse>> getBooksByTitleKeyword(
         @Parameter(description = "タイトルに指定された文字列を含む書籍を検索", example = "魔法", required = true) @RequestParam String q,
         @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_BOOKS_START_PAGE) @RequestParam(defaultValue = DEFAULT_BOOKS_START_PAGE) Integer page,
         @Parameter(description = "1ページあたりの件数", example = DEFAULT_BOOKS_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_BOOKS_PAGE_SIZE) Integer size,
@@ -64,33 +61,15 @@ public class BookController {
             "averageRating.asc",
             "averageRating.desc",
             "popularity.asc",
-            "popularity.desc" })) @RequestParam(defaultValue = DEFAULT_BOOKS_SORT) String sort,
-        @Parameter(description = "レスポンスタイプ（ページネーション用or無限スクロール用）", example = DEFAULT_BOOKS_RESPONSE_TYPE, schema = @Schema(allowableValues = {
-            "page",
-            "scroll" })) @RequestParam(defaultValue = DEFAULT_BOOKS_RESPONSE_TYPE) String responseType
+            "popularity.desc" })) @RequestParam(defaultValue = DEFAULT_BOOKS_SORT) String sort
     ) {
-        if ("scroll".equals(responseType)) {
-            SliceResponse<BookResponse> response = bookService.getBooksByTitleKeywordForScroll(
-                q,
-                page,
-                size,
-                sort
-            );
-            return ResponseEntity.ok(response);
-        } else {
-            PageResponse<BookResponse> response = bookService.getBooksByTitleKeyword(
-                q,
-                page,
-                size,
-                sort
-            );
-            return ResponseEntity.ok(response);
-        }
+        PageResponse<BookResponse> response = bookService.getBooksByTitleKeyword(q, page, size, sort);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(description = "ジャンル検索: 指定されたジャンルIDと条件に基づいて書籍を検索")
     @GetMapping("/discover")
-    public ResponseEntity<?> getBooksByGenre(
+    public ResponseEntity<PageResponse<BookResponse>> getBooksByGenre(
         @Parameter(description = """
             検索対象のジャンルIDをカンマ区切りで指定
             - 単一ジャンル: 1
@@ -116,30 +95,10 @@ public class BookController {
             "averageRating.asc",
             "averageRating.desc",
             "popularity.asc",
-            "popularity.desc" })) @RequestParam(defaultValue = DEFAULT_BOOKS_SORT) String sort,
-        @Parameter(description = "レスポンスタイプ（ページネーション用or無限スクロール用）", example = DEFAULT_BOOKS_RESPONSE_TYPE, schema = @Schema(allowableValues = {
-            "page",
-            "scroll" })) @RequestParam(defaultValue = DEFAULT_BOOKS_RESPONSE_TYPE) String responseType
+            "popularity.desc" })) @RequestParam(defaultValue = DEFAULT_BOOKS_SORT) String sort
     ) {
-        if ("scroll".equals(responseType)) {
-            SliceResponse<BookResponse> response = bookService.getBooksByGenreForScroll(
-                genreIds,
-                condition,
-                page,
-                size,
-                sort
-            );
-            return ResponseEntity.ok(response);
-        } else {
-            PageResponse<BookResponse> response = bookService.getBooksByGenre(
-                genreIds,
-                condition,
-                page,
-                size,
-                sort
-            );
-            return ResponseEntity.ok(response);
-        }
+        PageResponse<BookResponse> response = bookService.getBooksByGenre(genreIds, condition, page, size, sort);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(description = "特定の書籍の詳細")
@@ -171,7 +130,7 @@ public class BookController {
 
     @Operation(description = "特定の書籍のレビューリスト")
     @GetMapping("/{id}/reviews")
-    public ResponseEntity<?> getBookReviews(
+    public ResponseEntity<PageResponse<ReviewResponse>> getBookReviews(
         @PathVariable String id,
         @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_REVIEWS_START_PAGE) @RequestParam(defaultValue = DEFAULT_REVIEWS_START_PAGE) Integer page,
         @Parameter(description = "1ページあたりの件数", example = DEFAULT_REVIEWS_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_REVIEWS_PAGE_SIZE) Integer size,
@@ -181,28 +140,10 @@ public class BookController {
             "createdAt.asc",
             "createdAt.desc",
             "rating.asc",
-            "rating.desc" })) @RequestParam(defaultValue = DEFAULT_REVIEWS_SORT) String sort,
-        @Parameter(description = "レスポンスタイプ（ページネーション用or無限スクロール用）", example = DEFAULT_REVIEWS_RESPONSE_TYPE, schema = @Schema(allowableValues = {
-            "page",
-            "scroll" })) @RequestParam(defaultValue = DEFAULT_REVIEWS_RESPONSE_TYPE) String responseType
+            "rating.desc" })) @RequestParam(defaultValue = DEFAULT_REVIEWS_SORT) String sort
     ) {
-        if ("scroll".equals(responseType)) {
-            SliceResponse<ReviewResponse> response = reviewService.getBookReviewsForScroll(
-                id,
-                page,
-                size,
-                sort
-            );
-            return ResponseEntity.ok(response);
-        } else {
-            PageResponse<ReviewResponse> response = reviewService.getBookReviews(
-                id,
-                page,
-                size,
-                sort
-            );
-            return ResponseEntity.ok(response);
-        }
+        PageResponse<ReviewResponse> response = reviewService.getBookReviews(id, page, size, sort);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(description = "特定の書籍のレビュー数")

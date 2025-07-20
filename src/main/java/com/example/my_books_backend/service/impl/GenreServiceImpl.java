@@ -89,6 +89,9 @@ public class GenreServiceImpl implements GenreService {
     @Override
     @Transactional
     public void deleteGenre(Long id) {
+        if (!genreRepository.existsById(id)) {
+            throw new NotFoundException("Genre not found");
+        }
         genreRepository.deleteById(id);
     }
 }

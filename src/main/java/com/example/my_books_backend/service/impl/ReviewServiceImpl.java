@@ -3,12 +3,11 @@ package com.example.my_books_backend.service.impl;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.PageResponse;
-import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
 import com.example.my_books_backend.dto.review.ReviewRequest;
 import com.example.my_books_backend.dto.review.ReviewResponse;
@@ -28,12 +27,13 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
 
     private final BookRepository bookRepository;
-    private final BookStatsService bookRatingService;
+    private final BookStatsService bookStatsService;
 
     /**
      * {@inheritDoc}
@@ -52,33 +52,25 @@ public class ReviewServiceImpl implements ReviewService {
             sortString,
             PageableUtils.REVIEW_ALLOWED_FIELDS
         );
-        Page<Review> reviews = (bookId == null)
+        Page<Review> pageObj = (bookId == null)
             ? reviewRepository.findByUserAndIsDeletedFalse(user, pageable)
             : reviewRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
-        return reviewMapper.toPageResponse(reviews);
-    }
 
-    /**
-    * {@inheritDoc}
-    */
-    @Override
-    public SliceResponse<ReviewResponse> getUserReviewsForScroll(
-        User user,
-        Integer page,
-        Integer size,
-        String sortString,
-        String bookId
-    ) {
-        Pageable pageable = PageableUtils.createPageable(
-            page,
-            size,
-            sortString,
-            PageableUtils.REVIEW_ALLOWED_FIELDS
+        // 2クエリ戦略：IDリストから関連データを含むリストを取得
+        List<Long> ids = pageObj.getContent().stream().map(Review::getId).toList();
+        List<Review> list = reviewRepository.findAllByIdInWithRelations(ids);
+
+        // ソート順序を復元
+        List<Review> sortedList = PageableUtils.restoreSortOrder(ids, list, Review::getId);
+
+        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
+        Page<Review> updatedPageObj = new PageImpl<>(
+            sortedList,
+            pageable,
+            pageObj.getTotalElements()
         );
-        Slice<Review> reviews = (bookId == null)
-            ? reviewRepository.findSliceByUserAndIsDeletedFalse(user, pageable)
-            : reviewRepository.findSliceByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
-        return reviewMapper.toSliceResponse(reviews);
+
+        return reviewMapper.toPageResponse(updatedPageObj);
     }
 
     /**
@@ -97,28 +89,23 @@ public class ReviewServiceImpl implements ReviewService {
             sortString,
             PageableUtils.REVIEW_ALLOWED_FIELDS
         );
-        Page<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(bookId, pageable);
-        return reviewMapper.toPageResponse(reviews);
-    }
+        Page<Review> pageObj = reviewRepository.findByBookIdAndIsDeletedFalse(bookId, pageable);
 
-    /**
-    * {@inheritDoc}
-    */
-    @Override
-    public SliceResponse<ReviewResponse> getBookReviewsForScroll(
-        String bookId,
-        Integer page,
-        Integer size,
-        String sortString
-    ) {
-        Pageable pageable = PageableUtils.createPageable(
-            page,
-            size,
-            sortString,
-            PageableUtils.REVIEW_ALLOWED_FIELDS
+        // 2クエリ戦略：IDリストから関連データを含むリストを取得
+        List<Long> ids = pageObj.getContent().stream().map(Review::getId).toList();
+        List<Review> list = reviewRepository.findAllByIdInWithRelations(ids);
+
+        // ソート順序を復元
+        List<Review> sortedList = PageableUtils.restoreSortOrder(ids, list, Review::getId);
+
+        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
+        Page<Review> updatedPageObj = new PageImpl<>(
+            sortedList,
+            pageable,
+            pageObj.getTotalElements()
         );
-        Slice<Review> reviews = reviewRepository.findSliceByBookIdAndIsDeletedFalse(bookId, pageable);
-        return reviewMapper.toSliceResponse(reviews);
+
+        return reviewMapper.toPageResponse(updatedPageObj);
     }
 
     /**
@@ -126,12 +113,13 @@ public class ReviewServiceImpl implements ReviewService {
      */
     @Override
     public ReviewCountsResponse getBookReviewCounts(String bookId) {
-        List<Review> reviews = reviewRepository.findByBookIdAndIsDeletedFalse(bookId);
-        Double averageRating = reviews.stream().mapToDouble(Review::getRating).average().orElse(0.0);
+        Object[] stats = reviewRepository.getReviewStats(bookId);
+        Long reviewCount = (Long) stats[0];
+        Double averageRating = (Double) stats[1];
 
         ReviewCountsResponse response = new ReviewCountsResponse();
         response.setBookId(bookId);
-        response.setReviewCount(reviews.size());
+        response.setReviewCount(reviewCount.intValue());
         response.setAverageRating(averageRating);
 
         return response;
@@ -164,8 +152,8 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review savedReview = reviewRepository.save(review);
 
-        // 書籍の評価点を更新
-        bookRatingService.updateBookStats(savedReview.getBook().getId());
+        // 書籍の評価点を非同期で更新
+        bookStatsService.updateBookStatsAsync(savedReview.getBook().getId());
 
         return reviewMapper.toReviewResponse(savedReview);
     }
@@ -196,8 +184,8 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review savedReview = reviewRepository.save(review);
 
-        // 書籍の評価点を更新
-        bookRatingService.updateBookStats(savedReview.getBook().getId());
+        // 書籍の評価点を非同期で更新
+        bookStatsService.updateBookStatsAsync(savedReview.getBook().getId());
 
         return reviewMapper.toReviewResponse(savedReview);
     }
@@ -218,7 +206,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setIsDeleted(true);
         reviewRepository.save(review);
 
-        // 書籍の評価点を更新
-        bookRatingService.updateBookStats(review.getBook().getId());
+        // 書籍の評価点を非同期で更新
+        bookStatsService.updateBookStatsAsync(review.getBook().getId());
     }
 }

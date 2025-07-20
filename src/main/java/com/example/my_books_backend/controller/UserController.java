@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.user.UserProfileCountsResponse;
 import com.example.my_books_backend.dto.user.UserProfileResponse;
 import com.example.my_books_backend.dto.PageResponse;
-import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.dto.review.ReviewResponse;
@@ -41,7 +40,6 @@ public class UserController {
     private static final String DEFAULT_START_PAGE = "1";
     private static final String DEFAULT_PAGE_SIZE = "5";
     private static final String DEFAULT_SORT = "updatedAt.desc";
-    private static final String DEFAULT_RESPONSE_TYPE = "page";
 
     @Operation(description = "ユーザーのプロフィール情報")
     @GetMapping("/profile")
@@ -61,7 +59,7 @@ public class UserController {
 
     @Operation(description = "ユーザーが投稿したレビューリスト")
     @GetMapping("/reviews")
-    public ResponseEntity<?> getUserReviews(
+    public ResponseEntity<PageResponse<ReviewResponse>> getUserReviews(
         @AuthenticationPrincipal User user,
         @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer page,
         @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Integer size,
@@ -72,35 +70,15 @@ public class UserController {
             "createdAt.desc",
             "rating.asc",
             "rating.desc" })) @RequestParam(defaultValue = DEFAULT_SORT) String sort,
-        @Parameter(description = "レスポンスタイプ（ページネーション用or無限スクロール用）", example = DEFAULT_RESPONSE_TYPE, schema = @Schema(allowableValues = {
-            "page",
-            "scroll" })) @RequestParam(defaultValue = DEFAULT_RESPONSE_TYPE) String responseType,
         @RequestParam(required = false) String bookId
     ) {
-        if ("scroll".equals(responseType)) {
-            SliceResponse<ReviewResponse> response = reviewService.getUserReviewsForScroll(
-                user,
-                page,
-                size,
-                sort,
-                bookId
-            );
-            return ResponseEntity.ok(response);
-        } else {
-            PageResponse<ReviewResponse> response = reviewService.getUserReviews(
-                user,
-                page,
-                size,
-                sort,
-                bookId
-            );
-            return ResponseEntity.ok(response);
-        }
+        PageResponse<ReviewResponse> response = reviewService.getUserReviews(user, page, size, sort, bookId);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(description = "ユーザーが追加したお気に入りリスト")
     @GetMapping("/favorites")
-    public ResponseEntity<?> getUserFavorites(
+    public ResponseEntity<PageResponse<FavoriteResponse>> getUserFavorites(
         @AuthenticationPrincipal User user,
         @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer page,
         @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Integer size,
@@ -109,35 +87,15 @@ public class UserController {
             "updatedAt.desc",
             "createdAt.asc",
             "createdAt.desc" })) @RequestParam(defaultValue = DEFAULT_SORT) String sort,
-        @Parameter(description = "レスポンスタイプ（ページネーション用or無限スクロール用）", example = DEFAULT_RESPONSE_TYPE, schema = @Schema(allowableValues = {
-            "page",
-            "scroll" })) @RequestParam(defaultValue = DEFAULT_RESPONSE_TYPE) String responseType,
         @RequestParam(required = false) String bookId
     ) {
-        if ("scroll".equals(responseType)) {
-            SliceResponse<FavoriteResponse> response = favoriteService.getUserFavoritesForScroll(
-                user,
-                page,
-                size,
-                sort,
-                bookId
-            );
-            return ResponseEntity.ok(response);
-        } else {
-            PageResponse<FavoriteResponse> response = favoriteService.getUserFavorites(
-                user,
-                page,
-                size,
-                sort,
-                bookId
-            );
-            return ResponseEntity.ok(response);
-        }
+        PageResponse<FavoriteResponse> response = favoriteService.getUserFavorites(user, page, size, sort, bookId);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(description = "ユーザーが追加したブックマークリスト")
     @GetMapping("/bookmarks")
-    public ResponseEntity<?> getUserBookmarks(
+    public ResponseEntity<PageResponse<BookmarkResponse>> getUserBookmarks(
         @AuthenticationPrincipal User user,
         @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer page,
         @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Integer size,
@@ -146,30 +104,10 @@ public class UserController {
             "updatedAt.desc",
             "createdAt.asc",
             "createdAt.desc" })) @RequestParam(defaultValue = DEFAULT_SORT) String sort,
-        @Parameter(description = "レスポンスタイプ（ページネーション用or無限スクロール用）", example = DEFAULT_RESPONSE_TYPE, schema = @Schema(allowableValues = {
-            "page",
-            "scroll" })) @RequestParam(defaultValue = DEFAULT_RESPONSE_TYPE) String responseType,
         @RequestParam(required = false) String bookId
     ) {
-        if ("scroll".equals(responseType)) {
-            SliceResponse<BookmarkResponse> responses = bookmarkService.getUserBookmarksForScroll(
-                user,
-                page,
-                size,
-                sort,
-                bookId
-            );
-            return ResponseEntity.ok(responses);
-        } else {
-            PageResponse<BookmarkResponse> responses = bookmarkService.getUserBookmarks(
-                user,
-                page,
-                size,
-                sort,
-                bookId
-            );
-            return ResponseEntity.ok(responses);
-        }
+        PageResponse<BookmarkResponse> responses = bookmarkService.getUserBookmarks(user, page, size, sort, bookId);
+        return ResponseEntity.ok(responses);
     }
 
     @Operation(description = "ユーザーのプロフィール情報を更新")

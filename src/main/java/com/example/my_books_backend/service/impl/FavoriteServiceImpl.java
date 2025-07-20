@@ -3,14 +3,13 @@ package com.example.my_books_backend.service.impl;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.favorite.FavoriteRequest;
 import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.dto.PageResponse;
-import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.Favorite;
@@ -27,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FavoriteServiceImpl implements FavoriteService {
     private final FavoriteRepository favoriteRepository;
     private final FavoriteMapper favoriteMapper;
@@ -50,33 +50,25 @@ public class FavoriteServiceImpl implements FavoriteService {
             sortString,
             PageableUtils.FAVORITE_ALLOWED_FIELDS
         );
-        Page<Favorite> favorites = (bookId == null)
+        Page<Favorite> pageObj = (bookId == null)
             ? favoriteRepository.findByUserAndIsDeletedFalse(user, pageable)
             : favoriteRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
-        return favoriteMapper.toPageResponse(favorites);
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SliceResponse<FavoriteResponse> getUserFavoritesForScroll(
-        User user,
-        Integer page,
-        Integer size,
-        String sortString,
-        String bookId
-    ) {
-        Pageable pageable = PageableUtils.createPageable(
-            page,
-            size,
-            sortString,
-            PageableUtils.FAVORITE_ALLOWED_FIELDS
+        // 2クエリ戦略：IDリストから関連データを含むリストを取得
+        List<Long> ids = pageObj.getContent().stream().map(Favorite::getId).toList();
+        List<Favorite> list = favoriteRepository.findAllByIdInWithRelations(ids);
+
+        // ソート順序を復元
+        List<Favorite> sortedList = PageableUtils.restoreSortOrder(ids, list, Favorite::getId);
+
+        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
+        Page<Favorite> updatedPageObj = new PageImpl<>(
+            sortedList,
+            pageable,
+            pageObj.getTotalElements()
         );
-        Slice<Favorite> favorites = (bookId == null)
-            ? favoriteRepository.findSliceByUserAndIsDeletedFalse(user, pageable)
-            : favoriteRepository.findSliceByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
-        return favoriteMapper.toSliceResponse(favorites);
+
+        return favoriteMapper.toPageResponse(updatedPageObj);
     }
 
     /**
@@ -84,11 +76,11 @@ public class FavoriteServiceImpl implements FavoriteService {
      */
     @Override
     public FavoriteCountsResponse getBookFavoriteCounts(String bookId) {
-        List<Favorite> favorites = favoriteRepository.findByBookId(bookId);
+        Integer count = favoriteRepository.countByBookIdAndIsDeletedFalse(bookId);
 
         FavoriteCountsResponse response = new FavoriteCountsResponse();
         response.setBookId(bookId);
-        response.setFavoriteCount(favorites.size());
+        response.setFavoriteCount(count);
 
         return response;
     }

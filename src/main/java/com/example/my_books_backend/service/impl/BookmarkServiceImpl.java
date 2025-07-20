@@ -7,12 +7,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.PageResponse;
-import com.example.my_books_backend.dto.SliceResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.entity.Book;
@@ -32,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookmarkServiceImpl implements BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final BookmarkMapper bookmarkMapper;
@@ -56,68 +56,28 @@ public class BookmarkServiceImpl implements BookmarkService {
             sortString,
             PageableUtils.BOOK_ALLOWED_FIELDS
         );
-        Page<Bookmark> bookmarkPage = (bookId == null)
+        Page<Bookmark> pageObj = (bookId == null)
             ? bookmarkRepository.findByUserAndIsDeletedFalse(user, pageable)
             : bookmarkRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
-        PageResponse<BookmarkResponse> response = bookmarkMapper.toPageResponse(bookmarkPage);
 
-        // 書籍の目次のタイトルを取得し、章番号とタイトルのマップを作成する
-        Set<String> bookIds = bookmarkPage.getContent()
-            .stream()
-            .map(bookmark -> bookmark.getBook().getId())
-            .collect(Collectors.toSet());
+        // 2クエリ戦略：IDリストから関連データを含むリストを取得
+        List<Long> ids = pageObj.getContent().stream().map(Bookmark::getId).toList();
+        List<Bookmark> list = bookmarkRepository.findAllByIdInWithRelations(ids);
 
-        Map<String, Map<Integer, String>> bookChapterTitleMaps = new HashMap<>();
-        for (String _bookId : bookIds) {
-            List<BookChapter> bookChapters = bookChapterRepository.findByBookId(_bookId);
-            Map<Integer, String> chapterTitleMap = bookChapters.stream()
-                .collect(
-                    Collectors.toMap(
-                        bookChapter -> bookChapter.getId().getChapterNumber(),
-                        BookChapter::getTitle
-                    )
-                );
-            bookChapterTitleMaps.put(_bookId, chapterTitleMap);
-        }
+        // ソート順序を復元
+        List<Bookmark> sortedList = PageableUtils.restoreSortOrder(ids, list, Bookmark::getId);
 
-        // 章番号に対応するタイトルをレスポンスに追加する
-        response.getData().forEach(bookmark -> {
-            Map<Integer, String> chapterTitleMap = bookChapterTitleMaps.get(bookmark.getBook().getId());
-            if (chapterTitleMap != null) {
-                String chapterTitle = chapterTitleMap.get(bookmark.getChapterNumber());
-                if (chapterTitle != null) {
-                    bookmark.setChapterTitle(chapterTitle);
-                }
-            }
-        });
-
-        return response;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SliceResponse<BookmarkResponse> getUserBookmarksForScroll(
-        User user,
-        Integer page,
-        Integer size,
-        String sortString,
-        String bookId
-    ) {
-        Pageable pageable = PageableUtils.createPageable(
-            page,
-            size,
-            sortString,
-            PageableUtils.BOOKMARK_ALLOWED_FIELDS
+        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
+        Page<Bookmark> updatedPageObj = new PageImpl<>(
+            sortedList,
+            pageable,
+            pageObj.getTotalElements()
         );
-        Slice<Bookmark> bookmarkPage = (bookId == null)
-            ? bookmarkRepository.findSliceByUserAndIsDeletedFalse(user, pageable)
-            : bookmarkRepository.findSliceByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
-        SliceResponse<BookmarkResponse> response = bookmarkMapper.toSliceResponse(bookmarkPage);
+
+        PageResponse<BookmarkResponse> response = bookmarkMapper.toPageResponse(updatedPageObj);
 
         // 書籍の目次のタイトルを取得し、章番号とタイトルのマップを作成する
-        Set<String> bookIds = bookmarkPage.getContent()
+        Set<String> bookIds = pageObj.getContent()
             .stream()
             .map(bookmark -> bookmark.getBook().getId())
             .collect(Collectors.toSet());

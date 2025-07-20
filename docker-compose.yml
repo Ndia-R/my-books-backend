@@ -1,8 +1,7 @@
 services:
   app:
     build:
-      context: ..
-      dockerfile: .devcontainer/Dockerfile
+      context: .
     ports:
       - 8080:8080
     environment:
@@ -14,7 +13,7 @@ services:
       SPRING_APP_JWT_ACCESS_EXPIRATION: ${JWT_ACCESS_EXPIRATION}
       SPRING_APP_JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION}
     volumes:
-      - ..:/workspace
+      - .:/workspace
     depends_on:
       db:
         condition: service_healthy
@@ -38,8 +37,8 @@ services:
     command: --secure-file-priv=/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 30s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 5
 
 volumes:

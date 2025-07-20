@@ -5,6 +5,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import org.springframework.data.domain.Page;
+import com.example.my_books_backend.dto.PageResponse;
+import java.util.function.Function;
 
 public class PageableUtils {
     private static final int DEFAULT_PAGE_SIZE = 20;
@@ -12,6 +18,7 @@ public class PageableUtils {
     private static final String DEFAULT_SORT_FIELD = "id";
     private static final Sort.Direction DEFAULT_SORT_DIRECTION = Sort.Direction.ASC;
 
+    // ソート可能なフィールドのリスト（エンドポイントで指定可能なフィールド）
     public static final List<String> BOOK_ALLOWED_FIELDS = new ArrayList<>(
         List.of("title", "publicationDate", "reviewCount", "averageRating", "popularity")
     );
@@ -25,25 +32,35 @@ public class PageableUtils {
         List.of("updatedAt", "createdAt")
     );
 
+    /**
+     * ページネーション用のPageableオブジェクトを作成
+     * 
+     * @param page ページ番号（1ベース）
+     * @param size 1ページあたりの最大結果件数
+     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
+     * @param category ソート可能なフィールドのリスト
+     * @return Pageableオブジェクト 
+     */
     public static Pageable createPageable(
         int page,
         int size,
         String sortString,
         List<String> category
     ) {
-        // pageableは内部的に0ベースなので、1ベース→0ベースへ
-        page = Math.max(0, page - 1);
-
-        // 1ページあたりの最大数は制限する
+        page = Math.max(0, page - 1); // pageableは内部的に0ベースなので、1ベース→0ベースへ
         size = (size <= 0) ? DEFAULT_PAGE_SIZE : Math.min(size, MAX_PAGE_SIZE);
-
-        // ソート条件
         Sort sort = parseSort(sortString, category);
 
         return PageRequest.of(page, size, sort);
     }
 
-    // ソート条件の解析
+    /**
+     * ソート条件の解析
+     * 
+     * @param sortString ソート条件（例: "xxxx.desc", "xxxx.asc"）
+     * @param category ソート可能なフィールドのリスト
+     * @return Sortオブジェクト
+     */
     private static Sort parseSort(String sortString, List<String> category) {
         if (sortString == null || sortString.trim().isEmpty()) {
             return Sort.by(DEFAULT_SORT_DIRECTION, DEFAULT_SORT_FIELD);
@@ -68,5 +85,57 @@ public class PageableUtils {
 
         // 第二ソートは「id」とする
         return Sort.by(sortDirection, sortField).and(Sort.by(Sort.Direction.ASC, "id"));
+    }
+
+    /**
+     * 汎用的なPageResponse変換メソッド
+     * 
+     * @param <T> エンティティの型
+     * @param <R> レスポンスの型
+     * @param page Pageオブジェクト
+     * @param responseList 変換済みのレスポンスリスト
+     * @return PageResponseオブジェクト
+     */
+    public static <T, R> PageResponse<R> toPageResponse(Page<T> page, List<R> responseList) {
+        return new PageResponse<R>(
+            page.getNumber() + 1, // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
+            page.getSize(),
+            page.getTotalPages(),
+            page.getTotalElements(),
+            page.hasNext(),
+            page.hasPrevious(),
+            responseList
+        );
+    }
+
+    /**
+     * 2クエリ戦略でソート順序を保持するためのユーティリティメソッド
+     * IDリストの順序に従ってリストを並び替える
+     * 
+     * @param <T> エンティティの型
+     * @param <ID> IDの型
+     * @param ids 元のIDリスト（正しい順序）
+     * @param list 並び替える対象のリスト
+     * @param idExtractor IDを抽出する関数
+     * @return ソート順序が復元されたリスト
+     */
+    public static <T, ID> List<T> restoreSortOrder(
+        List<ID> ids,
+        List<T> list,
+        Function<T, ID> idExtractor
+    ) {
+        // ソート順序を保持するためのマップを作成
+        Map<ID, Integer> idOrder = IntStream.range(0, ids.size())
+            .boxed()
+            .collect(Collectors.toMap(ids::get, i -> i));
+
+        // 元のソート順序でリストを並び替え
+        return list.stream()
+            .sorted((item1, item2) -> {
+                Integer order1 = idOrder.get(idExtractor.apply(item1));
+                Integer order2 = idOrder.get(idExtractor.apply(item2));
+                return order1.compareTo(order2);
+            })
+            .collect(Collectors.toList());
     }
 }

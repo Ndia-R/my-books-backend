@@ -7,8 +7,8 @@ import com.example.my_books_backend.entity.BookChapterPageContent;
 import com.example.my_books_backend.entity.BookChapterPageContentId;
 
 @Repository
-public interface BookChapterPageContentRepository
-    extends JpaRepository<BookChapterPageContent, BookChapterPageContentId> {
+public interface BookChapterPageContentRepository extends
+    JpaRepository<BookChapterPageContent, BookChapterPageContentId> {
     List<BookChapterPageContent> findByIdBookIdAndIdChapterNumber(
         String bookId,
         Integer chapterNumber
