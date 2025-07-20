@@ -11,7 +11,8 @@
           "mhutchie.git-graph",
           "streetsidesoftware.code-spell-checker",
           "shengchen.vscode-checkstyle",
-          "cweijan.vscode-database-client2"
+          "cweijan.vscode-database-client2",
+          "anthropic.claude-code"
       ]
     }
   }

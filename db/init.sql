@@ -421,11 +421,14 @@ SET review_count = (
     WHERE r.book_id = b.id AND r.is_deleted = false
 );
 
--- 人気度
+-- 人気度（BookStatsServiceImpl.javaのロジックと同一）
 UPDATE books b
 SET popularity = (
     CASE 
         WHEN b.review_count = 0 THEN 0.000
-        ELSE ROUND((b.review_count * b.average_rating) / (b.review_count + 10), 3)
+        WHEN b.review_count < 3 THEN 
+            ROUND(b.average_rating * (1.0 - ((1.0 - (b.review_count / 3.0)) * 0.2)), 3)
+        ELSE 
+            ROUND(b.average_rating, 3)
     END
 );
