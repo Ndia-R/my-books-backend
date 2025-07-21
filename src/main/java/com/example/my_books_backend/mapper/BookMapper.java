@@ -27,7 +27,7 @@ public interface BookMapper {
 
     @Named("genresToIds")
     default List<Long> genresToIds(List<Genre> genres) {
-        return genres.stream().map(Genre::getId).toList();
+        return genres.stream().map(Genre::getId).distinct().toList();
     }
 
     @Named("splitAuthors")

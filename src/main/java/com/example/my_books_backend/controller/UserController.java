@@ -37,9 +37,9 @@ public class UserController {
     private final FavoriteService favoriteService;
     private final BookmarkService bookmarkService;
 
-    private static final String DEFAULT_START_PAGE = "1";
-    private static final String DEFAULT_PAGE_SIZE = "5";
-    private static final String DEFAULT_SORT = "updatedAt.desc";
+    private static final String DEFAULT_USER_START_PAGE = "1";
+    private static final String DEFAULT_USER_PAGE_SIZE = "5";
+    private static final String DEFAULT_USER_SORT = "updatedAt.desc";
 
     @Operation(description = "ユーザーのプロフィール情報")
     @GetMapping("/profile")
@@ -61,15 +61,15 @@ public class UserController {
     @GetMapping("/reviews")
     public ResponseEntity<PageResponse<ReviewResponse>> getUserReviews(
         @AuthenticationPrincipal User user,
-        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Long page,
-        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Long size,
-        @Parameter(description = "ソート条件", example = DEFAULT_SORT, schema = @Schema(allowableValues = {
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_USER_START_PAGE) @RequestParam(defaultValue = DEFAULT_USER_START_PAGE) Long page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_USER_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_USER_PAGE_SIZE) Long size,
+        @Parameter(description = "ソート条件", example = DEFAULT_USER_SORT, schema = @Schema(allowableValues = {
             "updatedAt.asc",
             "updatedAt.desc",
             "createdAt.asc",
             "createdAt.desc",
             "rating.asc",
-            "rating.desc" })) @RequestParam(defaultValue = DEFAULT_SORT) String sort,
+            "rating.desc" })) @RequestParam(defaultValue = DEFAULT_USER_SORT) String sort,
         @RequestParam(required = false) String bookId
     ) {
         PageResponse<ReviewResponse> response = reviewService.getUserReviews(user, page, size, sort, bookId);
@@ -80,13 +80,13 @@ public class UserController {
     @GetMapping("/favorites")
     public ResponseEntity<PageResponse<FavoriteResponse>> getUserFavorites(
         @AuthenticationPrincipal User user,
-        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Long page,
-        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Long size,
-        @Parameter(description = "ソート条件", example = DEFAULT_SORT, schema = @Schema(allowableValues = {
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_USER_START_PAGE) @RequestParam(defaultValue = DEFAULT_USER_START_PAGE) Long page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_USER_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_USER_PAGE_SIZE) Long size,
+        @Parameter(description = "ソート条件", example = DEFAULT_USER_SORT, schema = @Schema(allowableValues = {
             "updatedAt.asc",
             "updatedAt.desc",
             "createdAt.asc",
-            "createdAt.desc" })) @RequestParam(defaultValue = DEFAULT_SORT) String sort,
+            "createdAt.desc" })) @RequestParam(defaultValue = DEFAULT_USER_SORT) String sort,
         @RequestParam(required = false) String bookId
     ) {
         PageResponse<FavoriteResponse> response = favoriteService.getUserFavorites(user, page, size, sort, bookId);
@@ -97,13 +97,13 @@ public class UserController {
     @GetMapping("/bookmarks")
     public ResponseEntity<PageResponse<BookmarkResponse>> getUserBookmarks(
         @AuthenticationPrincipal User user,
-        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Long page,
-        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Long size,
-        @Parameter(description = "ソート条件", example = DEFAULT_SORT, schema = @Schema(allowableValues = {
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_USER_START_PAGE) @RequestParam(defaultValue = DEFAULT_USER_START_PAGE) Long page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_USER_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_USER_PAGE_SIZE) Long size,
+        @Parameter(description = "ソート条件", example = DEFAULT_USER_SORT, schema = @Schema(allowableValues = {
             "updatedAt.asc",
             "updatedAt.desc",
             "createdAt.asc",
-            "createdAt.desc" })) @RequestParam(defaultValue = DEFAULT_SORT) String sort,
+            "createdAt.desc" })) @RequestParam(defaultValue = DEFAULT_USER_SORT) String sort,
         @RequestParam(required = false) String bookId
     ) {
         PageResponse<BookmarkResponse> responses = bookmarkService.getUserBookmarks(user, page, size, sort, bookId);

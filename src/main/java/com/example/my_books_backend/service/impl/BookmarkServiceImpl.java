@@ -81,6 +81,11 @@ public class BookmarkServiceImpl implements BookmarkService {
      * @param bookmarks 元のブックマークリスト（書籍IDの取得用）
      */
     private void enrichWithChapterTitles(PageResponse<BookmarkResponse> response, List<Bookmark> bookmarks) {
+        // 空のリストの場合は早期リターン
+        if (bookmarks.isEmpty() || response.getData().isEmpty()) {
+            return;
+        }
+
         // 書籍IDを収集
         Set<String> bookIds = bookmarks.stream()
             .map(bookmark -> bookmark.getBook().getId())
@@ -108,6 +113,10 @@ public class BookmarkServiceImpl implements BookmarkService {
      * @return 書籍ID -> (章番号 -> 章タイトル) のマップ
      */
     private Map<String, Map<Long, String>> createBookChapterTitleMaps(Set<String> bookIds) {
+        if (bookIds.isEmpty()) {
+            return Map.of();
+        }
+        
         Map<String, Map<Long, String>> result = new HashMap<>();
 
         for (String bookId : bookIds) {

@@ -14,8 +14,9 @@ import com.example.my_books_backend.dto.PageResponse;
 import java.util.function.Function;
 
 public class PageableUtils {
+    // application.propertiesの値と一致させる
     private static final long DEFAULT_PAGE_SIZE = 20;
-    private static final long MAX_PAGE_SIZE = 100;
+    private static final long MAX_PAGE_SIZE = 1000;
     private static final String DEFAULT_SORT_FIELD = "id";
     private static final Sort.Direction DEFAULT_SORT_DIRECTION = Sort.Direction.ASC;
 
@@ -126,16 +127,26 @@ public class PageableUtils {
         List<T> list,
         Function<T, ID> idExtractor
     ) {
-        // ソート順序を保持するためのマップを作成
-        Map<ID, Long> idOrder = IntStream.range(0, ids.size())
+        if (ids.isEmpty() || list.isEmpty()) {
+            return List.of();
+        }
+
+        // ソート順序を保持するためのマップを作成（パフォーマンス最適化）
+        Map<ID, Integer> idOrder = IntStream.range(0, ids.size())
             .boxed()
-            .collect(Collectors.toMap(ids::get, i -> i.longValue()));
+            .collect(Collectors.toMap(ids::get, i -> i));
 
         // 元のソート順序でリストを並び替え
         return list.stream()
             .sorted((item1, item2) -> {
-                Long order1 = idOrder.get(idExtractor.apply(item1));
-                Long order2 = idOrder.get(idExtractor.apply(item2));
+                Integer order1 = idOrder.get(idExtractor.apply(item1));
+                Integer order2 = idOrder.get(idExtractor.apply(item2));
+                
+                // null安全性の確保
+                if (order1 == null && order2 == null) return 0;
+                if (order1 == null) return 1;
+                if (order2 == null) return -1;
+                
                 return order1.compareTo(order2);
             })
             .collect(Collectors.toList());
@@ -150,12 +161,26 @@ public class PageableUtils {
      * @param repositoryFinder リポジトリからIDリストで詳細データを取得する関数
      * @param idExtractor エンティティからIDを抽出する関数
      * @return ソート順序が保持された新しいPageオブジェクト
+     * @throws IllegalArgumentException 引数がnullの場合
      */
     public static <T, ID> Page<T> applyTwoQueryStrategy(
         Page<T> initialPage,
         Function<List<ID>, List<T>> repositoryFinder,
         Function<T, ID> idExtractor
     ) {
+        if (initialPage == null || repositoryFinder == null || idExtractor == null) {
+            throw new IllegalArgumentException("引数にnullは指定できません");
+        }
+
+        // 空のページの場合は早期リターン
+        if (initialPage.getContent().isEmpty()) {
+            return new PageImpl<>(
+                List.of(),
+                initialPage.getPageable(),
+                initialPage.getTotalElements()
+            );
+        }
+
         // IDリストを取得
         List<ID> ids = initialPage.getContent().stream()
             .map(idExtractor)
