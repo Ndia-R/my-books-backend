@@ -52,7 +52,7 @@ public class BookServiceImpl implements BookService {
         Long size,
         String sortString
     ) {
-        Pageable pageable = PageableUtils.createPageable(
+        Pageable pageable = PageableUtils.of(
             page,
             size,
             sortString,
@@ -87,7 +87,7 @@ public class BookServiceImpl implements BookService {
         Long size,
         String sortString
     ) {
-        Pageable pageable = PageableUtils.createPageable(
+        Pageable pageable = PageableUtils.of(
             page,
             size,
             sortString,
@@ -128,7 +128,7 @@ public class BookServiceImpl implements BookService {
             || "OR".equals(conditionQuery))) {
             throw new BadRequestException("検索条件が不正です。");
         }
-        Pageable pageable = PageableUtils.createPageable(
+        Pageable pageable = PageableUtils.of(
             page,
             size,
             sortString,

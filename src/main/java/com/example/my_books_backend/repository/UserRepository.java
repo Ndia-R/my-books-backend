@@ -11,11 +11,14 @@ import com.example.my_books_backend.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    // ユーザー情報取得（ロールも同時に取得する）
     @EntityGraph(attributePaths = { "roles" })
     Optional<User> findByEmail(String email);
 
+    // メールアドレスが存在するか
     Boolean existsByEmail(String email);
 
+    // ユーザーのお気に入り、ブックマーク、レビューの数を取得
     @Query("""
         SELECT new com.example.my_books_backend.dto.user.UserProfileCountsResponse(
             (SELECT COUNT(f) FROM Favorite f WHERE f.user.id = :userId AND f.isDeleted = false),
@@ -23,5 +26,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
             (SELECT COUNT(r) FROM Review r WHERE r.user.id = :userId AND r.isDeleted = false)
         )
         """)
-    UserProfileCountsResponse getUserProfileCountsArray(@Param("userId") Long userId);
+    UserProfileCountsResponse getUserProfileCountsResponse(@Param("userId") Long userId);
 }

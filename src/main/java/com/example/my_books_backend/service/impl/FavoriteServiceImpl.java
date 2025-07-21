@@ -44,7 +44,7 @@ public class FavoriteServiceImpl implements FavoriteService {
         String sortString,
         String bookId
     ) {
-        Pageable pageable = PageableUtils.createPageable(
+        Pageable pageable = PageableUtils.of(
             page,
             size,
             sortString,
@@ -76,13 +76,7 @@ public class FavoriteServiceImpl implements FavoriteService {
      */
     @Override
     public FavoriteCountsResponse getBookFavoriteCounts(String bookId) {
-        Long count = favoriteRepository.countByBookIdAndIsDeletedFalse(bookId);
-
-        FavoriteCountsResponse response = new FavoriteCountsResponse();
-        response.setBookId(bookId);
-        response.setFavoriteCount(count);
-
-        return response;
+        return favoriteRepository.getFavoriteCountsResponse(bookId);
     }
 
     /**

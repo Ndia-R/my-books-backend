@@ -46,7 +46,7 @@ public class ReviewServiceImpl implements ReviewService {
         String sortString,
         String bookId
     ) {
-        Pageable pageable = PageableUtils.createPageable(
+        Pageable pageable = PageableUtils.of(
             page,
             size,
             sortString,
@@ -83,7 +83,7 @@ public class ReviewServiceImpl implements ReviewService {
         Long size,
         String sortString
     ) {
-        Pageable pageable = PageableUtils.createPageable(
+        Pageable pageable = PageableUtils.of(
             page,
             size,
             sortString,
@@ -113,16 +113,7 @@ public class ReviewServiceImpl implements ReviewService {
      */
     @Override
     public ReviewCountsResponse getBookReviewCounts(String bookId) {
-        Object[] stats = reviewRepository.getReviewStats(bookId);
-        Long reviewCount = (Long) stats[0];
-        Double averageRating = (Double) stats[1];
-
-        ReviewCountsResponse response = new ReviewCountsResponse();
-        response.setBookId(bookId);
-        response.setReviewCount(reviewCount);
-        response.setAverageRating(averageRating);
-
-        return response;
+        return reviewRepository.getReviewCountsResponse(bookId);
     }
 
     /**

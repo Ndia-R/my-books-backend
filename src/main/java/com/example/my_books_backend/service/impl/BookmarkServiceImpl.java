@@ -50,7 +50,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         String sortString,
         String bookId
     ) {
-        Pageable pageable = PageableUtils.createPageable(
+        Pageable pageable = PageableUtils.of(
             page,
             size,
             sortString,

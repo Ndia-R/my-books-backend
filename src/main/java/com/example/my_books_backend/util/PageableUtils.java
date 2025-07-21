@@ -34,6 +34,7 @@ public class PageableUtils {
 
     /**
      * ページネーション用のPageableオブジェクトを作成
+     * Spring Data JPAの慣習に合わせてメソッド名は「of」
      * 
      * @param page ページ番号（1ベース）
      * @param size 1ページあたりの最大結果件数
@@ -41,7 +42,7 @@ public class PageableUtils {
      * @param category ソート可能なフィールドのリスト
      * @return Pageableオブジェクト 
      */
-    public static Pageable createPageable(
+    public static Pageable of(
         long page,
         long size,
         String sortString,

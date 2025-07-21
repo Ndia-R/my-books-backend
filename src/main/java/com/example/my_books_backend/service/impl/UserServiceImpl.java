@@ -119,7 +119,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserProfileCountsResponse getUserProfileCounts(User user) {
-        return userRepository.getUserProfileCountsArray(user.getId());
+        return userRepository.getUserProfileCountsResponse(user.getId());
     }
 
     /**

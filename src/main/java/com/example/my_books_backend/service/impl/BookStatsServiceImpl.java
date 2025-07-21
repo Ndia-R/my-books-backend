@@ -1,5 +1,8 @@
 package com.example.my_books_backend.service.impl;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import com.example.my_books_backend.dto.review.ReviewCountsResponse;
 import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.repository.BookRepository;
@@ -12,9 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -29,10 +29,9 @@ public class BookStatsServiceImpl implements BookStatsService {
      */
     @Transactional
     public void updateBookStats(String bookId) {
-        Object[] stats = reviewRepository.getReviewStats(bookId);
-
-        long reviewCount = (stats[0] != null) ? (long) stats[0] : 0;
-        double averageRating = (stats[1] != null) ? (double) stats[1] : 0.0;
+        ReviewCountsResponse counts = reviewRepository.getReviewCountsResponse(bookId);
+        long reviewCount = counts.getReviewCount();
+        double averageRating = counts.getAverageRating();
 
         double popularity = calculatePopularity(reviewCount, averageRating);
 
@@ -127,13 +126,13 @@ public class BookStatsServiceImpl implements BookStatsService {
     public void updateAllBookStats() {
         log.info("全書籍の統計情報更新を開始");
 
-        int pageSize = 100;
-        int pageNumber = 0;
+        long pageSize = 100;
+        long pageNumber = 0;
         long totalProcessed = 0;
 
         while (true) {
             Page<Book> bookPage = bookRepository.findByIsDeletedFalse(
-                PageRequest.of(pageNumber, pageSize)
+                PageRequest.of((int) pageNumber, (int) pageSize)
             );
 
             if (bookPage.isEmpty()) {
