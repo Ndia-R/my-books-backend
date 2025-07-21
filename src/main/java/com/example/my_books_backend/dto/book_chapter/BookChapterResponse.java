@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookChapterResponse {
-    private Integer chapterNumber;
+    private Long chapterNumber;
     private String chapterTitle;
-    private List<Integer> pageNumbers;
+    private List<Long> pageNumbers;
 }

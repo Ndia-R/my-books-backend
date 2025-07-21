@@ -24,17 +24,15 @@ public class BookStatsServiceImpl implements BookStatsService {
     private final BookRepository bookRepository;
     private final ReviewRepository reviewRepository;
 
-    // 人気度計算の定数
-    private static final double MIN_REVIEWS_FOR_POPULARITY = 3.0; // 人気度計算の最低レビュー数
-
     /**
      * {@inheritDoc}
      */
     @Transactional
     public void updateBookStats(String bookId) {
         Object[] stats = reviewRepository.getReviewStats(bookId);
-        Integer reviewCount = (Integer) stats[0];
-        Double averageRating = (Double) stats[1];
+
+        long reviewCount = (stats[0] != null) ? (long) stats[0] : 0;
+        double averageRating = (stats[1] != null) ? (double) stats[1] : 0.0;
 
         double popularity = calculatePopularity(reviewCount, averageRating);
 
@@ -43,31 +41,30 @@ public class BookStatsServiceImpl implements BookStatsService {
 
         book.setReviewCount(reviewCount);
         book.setAverageRating(Math.round(averageRating * 100.0) / 100.0);
-        book.setPopularity(Math.round(popularity * 1000.0) / 1000.0);
+        book.setPopularity(Math.round(popularity * 100.0) / 100.0); // 小数点以下2桁に調整
 
         bookRepository.save(book);
     }
 
     /**
-     * シンプルな人気度計算
+     * 基本的な重み付きスコアによる人気度計算
+     * 計算式: 平均点数 × log(レビュー数 + 1) × 20
      * 
      * @param reviewCount レビュー数
-     * @param averageRating 平均評価
-     * @return 人気度スコア
+     * @param averageRating 平均評価（0.0-5.0）
+     * @return 人気度スコア（0-100程度の範囲）
      */
-    private double calculatePopularity(Integer reviewCount, Double averageRating) {
-        if (reviewCount == 0) {
+    private double calculatePopularity(long reviewCount, double averageRating) {
+        if (reviewCount == 0 || averageRating == 0.0) {
             return 0.0;
         }
 
-        // レビュー数が少ない場合は、平均評価を少し下げる
-        if (reviewCount < MIN_REVIEWS_FOR_POPULARITY) {
-            double penalty = 1.0 - (reviewCount / MIN_REVIEWS_FOR_POPULARITY);
-            return averageRating * (1.0 - penalty * 0.2); // 最大20%のペナルティ
-        }
+        // 基本的な重み付きスコア
+        // Math.log()は自然対数
+        double logWeight = Math.log(reviewCount + 1);
+        double popularity = averageRating * logWeight * 20;
 
-        // レビュー数が多い場合は、平均評価をそのまま使用
-        return averageRating;
+        return popularity;
     }
 
     /**

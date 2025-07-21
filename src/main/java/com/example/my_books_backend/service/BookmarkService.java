@@ -18,8 +18,8 @@ public interface BookmarkService {
      */
     PageResponse<BookmarkResponse> getUserBookmarks(
         User user,
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString,
         String bookId
     );

@@ -35,10 +35,10 @@ public class Bookmark extends EntityBase {
     private Book book;
 
     @Column(name = "chapter_number", nullable = false)
-    private Integer chapterNumber;
+    private Long chapterNumber;
 
     @Column(name = "page_number", nullable = false)
-    private Integer pageNumber;
+    private Long pageNumber;
 
     @Column(name = "note")
     private String note;

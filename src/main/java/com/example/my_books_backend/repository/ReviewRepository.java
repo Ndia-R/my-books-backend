@@ -27,8 +27,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Optional<Review> findByUserAndBook(User user, Book book);
 
-    Integer countByUserIdAndIsDeletedFalse(Long userId);
-
     // 2クエリ戦略用：IDリストから関連データを含むリストを取得
     @Query("""
         SELECT DISTINCT r

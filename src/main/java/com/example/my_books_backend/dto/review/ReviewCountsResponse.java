@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ReviewCountsResponse {
     private String bookId;
-    private Integer reviewCount;
+    private Long reviewCount;
     private Double averageRating;
 }

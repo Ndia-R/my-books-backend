@@ -33,7 +33,7 @@ public interface BookRepository extends JpaRepository<Book, String> {
         """)
     Page<Book> findBooksHavingAllGenres(
         @Param("genreIds") List<Long> genreIds,
-        @Param("size") Integer size,
+        @Param("size") Long size,
         Pageable pageable
     );
 

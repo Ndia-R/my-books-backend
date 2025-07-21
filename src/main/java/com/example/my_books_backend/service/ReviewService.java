@@ -19,8 +19,8 @@ public interface ReviewService {
      */
     PageResponse<ReviewResponse> getUserReviews(
         User user,
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString,
         String bookId
     );
@@ -36,8 +36,8 @@ public interface ReviewService {
      */
     PageResponse<ReviewResponse> getBookReviews(
         String bookId,
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString
     );
 

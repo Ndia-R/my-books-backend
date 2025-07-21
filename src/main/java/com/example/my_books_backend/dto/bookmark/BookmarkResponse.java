@@ -13,8 +13,8 @@ public class BookmarkResponse {
     private Long id;
     private Long userId;
     private String bookId;
-    private Integer chapterNumber;
-    private Integer pageNumber;
+    private Long chapterNumber;
+    private Long pageNumber;
     private String note;
     private String chapterTitle;
     private LocalDateTime createdAt;

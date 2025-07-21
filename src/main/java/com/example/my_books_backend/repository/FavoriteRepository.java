@@ -24,10 +24,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     Optional<Favorite> findByUserAndBook(User user, Book book);
 
     // 特定の書籍のお気に入り数を取得
-    Integer countByBookIdAndIsDeletedFalse(String bookId);
-
-    // ユーザーが追加したお気に入り数を取得
-    Integer countByUserIdAndIsDeletedFalse(Long userId);
+    Long countByBookIdAndIsDeletedFalse(String bookId);
 
     // 2クエリ戦略用：IDリストから関連データを含むリストを取得
     @Query("""

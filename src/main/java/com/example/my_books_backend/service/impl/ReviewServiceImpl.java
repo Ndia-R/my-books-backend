@@ -41,8 +41,8 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public PageResponse<ReviewResponse> getUserReviews(
         User user,
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString,
         String bookId
     ) {
@@ -79,8 +79,8 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public PageResponse<ReviewResponse> getBookReviews(
         String bookId,
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString
     ) {
         Pageable pageable = PageableUtils.createPageable(
@@ -119,7 +119,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         ReviewCountsResponse response = new ReviewCountsResponse();
         response.setBookId(bookId);
-        response.setReviewCount(reviewCount.intValue());
+        response.setReviewCount(reviewCount);
         response.setAverageRating(averageRating);
 
         return response;

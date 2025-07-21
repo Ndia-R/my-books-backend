@@ -15,11 +15,11 @@ public class BookmarkRequest {
 
     @NotNull
     @Min(1)
-    private Integer chapterNumber;
+    private Long chapterNumber;
 
     @NotNull
     @Min(1)
-    private Integer pageNumber;
+    private Long pageNumber;
 
     @NotNull
     private String note;

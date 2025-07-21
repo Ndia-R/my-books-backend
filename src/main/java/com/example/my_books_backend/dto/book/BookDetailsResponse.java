@@ -18,11 +18,11 @@ public class BookDetailsResponse {
     private List<String> authors;
     private String publisher;
     private Date publicationDate;
-    private Integer price;
-    private Integer pageCount;
+    private Long price;
+    private Long pageCount;
     private String isbn;
     private String imagePath;
-    private Integer reviewCount;
+    private Long reviewCount;
     private Double averageRating;
     private Double popularity;
 }

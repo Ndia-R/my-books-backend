@@ -61,8 +61,8 @@ public class UserController {
     @GetMapping("/reviews")
     public ResponseEntity<PageResponse<ReviewResponse>> getUserReviews(
         @AuthenticationPrincipal User user,
-        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer page,
-        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Integer size,
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Long page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Long size,
         @Parameter(description = "ソート条件", example = DEFAULT_SORT, schema = @Schema(allowableValues = {
             "updatedAt.asc",
             "updatedAt.desc",
@@ -80,8 +80,8 @@ public class UserController {
     @GetMapping("/favorites")
     public ResponseEntity<PageResponse<FavoriteResponse>> getUserFavorites(
         @AuthenticationPrincipal User user,
-        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer page,
-        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Integer size,
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Long page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Long size,
         @Parameter(description = "ソート条件", example = DEFAULT_SORT, schema = @Schema(allowableValues = {
             "updatedAt.asc",
             "updatedAt.desc",
@@ -97,8 +97,8 @@ public class UserController {
     @GetMapping("/bookmarks")
     public ResponseEntity<PageResponse<BookmarkResponse>> getUserBookmarks(
         @AuthenticationPrincipal User user,
-        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Integer page,
-        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Integer size,
+        @Parameter(description = "ページ番号（1ベース）", example = DEFAULT_START_PAGE) @RequestParam(defaultValue = DEFAULT_START_PAGE) Long page,
+        @Parameter(description = "1ページあたりの件数", example = DEFAULT_PAGE_SIZE) @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) Long size,
         @Parameter(description = "ソート条件", example = DEFAULT_SORT, schema = @Schema(allowableValues = {
             "updatedAt.asc",
             "updatedAt.desc",

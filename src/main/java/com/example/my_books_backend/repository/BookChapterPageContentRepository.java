@@ -11,6 +11,6 @@ public interface BookChapterPageContentRepository extends
     JpaRepository<BookChapterPageContent, BookChapterPageContentId> {
     List<BookChapterPageContent> findByIdBookIdAndIdChapterNumber(
         String bookId,
-        Integer chapterNumber
+        Long chapterNumber
     );
 }

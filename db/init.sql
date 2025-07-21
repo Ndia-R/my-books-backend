@@ -23,13 +23,13 @@ CREATE TABLE `books` (
   `authors` VARCHAR(255) NOT NULL DEFAULT '',
   `publisher` VARCHAR(255) NOT NULL DEFAULT '',
   `publication_date` DATE NOT NULL,
-  `price` INT NOT NULL DEFAULT 0,
-  `page_count` INT NOT NULL DEFAULT 0,
+  `price` BIGINT NOT NULL DEFAULT 0,
+  `page_count` BIGINT NOT NULL DEFAULT 0,
   `isbn` VARCHAR(255) NOT NULL DEFAULT '',
   `image_path` VARCHAR(255) DEFAULT NULL,
   `average_rating` DECIMAL(3, 2) NOT NULL DEFAULT 0.00,
-  `review_count` INT NOT NULL DEFAULT 0,
-  `popularity` DECIMAL(5, 3) NOT NULL DEFAULT 0.000,
+  `review_count` BIGINT NOT NULL DEFAULT 0,
+  `popularity` DECIMAL(8, 2) NOT NULL DEFAULT 0.000,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `is_deleted` BOOLEAN NOT NULL DEFAULT FALSE
@@ -110,8 +110,8 @@ CREATE TABLE `bookmarks` (
   `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `user_id` BIGINT NOT NULL,
   `book_id` VARCHAR(255) NOT NULL,
-  `chapter_number` INT NOT NULL,
-  `page_number` INT NOT NULL,
+  `chapter_number` BIGINT NOT NULL,
+  `page_number` BIGINT NOT NULL,
   `note` VARCHAR(1000) NOT NULL DEFAULT '',
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -123,7 +123,7 @@ CREATE TABLE `bookmarks` (
 
 CREATE TABLE `book_chapters` (
   `book_id` VARCHAR(255) NOT NULL,
-  `chapter_number` INT NOT NULL,
+  `chapter_number` BIGINT NOT NULL,
   `title` VARCHAR(255) NOT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -134,8 +134,8 @@ CREATE TABLE `book_chapters` (
 
 CREATE TABLE `book_chapter_page_contents` (
   `book_id` VARCHAR(255) NOT NULL,
-  `chapter_number` INT NOT NULL,
-  `page_number` INT NOT NULL,
+  `chapter_number` BIGINT NOT NULL,
+  `page_number` BIGINT NOT NULL,
   `content` TEXT NOT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -208,97 +208,19 @@ INSERT INTO `user_roles` (`user_id`, `role_id`) VALUES
 (3, 1),
 (4, 1);
 
-INSERT INTO `reviews` (`user_id`, `book_id`, `comment`, `rating`) VALUES
-(1, 'afcIMuetDuzj', '知識の宝庫で、読み終える頃には少し賢くなった気がした。', 4.5),
-(2, 'afcIMuetDuzj', '人生観が変わるほどの深い洞察が詰まっていました。', 3.0),
-(3, 'afcIMuetDuzj', '読む手が止まらないほど引き込まれた。', 3.5),
-(4, 'afcIMuetDuzj', '心に響く言葉が何度も胸を打った。', 5.0),
-(5, 'afcIMuetDuzj', '言葉の美しさに何度もページをめくり直した。', 3.5),
-(6, 'afcIMuetDuzj', '想像力をかき立てられる素晴らしいストーリーだった。', 3.5),
-(7, 'afcIMuetDuzj', '感動しました。何度も読み直したいと思いました。', 3.0),
-(8, 'afcIMuetDuzj', '登場人物に感情移入しすぎて泣いてしまった。', 5.0),
-(9, 'afcIMuetDuzj', '終わるのが惜しいほど楽しかった。', 4.5),
-(10, 'afcIMuetDuzj', '感動的な結末に、読後の余韻が心地よかった。', 3.5),
-(1, '9UizZw491wye', '読み進むにつれドンドン引き込まれていきました。', 3.5),
-(2, '9UizZw491wye', '首を長くして待っていました。非常に楽しかったです。', 3.0),
-(3, '9UizZw491wye', '読んでいる間、時間を忘れるほど夢中になれました。', 3.0),
-(4, '9UizZw491wye', '物語の展開が巧妙で、予想を超える展開が続いて面白かったです。', 3.0),
-(1, 'pDYIwtdahwkp', '私もこんな経験をしたいと思いました。', 5.0),
-(1, 'aBcDeFgHiJkL', 'ドラゴン好きにはたまらない一冊！神話や伝説だけでなく、歴史的な背景や科学的視点からの考察もあり、読み応え抜群。イラストも豊富で、ページをめくるたびにワクワクしました。' ,5.0),
-(2, 'aBcDeFgHiJkL', '地域ごとのドラゴンの違いが詳しく解説されていて、とても興味深かったです。もう少し現代のフィクション作品に登場するドラゴンの分析もあると、さらに楽しめたかも。' ,4.5),
-(3, 'aBcDeFgHiJkL', '図鑑としての完成度が高く、資料としても役立つ内容でした。ただ、一部の科学的な考察は少し専門的すぎて、難しく感じる部分もありました。' ,4.5),
-(4, 'aBcDeFgHiJkL', 'ドラゴンの文化的意義を掘り下げた内容がとても面白かった！西洋と東洋のドラゴンの違いがわかりやすく、歴史を学びながら楽しめました。' ,4.0),
-(5, 'aBcDeFgHiJkL', 'ビジュアルがとても美しく、眺めるだけでも価値のある本。ただ、もう少しストーリー仕立てで読みやすい構成だったら、もっと楽しく読めたかもしれません。' ,3.5),
-(7, 'aBcDeFgHiJkL', '神話や伝承の部分が特に面白く、各地域ごとのドラゴンの違いを比較できるのが良かった！ファンタジー好きなら楽しめると思います。' ,4.0),
-(8, 'aBcDeFgHiJkL', '図鑑というよりも資料集に近い印象。もう少し物語的なエピソードがあると、より楽しめたかもしれません。' ,3.5),
-(9, 'aBcDeFgHiJkL', '図鑑としての内容はしっかりしているけど、専門的すぎて途中で飽きてしまった。もう少し初心者向けの解説があると、もっと読みやすかったかも。' ,2.5),
-(10, 'aBcDeFgHiJkL', '伝説と科学の両面からドラゴンを解説していて、知的好奇心を刺激されました！ドラゴンのリアルな生態を考察する部分が特に面白かったです。' ,5.0),
-(1, 'C4hD3jZ8rK6e', '最後まで予測できない展開に引き込まれました！リゾートの華やかな雰囲気と不穏な空気のコントラストが絶妙で、一気読みしてしまいました。', 5.0),
-(2, 'C4hD3jZ8rK6e', 'ミステリーとしての完成度が高く、伏線の回収も見事。特にフラミンゴの羽が象徴する意味が明らかになるシーンにはゾクッとしました！', 4.5),
-(3, 'C4hD3jZ8rK6e', 'ジェイク刑事のキャラクターが魅力的で、彼の過去が事件とどう絡むのかも見どころ。もう少し犯人の動機が深掘りされていたら、もっと楽しめたかも。', 4.0),
-(4, 'C4hD3jZ8rK6e', 'サスペンス要素と心理描写が絶妙に絡み合い、最後のどんでん返しには驚かされました！読後も余韻が残る素晴らしい作品です。', 5.0),
-(5, 'C4hD3jZ8rK6e', '事件の舞台となるリゾートの描写が美しく、雰囲気は抜群。ただ、途中で少し展開が冗長に感じる部分もありました。', 3.5),
-(6, 'C4hD3jZ8rK6e', 'ミステリーとしては悪くないけど、登場人物の背景がもう少し掘り下げられていると感情移入しやすかったかも。', 3.0),
-(7, 'C4hD3jZ8rK6e', 'フラミンゴの羽の謎が解明される過程が面白かった！セレブたちの秘密が絡むことで、単なる殺人事件以上の深みが出ていたと思います。', 4.0),
-(8, 'C4hD3jZ8rK6e', '期待していたほどの緊張感がなく、ストーリーの進行が少し遅く感じました。後半の展開は良かったので、序盤がもう少しテンポよければ…。', 2.5),
-(9, 'C4hD3jZ8rK6e', '一見バラバラに見えた手がかりが、最後にひとつの真実へと収束する流れが見事。フラミンゴの羽に隠された意味が明かされた瞬間は鳥肌もの！', 4.5),
-(1, 'Hh5r4Kj9Tb8v', '音楽と自然、そして恋愛が美しく絡み合った作品でした。ツルの舞から生まれる旋律の描写が繊細で、読んでいるだけで音が聞こえてくるようでした。', 5.0),
-(2, 'Hh5r4Kj9Tb8v', 'サキの芸術への情熱とハヤトとの恋の狭間で揺れる心情が丁寧に描かれていて、とても共感できました。ラストの余韻が素晴らしかったです。', 5.0),
-(3, 'Hh5r4Kj9Tb8v', 'ツルの美しさと音楽の表現が見事でした。ただ、恋愛パートがもう少し深掘りされていたら、もっと感情移入できたかもしれません。', 4.5),
-(4, 'Hh5r4Kj9Tb8v', '自然の美しさと芸術の力が融合した、心に響く物語。サキの成長が丁寧に描かれていて、彼女の決断に胸が熱くなりました。', 5.0),
-(7, 'Hh5r4Kj9Tb8v', 'ツルの舞からインスピレーションを得るという設定がユニークで印象的でした。芸術に生きる人の葛藤がリアルに描かれていたのが良かったです。', 4.5),
-(9, 'Hh5r4Kj9Tb8v', '音楽と恋愛のバランスが絶妙で、読んでいて心が温かくなりました。ツルの存在が象徴的で、幻想的な雰囲気を醸し出していたのも素敵。', 5.0),
-(10, 'Hh5r4Kj9Tb8v', '芸術家としてのサキの成長が描かれているのは良かったけど、ハヤトのキャラクターがもう少し掘り下げられていたら、恋愛要素にももっと深みが出たと思う。', 4.0),
-(2, 'dJ4fLnQ2ZcR3', '画家の残した絵が謎解きの手がかりになっているのが面白かった！ヤギが単なるペットではなく、物語の核心に関わる存在だったのが意外で良かったです。', 4.5),
-(3, 'dJ4fLnQ2ZcR3', '美術ミステリーとして楽しめる一冊。もう少し探偵のキャラクターに深みがあると、もっと感情移入できたかも。', 4.0),
-(4, 'dJ4fLnQ2ZcR3', 'アイデアは魅力的だけど、途中の展開がややゆっくりで、もう少しテンポよく進んでほしかった。ただ、結末には驚かされました！', 3.5),
-(5, 'dJ4fLnQ2ZcR3', 'ミステリーとしては面白かったけど、美術の専門的な部分が多くて少し難しく感じるところも。もう少しライトな読み口だと良かったかも。', 3.0),
-(6, 'dJ4fLnQ2ZcR3', 'ヤギがここまでストーリーに絡んでくるとは思わなかった！芸術と動物を絡めたユニークな設定が新鮮で、非常に楽しめました。', 5.0),
-(7, 'dJ4fLnQ2ZcR3', '絵画に込められた意味を探るミステリーとして秀逸。ヤギの行動に注目すると、序盤からヒントが散りばめられていて、再読したくなる作品でした。', 4.0),
-(8, 'dJ4fLnQ2ZcR3', '画家の失踪の謎には興味を惹かれたけど、全体的に展開がゆったりしていて、もう少し緊迫感が欲しかった。', 2.5),
-(10, 'dJ4fLnQ2ZcR3', '山小屋の描写や画家の背景など、雰囲気は抜群。ただ、結末が少しあっさりしていて、もう少し余韻が欲しかった。', 3.5),
-(1, 'bU4W2hM7x9D5', '宙を旅するマンドリルという設定が斬新で、ワクワクしながら読み進めました！未知の生物との出会いがスリリングで、最後まで飽きさせません。', 5.0),
-(2, 'bU4W2hM7x9D5', 'マンドリルたちの個性がしっかり描かれていて、仲間との絆に感動しました。もう少し科学的な説明があると、さらにリアリティが増したかも？', 4.5),
-(3, 'bU4W2hM7x9D5', '宇宙探検と友情の要素がバランスよく描かれていて楽しかった！特に異星人とのやりとりがユーモラスで、読んでいてニヤリとしてしまう場面も。', 4.5),
-(4, 'bU4W2hM7x9D5', 'まさかマンドリルが宇宙に行くなんて…！設定の意外性だけでなく、ストーリーも練られていて、熱い冒険譚として大満足の一冊でした。', 5.0),
-(5, 'bU4W2hM7x9D5', 'ストーリーは面白かったけど、もう少しキャラクターの掘り下げが欲しかったかも。特に敵キャラの背景が薄く感じました。', 3.5),
-(6, 'bU4W2hM7x9D5', '設定はユニークだけど、展開が王道すぎて予想の範囲内だったかな。でも、宇宙の描写は美しくて雰囲気は最高でした！', 3.0),
-(7, 'bU4W2hM7x9D5', 'SFとしての魅力もしっかりありつつ、マンドリルたちのユーモラスな掛け合いが楽しかった！続編があるならぜひ読みたいです。', 4.5),
-(8, 'bU4W2hM7x9D5', 'マンドリルという設定がユニークすぎて、個人的には感情移入が難しかった…。でも、宇宙の冒険シーンは迫力があって良かったです。', 2.5),
-(9, 'bU4W2hM7x9D5', '宇宙の神秘と冒険のワクワク感がたっぷり詰まった一冊！マンドリルたちの成長も丁寧に描かれていて、読み終わった後に爽やかな余韻が残りました。', 5.0),
-(10, 'bU4W2hM7x9D5', 'アイデアは素晴らしいけど、物語の後半が少し駆け足に感じました。もっとじっくり惑星探査のシーンを描いてほしかったです。', 3.5);
+LOAD DATA INFILE '/docker-entrypoint-initdb.d/book_reviews.csv'
+INTO TABLE reviews
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+(`user_id`, `book_id`, `comment`, `rating`);
 
-INSERT INTO `favorites` (`user_id`, `book_id`) VALUES
-(1, 'afcIMuetDuzj'),
-(2, 'afcIMuetDuzj'),
-(3, 'afcIMuetDuzj'),
-(4, 'afcIMuetDuzj'),
-(4, 'pDYIwtdahwkp'),
-(5, 'pDYIwtdahwkp'),
-(6, 'pDYIwtdahwkp'),
-(3, '9UizZw491wye'),
-(1, 'aBcDeFgHiJkL'),
-(4, 'aBcDeFgHiJkL'),
-(5, 'aBcDeFgHiJkL'),
-(7, 'aBcDeFgHiJkL'),
-(8, 'aBcDeFgHiJkL'),
-(10, 'aBcDeFgHiJkL'),
-(2, 'C4hD3jZ8rK6e'),
-(4, 'C4hD3jZ8rK6e'),
-(5, 'C4hD3jZ8rK6e'),
-(6, 'C4hD3jZ8rK6e'),
-(9, 'C4hD3jZ8rK6e'),
-(1, 'Hh5r4Kj9Tb8v'),
-(2, 'Hh5r4Kj9Tb8v'),
-(3, 'Hh5r4Kj9Tb8v'),
-(4, 'Hh5r4Kj9Tb8v'),
-(5, 'Hh5r4Kj9Tb8v'),
-(6, 'Hh5r4Kj9Tb8v'),
-(7, 'dJ4fLnQ2ZcR3'),
-(8, 'dJ4fLnQ2ZcR3'),
-(9, 'dJ4fLnQ2ZcR3'),
-(10, 'dJ4fLnQ2ZcR3'),
-(3, 'ln5NiMJq02V7');
+LOAD DATA INFILE '/docker-entrypoint-initdb.d/book_favorites.csv'
+INTO TABLE favorites
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+(`user_id`, `book_id`);
 
 INSERT INTO `bookmarks` (`user_id`, `book_id`, `chapter_number`, `page_number`, `note`) VALUES
 (1, 'afcIMuetDuzj', 1, 1, 'もう一度読み直す'),
@@ -421,14 +343,11 @@ SET review_count = (
     WHERE r.book_id = b.id AND r.is_deleted = false
 );
 
--- 人気度（BookStatsServiceImpl.javaのロジックと同一）
+-- 人気度（基本的な重み付きスコア: 平均点数 × log(レビュー数 + 1) × 20）
 UPDATE books b
 SET popularity = (
     CASE 
-        WHEN b.review_count = 0 THEN 0.000
-        WHEN b.review_count < 3 THEN 
-            ROUND(b.average_rating * (1.0 - ((1.0 - (b.review_count / 3.0)) * 0.2)), 3)
-        ELSE 
-            ROUND(b.average_rating, 3)
+        WHEN b.review_count = 0 OR b.average_rating = 0.0 THEN 0.00
+        ELSE ROUND(b.average_rating * LN(b.review_count + 1) * 20, 2)
     END
 );

@@ -19,8 +19,8 @@ public interface FavoriteService {
      */
     PageResponse<FavoriteResponse> getUserFavorites(
         User user,
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString,
         String bookId
     );

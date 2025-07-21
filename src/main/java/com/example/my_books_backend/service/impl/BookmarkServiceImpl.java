@@ -45,8 +45,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Override
     public PageResponse<BookmarkResponse> getUserBookmarks(
         User user,
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString,
         String bookId
     ) {
@@ -82,10 +82,10 @@ public class BookmarkServiceImpl implements BookmarkService {
             .map(bookmark -> bookmark.getBook().getId())
             .collect(Collectors.toSet());
 
-        Map<String, Map<Integer, String>> bookChapterTitleMaps = new HashMap<>();
+        Map<String, Map<Long, String>> bookChapterTitleMaps = new HashMap<>();
         for (String _bookId : bookIds) {
             List<BookChapter> bookChapters = bookChapterRepository.findByBookId(_bookId);
-            Map<Integer, String> chapterTitleMap = bookChapters.stream()
+            Map<Long, String> chapterTitleMap = bookChapters.stream()
                 .collect(
                     Collectors.toMap(
                         bookChapter -> bookChapter.getId().getChapterNumber(),
@@ -97,7 +97,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
         // 章番号に対応するタイトルをレスポンスに追加する
         response.getData().forEach(bookmark -> {
-            Map<Integer, String> chapterTitleMap = bookChapterTitleMaps.get(bookmark.getBook().getId());
+            Map<Long, String> chapterTitleMap = bookChapterTitleMaps.get(bookmark.getBook().getId());
             if (chapterTitleMap != null) {
                 String chapterTitle = chapterTitleMap.get(bookmark.getChapterNumber());
                 if (chapterTitle != null) {

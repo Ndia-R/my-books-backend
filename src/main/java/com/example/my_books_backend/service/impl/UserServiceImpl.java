@@ -22,9 +22,6 @@ import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.exception.UnauthorizedException;
 import com.example.my_books_backend.exception.ValidationException;
 import com.example.my_books_backend.mapper.UserMapper;
-import com.example.my_books_backend.repository.BookmarkRepository;
-import com.example.my_books_backend.repository.FavoriteRepository;
-import com.example.my_books_backend.repository.ReviewRepository;
 import com.example.my_books_backend.repository.RoleRepository;
 import com.example.my_books_backend.repository.UserRepository;
 import com.example.my_books_backend.service.UserService;
@@ -36,9 +33,6 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final FavoriteRepository favoriteRepository;
-    private final BookmarkRepository bookmarkRepository;
-    private final ReviewRepository reviewRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
@@ -125,11 +119,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserProfileCountsResponse getUserProfileCounts(User user) {
-        Integer favoriteCount = favoriteRepository.countByUserIdAndIsDeletedFalse(user.getId());
-        Integer bookmarkCount = bookmarkRepository.countByUserIdAndIsDeletedFalse(user.getId());
-        Integer reviewCount = reviewRepository.countByUserIdAndIsDeletedFalse(user.getId());
-
-        return new UserProfileCountsResponse(favoriteCount, bookmarkCount, reviewCount);
+        return userRepository.getUserProfileCountsArray(user.getId());
     }
 
     /**

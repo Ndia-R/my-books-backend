@@ -17,7 +17,7 @@ public class BookResponse {
     private List<String> authors;
     private Date publicationDate;
     private String imagePath;
-    private Integer reviewCount;
+    private Long reviewCount;
     private Double averageRating;
     private Double popularity;
 }

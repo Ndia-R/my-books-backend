@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProfileCountsResponse {
-    private Integer favoriteCount;
-    private Integer bookmarkCount;
-    private Integer reviewCount;
+    private Long favoriteCount;
+    private Long bookmarkCount;
+    private Long reviewCount;
 }

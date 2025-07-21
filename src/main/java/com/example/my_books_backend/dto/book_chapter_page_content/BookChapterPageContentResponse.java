@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BookChapterPageContentResponse {
     private String bookId;
-    private Integer chapterNumber;
+    private Long chapterNumber;
     private String chapterTitle;
-    private Integer pageNumber;
+    private Long pageNumber;
     private String content;
 }

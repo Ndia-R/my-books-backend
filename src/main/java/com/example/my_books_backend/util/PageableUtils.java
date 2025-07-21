@@ -13,8 +13,8 @@ import com.example.my_books_backend.dto.PageResponse;
 import java.util.function.Function;
 
 public class PageableUtils {
-    private static final int DEFAULT_PAGE_SIZE = 20;
-    private static final int MAX_PAGE_SIZE = 100;
+    private static final long DEFAULT_PAGE_SIZE = 20;
+    private static final long MAX_PAGE_SIZE = 100;
     private static final String DEFAULT_SORT_FIELD = "id";
     private static final Sort.Direction DEFAULT_SORT_DIRECTION = Sort.Direction.ASC;
 
@@ -42,8 +42,8 @@ public class PageableUtils {
      * @return Pageableオブジェクト 
      */
     public static Pageable createPageable(
-        int page,
-        int size,
+        long page,
+        long size,
         String sortString,
         List<String> category
     ) {
@@ -51,7 +51,7 @@ public class PageableUtils {
         size = (size <= 0) ? DEFAULT_PAGE_SIZE : Math.min(size, MAX_PAGE_SIZE);
         Sort sort = parseSort(sortString, category);
 
-        return PageRequest.of(page, size, sort);
+        return PageRequest.of((int) page, (int) size, sort);
     }
 
     /**
@@ -98,9 +98,9 @@ public class PageableUtils {
      */
     public static <T, R> PageResponse<R> toPageResponse(Page<T> page, List<R> responseList) {
         return new PageResponse<R>(
-            page.getNumber() + 1, // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
-            page.getSize(),
-            page.getTotalPages(),
+            (long) page.getNumber() + 1, // Pageableの内部的にはデフォルトで0ベースだが、エンドポイントとしては1ベースなので+1する
+            (long) page.getSize(),
+            (long) page.getTotalPages(),
             page.getTotalElements(),
             page.hasNext(),
             page.hasPrevious(),
@@ -125,15 +125,15 @@ public class PageableUtils {
         Function<T, ID> idExtractor
     ) {
         // ソート順序を保持するためのマップを作成
-        Map<ID, Integer> idOrder = IntStream.range(0, ids.size())
+        Map<ID, Long> idOrder = IntStream.range(0, ids.size())
             .boxed()
-            .collect(Collectors.toMap(ids::get, i -> i));
+            .collect(Collectors.toMap(ids::get, i -> i.longValue()));
 
         // 元のソート順序でリストを並び替え
         return list.stream()
             .sorted((item1, item2) -> {
-                Integer order1 = idOrder.get(idExtractor.apply(item1));
-                Integer order2 = idOrder.get(idExtractor.apply(item2));
+                Long order1 = idOrder.get(idExtractor.apply(item1));
+                Long order2 = idOrder.get(idExtractor.apply(item2));
                 return order1.compareTo(order2);
             })
             .collect(Collectors.toList());

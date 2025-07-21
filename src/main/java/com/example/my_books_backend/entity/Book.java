@@ -48,10 +48,10 @@ public class Book extends EntityBase {
     private Date publicationDate;
 
     @Column(name = "price", nullable = false)
-    private Integer price;
+    private Long price;
 
     @Column(name = "page_count", nullable = false)
-    private Integer pageCount;
+    private Long pageCount;
 
     @Column(name = "isbn", nullable = false)
     private String isbn;
@@ -60,7 +60,7 @@ public class Book extends EntityBase {
     private String imagePath;
 
     @Column(name = "review_count", nullable = false)
-    private Integer reviewCount;
+    private Long reviewCount;
 
     @Column(name = "average_rating", nullable = false)
     private Double averageRating;

@@ -39,8 +39,8 @@ public class FavoriteServiceImpl implements FavoriteService {
     @Override
     public PageResponse<FavoriteResponse> getUserFavorites(
         User user,
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString,
         String bookId
     ) {
@@ -76,7 +76,7 @@ public class FavoriteServiceImpl implements FavoriteService {
      */
     @Override
     public FavoriteCountsResponse getBookFavoriteCounts(String bookId) {
-        Integer count = favoriteRepository.countByBookIdAndIsDeletedFalse(bookId);
+        Long count = favoriteRepository.countByBookIdAndIsDeletedFalse(bookId);
 
         FavoriteCountsResponse response = new FavoriteCountsResponse();
         response.setBookId(bookId);

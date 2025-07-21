@@ -16,8 +16,8 @@ public interface BookService {
      * @return 最新の書籍リスト
      */
     PageResponse<BookResponse> getBooks(
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString
     );
 
@@ -32,8 +32,8 @@ public interface BookService {
      */
     PageResponse<BookResponse> getBooksByTitleKeyword(
         String keyword,
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString
     );
 
@@ -50,8 +50,8 @@ public interface BookService {
     PageResponse<BookResponse> getBooksByGenre(
         String genreIdsQuery,
         String conditionQuery,
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString
     );
 
@@ -81,7 +81,7 @@ public interface BookService {
      */
     BookChapterPageContentResponse getBookChapterPageContent(
         String bookId,
-        Integer chapterNumber,
-        Integer pageNumber
+        Long chapterNumber,
+        Long pageNumber
     );
 }

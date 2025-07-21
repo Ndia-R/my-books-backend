@@ -24,12 +24,9 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     Optional<Bookmark> findByUserAndBookAndChapterNumberAndPageNumber(
         User user,
         Book book,
-        Integer chapterNumber,
-        Integer pageNumber
+        Long chapterNumber,
+        Long pageNumber
     );
-
-    // ユーザーが追加したブックマーク数を取得
-    Integer countByUserIdAndIsDeletedFalse(Long userId);
 
     // 2クエリ戦略用：IDリストから関連データを含むリストを取得
     @Query("""

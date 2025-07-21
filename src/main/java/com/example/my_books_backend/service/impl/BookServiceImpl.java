@@ -48,8 +48,8 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public PageResponse<BookResponse> getBooks(
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString
     ) {
         Pageable pageable = PageableUtils.createPageable(
@@ -83,8 +83,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public PageResponse<BookResponse> getBooksByTitleKeyword(
         String keyword,
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString
     ) {
         Pageable pageable = PageableUtils.createPageable(
@@ -119,8 +119,8 @@ public class BookServiceImpl implements BookService {
     public PageResponse<BookResponse> getBooksByGenre(
         String genreIdsQuery,
         String conditionQuery,
-        Integer page,
-        Integer size,
+        Long page,
+        Long size,
         String sortString
     ) {
         if (!("SINGLE".equals(conditionQuery)
@@ -143,7 +143,7 @@ public class BookServiceImpl implements BookService {
         Boolean isAndCondition = "AND".equals(conditionQuery);
 
         Page<Book> pageObj = isAndCondition
-            ? bookRepository.findBooksHavingAllGenres(genreIds, genreIds.size(), pageable)
+            ? bookRepository.findBooksHavingAllGenres(genreIds, (long) genreIds.size(), pageable)
             : bookRepository.findDistinctByGenres_IdInAndIsDeletedFalse(genreIds, pageable);
 
         // 2クエリ戦略：IDリストから関連データを含むリストを取得
@@ -192,12 +192,12 @@ public class BookServiceImpl implements BookService {
         List<BookChapter> chapters = bookChapterRepository.findByBookId(id);
 
         List<BookChapterResponse> chapterResponses = chapters.stream().map(chapter -> {
-            Integer chapterNumber = chapter.getId().getChapterNumber();
+            Long chapterNumber = chapter.getId().getChapterNumber();
 
             List<BookChapterPageContent> pageContents = bookChapterPageContentRepository
                 .findByIdBookIdAndIdChapterNumber(id, chapterNumber);
 
-            List<Integer> pageNumbers = pageContents.stream()
+            List<Long> pageNumbers = pageContents.stream()
                 .map(content -> content.getId().getPageNumber())
                 .collect(Collectors.toList());
 
@@ -223,8 +223,8 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookChapterPageContentResponse getBookChapterPageContent(
         String bookId,
-        Integer chapterNumber,
-        Integer pageNumber
+        Long chapterNumber,
+        Long pageNumber
     ) {
         BookChapterPageContentId pageContentId = new BookChapterPageContentId(
             bookId,

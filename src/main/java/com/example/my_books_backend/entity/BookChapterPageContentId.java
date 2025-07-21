@@ -16,8 +16,8 @@ public class BookChapterPageContentId implements Serializable {
     private String bookId;
 
     @Column(name = "chapter_number")
-    private Integer chapterNumber;
+    private Long chapterNumber;
 
     @Column(name = "page_number")
-    private Integer pageNumber;
+    private Long pageNumber;
 }

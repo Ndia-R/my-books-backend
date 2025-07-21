@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FavoriteCountsResponse {
     private String bookId;
-    private Integer favoriteCount;
+    private Long favoriteCount;
 }
