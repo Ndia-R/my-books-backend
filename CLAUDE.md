@@ -78,7 +78,7 @@ com.example.my_books_backend/
 │   ├── AsyncConfig.java           # 非同期処理設定
 │   ├── AuthTokenFilter.java       # JWT認証フィルター
 │   ├── SecurityConfig.java        # Spring Security設定
-│   ├── SecurityEndpointsConfig.java # エンドポイントアクセス制御
+│   ├── SecurityEndpointsConfig.java # エンドポイントアクセス制御設定
 │   └── SwaggerConfig.java         # Swagger/OpenAPI設定
 ├── controller/      # REST API エンドポイント
 │   ├── AdminUserController.java   # 管理者用ユーザー管理
@@ -89,7 +89,7 @@ com.example.my_books_backend/
 │   ├── GenreController.java       # ジャンル
 │   ├── ReviewController.java      # レビュー
 │   ├── RoleController.java        # ロール
-│   └── UserController.java        # ユーザープロフィール
+│   └── UserController.java        # ユーザープロフィール（/me エンドポイント）
 ├── dto/            # データ転送オブジェクト
 │   ├── PageResponse.java          # ページネーションレスポンス
 │   ├── auth/                      # 認証関連DTO
@@ -167,8 +167,30 @@ com.example.my_books_backend/
 │   └── UserService.java
 └── util/          # ユーティリティクラス
     ├── JwtUtils.java              # JWT生成・検証
-    └── PageableUtils.java         # ページネーション
+    └── PageableUtils.java         # ページネーション（2クエリ戦略実装）
 ```
+
+## 最新のリファクタリング改善点
+
+### 1. 2クエリ戦略によるパフォーマンス最適化
+- **実装場所**: `PageableUtils.applyTwoQueryStrategy()`
+- **効果**: N+1問題の完全解決とソート順序の保持
+- **使用箇所**: BookmarkService、FavoriteService、ReviewService等
+
+### 2. 章タイトル動的取得機能
+- **実装場所**: `BookmarkServiceImpl.enrichWithChapterTitles()`
+- **効果**: ブックマーク一覧表示時の章タイトル自動付与
+- **最適化**: 書籍ごとの章情報をバッチ取得して効率化
+
+### 3. 統一されたユーザーエンドポイント設計
+- **エンドポイント**: `/me/*` 配下でユーザー関連機能を統一
+- **機能**: プロフィール、レビュー、お気に入り、ブックマーク管理
+- **フィルタリング**: 書籍ID指定での絞り込み対応
+
+### 4. 強化されたリポジトリ設計
+- **2クエリ戦略対応**: `findAllByIdInWithRelations()` パターン
+- **フィルタリング**: 書籍ID等の条件付きクエリ
+- **JOIN FETCH**: 関連エンティティの効率的取得
 
 ## 重要な設計パターン
 
@@ -189,7 +211,11 @@ com.example.my_books_backend/
   - ページサイズ: 20
   - 最大ページサイズ: 1000（application.properties で設定）
   - ソート: `id.asc`
-- **2クエリ戦略**: 大量データの効率的な取得
+- **2クエリ戦略**: `PageableUtils.applyTwoQueryStrategy()` メソッドで実装
+  - 初回クエリ: ページング + ソートでIDリストを取得
+  - 2回目クエリ: IDリストから詳細データを JOIN FETCH で取得
+  - ソート順序復元: `restoreSortOrder()` でIDリストの順序を保持
+  - N+1問題の完全な回避とパフォーマンス最適化を実現
 - **レスポンス**: `PageResponse<T>` で統一
 - **1ベースページング**: API レベルで1ベース、内部的に0ベースに変換
 
@@ -245,6 +271,15 @@ app.pagination.max-genre-ids=50
 app.pagination.max-book-id-length=255
 ```
 
+### リポジトリ最適化パターン
+- **2クエリ戦略用クエリ**: `findAllByIdInWithRelations()` メソッドの実装
+  - `@Query` アノテーションで `LEFT JOIN FETCH` を使用
+  - N+1問題の完全回避とパフォーマンス最適化
+  - 例: `BookmarkRepository.findAllByIdInWithRelations()`
+- **フィルタリング対応**: 書籍ID指定でのフィルタリングクエリ
+  - 例: `findByUserAndIsDeletedFalseAndBookId()`
+- **論理削除対応**: すべてのリポジトリで `isDeletedFalse` 条件付きクエリ
+
 ### 環境変数
 ```bash
 # データベース
@@ -282,10 +317,18 @@ JWT_SECRET, JWT_ACCESS_EXPIRATION, JWT_REFRESH_EXPIRATION
 - `GET /books/{id}/favorites/counts` - お気に入り統計
 
 ### ユーザー機能エンドポイント
+- **UserController** (`/me`): ユーザープロフィール管理
+  - `GET /me/profile` - プロフィール情報取得
+  - `GET /me/profile-counts` - レビュー・お気に入り・ブックマーク数取得
+  - `GET /me/reviews` - 投稿レビュー一覧（書籍IDフィルタ対応）
+  - `GET /me/favorites` - お気に入り一覧（書籍IDフィルタ対応）
+  - `GET /me/bookmarks` - ブックマーク一覧（書籍IDフィルタ対応、章タイトル自動付与）
+  - `PUT /me/profile` - プロフィール更新
+  - `PUT /me/email` - メールアドレス更新
+  - `PUT /me/password` - パスワード更新
 - **BookmarkController**: ブックマーク管理
 - **FavoriteController**: お気に入り管理
 - **ReviewController**: レビュー管理
-- **UserController**: プロフィール管理
 - **GenreController**: ジャンル一覧
 - **RoleController**: ロール管理
 - **AdminUserController**: 管理者用ユーザー管理
@@ -301,6 +344,11 @@ DEFAULT_BOOKS_SORT = "popularity.desc"
 DEFAULT_REVIEWS_START_PAGE = "1"
 DEFAULT_REVIEWS_PAGE_SIZE = "3"
 DEFAULT_REVIEWS_SORT = "updatedAt.desc"
+
+// ユーザー関連（UserController /me）
+DEFAULT_USER_START_PAGE = "1"
+DEFAULT_USER_PAGE_SIZE = "5"
+DEFAULT_USER_SORT = "updatedAt.desc"
 ```
 
 ### ソート可能フィールド（PageableUtils）
@@ -369,8 +417,12 @@ BOOKMARK_ALLOWED_FIELDS = ["updatedAt", "createdAt"]
 - カスタムログアウト処理
 
 ### 3. `SecurityEndpointsConfig.java`
-- 完全パブリックエンドポイント定義
-- GETのみパブリックエンドポイント定義
+- **完全パブリックエンドポイント**: 認証不要のエンドポイント定義
+  - `/login`, `/signup`, `/logout`, `/refresh-token`
+  - Swagger UI関連エンドポイント
+- **GETのみパブリックエンドポイント**: GET リクエストのみ認証不要
+  - `/genres/**`, `/books/**` (一部除く)
+  - 書籍詳細、レビュー、お気に入り統計の閲覧
 
 ### 4. `AuthTokenFilter.java`
 - JWT認証フィルター（OncePerRequestFilter継承）
@@ -402,10 +454,14 @@ annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 ```
 
 ### 2. JPA パフォーマンス対策
-- **N+1問題対策**: `@EntityGraph`, `JOIN FETCH`
-- **2クエリ戦略**: 大量データでのソート順序維持（`PageableUtils.restoreSortOrder()`）
+- **N+1問題対策**: `@EntityGraph`, `JOIN FETCH`, 2クエリ戦略
+- **2クエリ戦略**: `PageableUtils.applyTwoQueryStrategy()` で実装
+  - 大量データでのソート順序維持
+  - `restoreSortOrder()` でIDリスト順序を保持
+  - リポジトリでの `findAllByIdInWithRelations()` パターン
 - **lazy loading**: `spring.jpa.open-in-view=false`
 - **複合主キー**: `@EmbeddedId` で適切に設計
+- **章タイトル動的取得**: ブックマーク表示時の追加情報取得最適化
 
 ### 3. ページネーション実装
 - **1ベース**: API は1ベースページング
@@ -510,5 +566,31 @@ docker-compose exec app env | grep SPRING
 - 監視メトリクスの設定
 - Docker環境での本番運用準備
 - データベースマイグレーション戦略
+
+## 現在の実装状況
+
+### 完成している主要機能
+1. **認証システム**: JWT + リフレッシュトークン
+2. **書籍管理**: 詳細情報、章・ページコンテンツ
+3. **ユーザー機能**: レビュー、お気に入り、ブックマーク
+4. **管理機能**: ユーザー・ロール管理
+5. **パフォーマンス最適化**: 2クエリ戦略、N+1問題対策
+
+### 技術的成果
+- **2クエリ戦略**: ソート順序を保持しながらN+1問題を解決
+- **章タイトル動的取得**: UX向上のための追加情報表示
+- **統一されたAPI設計**: RESTful原則に準拠
+- **包括的なエラーハンドリング**: 適切な例外処理とレスポンス
+
+### 依存関係の最新状況
+```gradle
+// 主要ライブラリバージョン
+Spring Boot: 3.3.5
+Java: 17
+MapStruct: 1.5.5.Final
+Auth0 JWT: 4.4.0
+SpringDoc OpenAPI: 2.6.0
+MySQL Connector: 最新
+```
 
 このドキュメントを参考に、一貫性のある高品質なコードの開発を進めてください。

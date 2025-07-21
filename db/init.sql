@@ -351,3 +351,116 @@ SET popularity = (
         ELSE ROUND(b.average_rating * LN(b.review_count + 1) * 20, 2)
     END
 );
+
+-- ================================================
+-- パフォーマンス最適化のためのインデックス追加
+-- ================================================
+
+-- 書籍関連の基本インデックス
+CREATE INDEX idx_books_deleted ON books(is_deleted);
+CREATE INDEX idx_books_title ON books(title);
+CREATE INDEX idx_books_authors ON books(authors);
+CREATE INDEX idx_books_isbn ON books(isbn);
+
+-- 書籍の並び替え用インデックス
+CREATE INDEX idx_books_popularity_desc ON books(popularity DESC, is_deleted);
+CREATE INDEX idx_books_publication_date_desc ON books(publication_date DESC, is_deleted);
+CREATE INDEX idx_books_average_rating_desc ON books(average_rating DESC, is_deleted);
+CREATE INDEX idx_books_review_count_desc ON books(review_count DESC, is_deleted);
+
+-- 書籍検索の複合インデックス
+CREATE INDEX idx_books_search_combo ON books(title, authors, is_deleted);
+
+-- ユーザー関連インデックス
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_deleted ON users(is_deleted);
+
+-- レビュー関連インデックス
+CREATE INDEX idx_reviews_user_id ON reviews(user_id);
+CREATE INDEX idx_reviews_book_id ON reviews(book_id);
+CREATE INDEX idx_reviews_book_deleted ON reviews(book_id, is_deleted);
+CREATE INDEX idx_reviews_user_book ON reviews(user_id, book_id);
+CREATE INDEX idx_reviews_rating ON reviews(rating);
+CREATE INDEX idx_reviews_updated_at_desc ON reviews(updated_at DESC);
+CREATE INDEX idx_reviews_created_at_desc ON reviews(created_at DESC);
+
+-- 統計更新クエリ用の最適化インデックス
+CREATE INDEX idx_reviews_stats ON reviews(book_id, is_deleted, rating);
+
+-- お気に入り関連インデックス
+CREATE INDEX idx_favorites_user_id ON favorites(user_id);
+CREATE INDEX idx_favorites_book_id ON favorites(book_id);
+CREATE INDEX idx_favorites_user_book ON favorites(user_id, book_id);
+CREATE INDEX idx_favorites_user_deleted ON favorites(user_id, is_deleted);
+CREATE INDEX idx_favorites_book_deleted ON favorites(book_id, is_deleted);
+CREATE INDEX idx_favorites_updated_at_desc ON favorites(updated_at DESC);
+CREATE INDEX idx_favorites_created_at_desc ON favorites(created_at DESC);
+
+-- ブックマーク関連インデックス
+CREATE INDEX idx_bookmarks_user_id ON bookmarks(user_id);
+CREATE INDEX idx_bookmarks_book_id ON bookmarks(book_id);
+CREATE INDEX idx_bookmarks_user_book ON bookmarks(user_id, book_id);
+CREATE INDEX idx_bookmarks_user_deleted ON bookmarks(user_id, is_deleted);
+CREATE INDEX idx_bookmarks_book_deleted ON bookmarks(book_id, is_deleted);
+CREATE INDEX idx_bookmarks_updated_at_desc ON bookmarks(updated_at DESC);
+CREATE INDEX idx_bookmarks_created_at_desc ON bookmarks(created_at DESC);
+
+-- 書籍とジャンルの関係インデックス
+CREATE INDEX idx_book_genres_book_id ON book_genres(book_id);
+CREATE INDEX idx_book_genres_genre_id ON book_genres(genre_id);
+
+-- ジャンル関連インデックス
+CREATE INDEX idx_genres_name ON genres(name);
+CREATE INDEX idx_genres_deleted ON genres(is_deleted);
+
+-- ユーザーとロールの関係インデックス
+CREATE INDEX idx_user_roles_user_id ON user_roles(user_id);
+CREATE INDEX idx_user_roles_role_id ON user_roles(role_id);
+
+-- ロール関連インデックス
+CREATE INDEX idx_roles_name ON roles(name);
+CREATE INDEX idx_roles_deleted ON roles(is_deleted);
+
+-- 書籍章関連インデックス
+CREATE INDEX idx_book_chapters_book_id ON book_chapters(book_id);
+CREATE INDEX idx_book_chapters_deleted ON book_chapters(is_deleted);
+
+-- 書籍ページコンテンツ関連インデックス
+CREATE INDEX idx_book_chapter_page_contents_book_chapter ON book_chapter_page_contents(book_id, chapter_number);
+CREATE INDEX idx_book_chapter_page_contents_deleted ON book_chapter_page_contents(is_deleted);
+
+-- フルテキスト検索用インデックス（書籍の高度な検索機能用）
+CREATE FULLTEXT INDEX idx_books_fulltext ON books(title, description, authors);
+
+-- ================================================
+-- パフォーマンス分析用のコメント
+-- ================================================
+
+/*
+追加されたインデックスの効果:
+
+1. 書籍検索の高速化:
+   - タイトル検索: idx_books_title
+   - 著者検索: idx_books_authors
+   - 複合検索: idx_books_search_combo
+   - フルテキスト検索: idx_books_fulltext
+
+2. ソート性能の向上:
+   - 人気順: idx_books_popularity_desc
+   - 新着順: idx_books_publication_date_desc
+   - 評価順: idx_books_average_rating_desc
+
+3. ユーザー関連クエリの最適化:
+   - マイレビュー取得: idx_reviews_user_id, idx_reviews_updated_at_desc
+   - マイお気に入り取得: idx_favorites_user_id, idx_favorites_updated_at_desc
+   - マイブックマーク取得: idx_bookmarks_user_id, idx_bookmarks_updated_at_desc
+
+4. 統計更新処理の高速化:
+   - 書籍統計更新: idx_reviews_stats
+   - レビュー集計: idx_reviews_book_deleted
+
+5. ジャンル検索の最適化:
+   - ジャンル別書籍検索: idx_book_genres_genre_id, idx_book_genres_book_id
+
+これらのインデックスにより、大量データでも高速なクエリ実行が可能になります。
+*/
