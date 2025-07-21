@@ -1,9 +1,7 @@
 package com.example.my_books_backend.service.impl;
 
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,18 +54,11 @@ public class ReviewServiceImpl implements ReviewService {
             ? reviewRepository.findByUserAndIsDeletedFalse(user, pageable)
             : reviewRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
 
-        // 2クエリ戦略：IDリストから関連データを含むリストを取得
-        List<Long> ids = pageObj.getContent().stream().map(Review::getId).toList();
-        List<Review> list = reviewRepository.findAllByIdInWithRelations(ids);
-
-        // ソート順序を復元
-        List<Review> sortedList = PageableUtils.restoreSortOrder(ids, list, Review::getId);
-
-        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
-        Page<Review> updatedPageObj = new PageImpl<>(
-            sortedList,
-            pageable,
-            pageObj.getTotalElements()
+        // 2クエリ戦略を適用
+        Page<Review> updatedPageObj = PageableUtils.applyTwoQueryStrategy(
+            pageObj,
+            reviewRepository::findAllByIdInWithRelations,
+            Review::getId
         );
 
         return reviewMapper.toPageResponse(updatedPageObj);
@@ -91,18 +82,11 @@ public class ReviewServiceImpl implements ReviewService {
         );
         Page<Review> pageObj = reviewRepository.findByBookIdAndIsDeletedFalse(bookId, pageable);
 
-        // 2クエリ戦略：IDリストから関連データを含むリストを取得
-        List<Long> ids = pageObj.getContent().stream().map(Review::getId).toList();
-        List<Review> list = reviewRepository.findAllByIdInWithRelations(ids);
-
-        // ソート順序を復元
-        List<Review> sortedList = PageableUtils.restoreSortOrder(ids, list, Review::getId);
-
-        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
-        Page<Review> updatedPageObj = new PageImpl<>(
-            sortedList,
-            pageable,
-            pageObj.getTotalElements()
+        // 2クエリ戦略を適用
+        Page<Review> updatedPageObj = PageableUtils.applyTwoQueryStrategy(
+            pageObj,
+            reviewRepository::findAllByIdInWithRelations,
+            Review::getId
         );
 
         return reviewMapper.toPageResponse(updatedPageObj);

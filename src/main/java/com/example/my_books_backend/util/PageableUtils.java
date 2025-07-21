@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import com.example.my_books_backend.dto.PageResponse;
 import java.util.function.Function;
 
@@ -120,7 +121,7 @@ public class PageableUtils {
      * @param idExtractor IDを抽出する関数
      * @return ソート順序が復元されたリスト
      */
-    public static <T, ID> List<T> restoreSortOrder(
+    private static <T, ID> List<T> restoreSortOrder(
         List<ID> ids,
         List<T> list,
         Function<T, ID> idExtractor
@@ -138,5 +139,39 @@ public class PageableUtils {
                 return order1.compareTo(order2);
             })
             .collect(Collectors.toList());
+    }
+
+    /**
+     * 2クエリ戦略でのページネーション処理を統一化するユーティリティメソッド
+     * 
+     * @param <T> エンティティの型
+     * @param <ID> IDの型
+     * @param initialPage 初回クエリの結果ページ
+     * @param repositoryFinder リポジトリからIDリストで詳細データを取得する関数
+     * @param idExtractor エンティティからIDを抽出する関数
+     * @return ソート順序が保持された新しいPageオブジェクト
+     */
+    public static <T, ID> Page<T> applyTwoQueryStrategy(
+        Page<T> initialPage,
+        Function<List<ID>, List<T>> repositoryFinder,
+        Function<T, ID> idExtractor
+    ) {
+        // IDリストを取得
+        List<ID> ids = initialPage.getContent().stream()
+            .map(idExtractor)
+            .collect(Collectors.toList());
+
+        // 詳細データを取得
+        List<T> detailedList = repositoryFinder.apply(ids);
+
+        // ソート順序を復元
+        List<T> sortedList = restoreSortOrder(ids, detailedList, idExtractor);
+
+        // 新しいPageオブジェクトを作成
+        return new PageImpl<>(
+            sortedList,
+            initialPage.getPageable(),
+            initialPage.getTotalElements()
+        );
     }
 }

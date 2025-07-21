@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,48 +53,43 @@ public class BookmarkServiceImpl implements BookmarkService {
             page,
             size,
             sortString,
-            PageableUtils.BOOK_ALLOWED_FIELDS
+            PageableUtils.BOOKMARK_ALLOWED_FIELDS
         );
         Page<Bookmark> pageObj = (bookId == null)
             ? bookmarkRepository.findByUserAndIsDeletedFalse(user, pageable)
             : bookmarkRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
 
-        // 2クエリ戦略：IDリストから関連データを含むリストを取得
-        List<Long> ids = pageObj.getContent().stream().map(Bookmark::getId).toList();
-        List<Bookmark> list = bookmarkRepository.findAllByIdInWithRelations(ids);
-
-        // ソート順序を復元
-        List<Bookmark> sortedList = PageableUtils.restoreSortOrder(ids, list, Bookmark::getId);
-
-        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
-        Page<Bookmark> updatedPageObj = new PageImpl<>(
-            sortedList,
-            pageable,
-            pageObj.getTotalElements()
+        // 2クエリ戦略を適用
+        Page<Bookmark> updatedPageObj = PageableUtils.applyTwoQueryStrategy(
+            pageObj,
+            bookmarkRepository::findAllByIdInWithRelations,
+            Bookmark::getId
         );
 
         PageResponse<BookmarkResponse> response = bookmarkMapper.toPageResponse(updatedPageObj);
 
-        // 書籍の目次のタイトルを取得し、章番号とタイトルのマップを作成する
-        Set<String> bookIds = pageObj.getContent()
-            .stream()
+        // 章タイトルを設定
+        enrichWithChapterTitles(response, pageObj.getContent());
+
+        return response;
+    }
+
+    /**
+     * ブックマークレスポンスに章タイトルを追加する
+     * 
+     * @param response ブックマークレスポンス
+     * @param bookmarks 元のブックマークリスト（書籍IDの取得用）
+     */
+    private void enrichWithChapterTitles(PageResponse<BookmarkResponse> response, List<Bookmark> bookmarks) {
+        // 書籍IDを収集
+        Set<String> bookIds = bookmarks.stream()
             .map(bookmark -> bookmark.getBook().getId())
             .collect(Collectors.toSet());
 
-        Map<String, Map<Long, String>> bookChapterTitleMaps = new HashMap<>();
-        for (String _bookId : bookIds) {
-            List<BookChapter> bookChapters = bookChapterRepository.findByBookId(_bookId);
-            Map<Long, String> chapterTitleMap = bookChapters.stream()
-                .collect(
-                    Collectors.toMap(
-                        bookChapter -> bookChapter.getId().getChapterNumber(),
-                        BookChapter::getTitle
-                    )
-                );
-            bookChapterTitleMaps.put(_bookId, chapterTitleMap);
-        }
+        // 書籍ごとの章タイトルマップを作成
+        Map<String, Map<Long, String>> bookChapterTitleMaps = createBookChapterTitleMaps(bookIds);
 
-        // 章番号に対応するタイトルをレスポンスに追加する
+        // レスポンスに章タイトルを設定
         response.getData().forEach(bookmark -> {
             Map<Long, String> chapterTitleMap = bookChapterTitleMaps.get(bookmark.getBook().getId());
             if (chapterTitleMap != null) {
@@ -105,8 +99,30 @@ public class BookmarkServiceImpl implements BookmarkService {
                 }
             }
         });
+    }
 
-        return response;
+    /**
+     * 指定された書籍IDリストから書籍ごとの章タイトルマップを作成
+     * 
+     * @param bookIds 書籍IDのセット
+     * @return 書籍ID -> (章番号 -> 章タイトル) のマップ
+     */
+    private Map<String, Map<Long, String>> createBookChapterTitleMaps(Set<String> bookIds) {
+        Map<String, Map<Long, String>> result = new HashMap<>();
+
+        for (String bookId : bookIds) {
+            List<BookChapter> bookChapters = bookChapterRepository.findByBookId(bookId);
+            Map<Long, String> chapterTitleMap = bookChapters.stream()
+                .collect(
+                    Collectors.toMap(
+                        bookChapter -> bookChapter.getId().getChapterNumber(),
+                        BookChapter::getTitle
+                    )
+                );
+            result.put(bookId, chapterTitleMap);
+        }
+
+        return result;
     }
 
     /**

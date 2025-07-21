@@ -1,9 +1,7 @@
 package com.example.my_books_backend.service.impl;
 
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,18 +52,11 @@ public class FavoriteServiceImpl implements FavoriteService {
             ? favoriteRepository.findByUserAndIsDeletedFalse(user, pageable)
             : favoriteRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
 
-        // 2クエリ戦略：IDリストから関連データを含むリストを取得
-        List<Long> ids = pageObj.getContent().stream().map(Favorite::getId).toList();
-        List<Favorite> list = favoriteRepository.findAllByIdInWithRelations(ids);
-
-        // ソート順序を復元
-        List<Favorite> sortedList = PageableUtils.restoreSortOrder(ids, list, Favorite::getId);
-
-        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
-        Page<Favorite> updatedPageObj = new PageImpl<>(
-            sortedList,
-            pageable,
-            pageObj.getTotalElements()
+        // 2クエリ戦略を適用
+        Page<Favorite> updatedPageObj = PageableUtils.applyTwoQueryStrategy(
+            pageObj,
+            favoriteRepository::findAllByIdInWithRelations,
+            Favorite::getId
         );
 
         return favoriteMapper.toPageResponse(updatedPageObj);

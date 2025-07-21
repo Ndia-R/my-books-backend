@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,18 +59,11 @@ public class BookServiceImpl implements BookService {
         );
         Page<Book> pageObj = bookRepository.findByIsDeletedFalse(pageable);
 
-        // 2クエリ戦略：IDリストから関連データを含むリストを取得
-        List<String> ids = pageObj.getContent().stream().map(Book::getId).toList();
-        List<Book> list = bookRepository.findAllByIdInWithRelations(ids);
-
-        // ソート順序を復元
-        List<Book> sortedList = PageableUtils.restoreSortOrder(ids, list, Book::getId);
-
-        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
-        Page<Book> updatedPageObj = new PageImpl<>(
-            sortedList,
-            pageable,
-            pageObj.getTotalElements()
+        // 2クエリ戦略を適用
+        Page<Book> updatedPageObj = PageableUtils.applyTwoQueryStrategy(
+            pageObj,
+            bookRepository::findAllByIdInWithRelations,
+            Book::getId
         );
 
         return bookMapper.toPageResponse(updatedPageObj);
@@ -95,18 +87,11 @@ public class BookServiceImpl implements BookService {
         );
         Page<Book> pageObj = bookRepository.findByTitleContainingAndIsDeletedFalse(keyword, pageable);
 
-        // 2クエリ戦略：IDリストから関連データを含むリストを取得
-        List<String> ids = pageObj.getContent().stream().map(Book::getId).toList();
-        List<Book> list = bookRepository.findAllByIdInWithRelations(ids);
-
-        // ソート順序を復元
-        List<Book> sortedList = PageableUtils.restoreSortOrder(ids, list, Book::getId);
-
-        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
-        Page<Book> updatedPageObj = new PageImpl<>(
-            sortedList,
-            pageable,
-            pageObj.getTotalElements()
+        // 2クエリ戦略を適用
+        Page<Book> updatedPageObj = PageableUtils.applyTwoQueryStrategy(
+            pageObj,
+            bookRepository::findAllByIdInWithRelations,
+            Book::getId
         );
 
         return bookMapper.toPageResponse(updatedPageObj);
@@ -146,18 +131,11 @@ public class BookServiceImpl implements BookService {
             ? bookRepository.findBooksHavingAllGenres(genreIds, (long) genreIds.size(), pageable)
             : bookRepository.findDistinctByGenres_IdInAndIsDeletedFalse(genreIds, pageable);
 
-        // 2クエリ戦略：IDリストから関連データを含むリストを取得
-        List<String> ids = pageObj.getContent().stream().map(Book::getId).toList();
-        List<Book> list = bookRepository.findAllByIdInWithRelations(ids);
-
-        // ソート順序を復元
-        List<Book> sortedList = PageableUtils.restoreSortOrder(ids, list, Book::getId);
-
-        // 元のページネーション情報を保持して新しいPageオブジェクトを作成
-        Page<Book> updatedPageObj = new PageImpl<>(
-            sortedList,
-            pageable,
-            pageObj.getTotalElements()
+        // 2クエリ戦略を適用
+        Page<Book> updatedPageObj = PageableUtils.applyTwoQueryStrategy(
+            pageObj,
+            bookRepository::findAllByIdInWithRelations,
+            Book::getId
         );
 
         return bookMapper.toPageResponse(updatedPageObj);
