@@ -24,13 +24,7 @@ public class SecurityEndpointsConfig {
     public List<String> getPublicGetEndpoints() {
         return Arrays.asList(
             "/genres/**",
-            "/books",
-            "/books/new-releases/**",
-            "/books/search/**",
-            "/books/discover/**",
-            "/books/*/toc",
-            "/books/*/reviews/**",
-            "/books/*/favorites/counts"
+            "/books/**"
         );
     }
 }

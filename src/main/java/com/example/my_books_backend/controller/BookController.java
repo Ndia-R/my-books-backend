@@ -10,7 +10,6 @@ import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.book.BookDetailsResponse;
 import com.example.my_books_backend.dto.book.BookResponse;
 import com.example.my_books_backend.dto.book_chapter.BookTableOfContentsResponse;
-import com.example.my_books_backend.dto.book_chapter_page_content.BookChapterPageContentResponse;
 import com.example.my_books_backend.dto.favorite.FavoriteCountsResponse;
 import com.example.my_books_backend.dto.review.ReviewCountsResponse;
 import com.example.my_books_backend.dto.review.ReviewResponse;
@@ -20,11 +19,13 @@ import com.example.my_books_backend.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/books")
 @RequiredArgsConstructor
+@Tag(name = "Book", description = "書籍")
 public class BookController {
     private final BookService bookService;
     private final ReviewService reviewService;
@@ -114,17 +115,6 @@ public class BookController {
         @PathVariable String id
     ) {
         BookTableOfContentsResponse response = bookService.getBookTableOfContents(id);
-        return ResponseEntity.ok(response);
-    }
-
-    @Operation(description = "特定の書籍の閲覧ページ")
-    @GetMapping("/{id}/chapters/{chapter}/pages/{page}")
-    public ResponseEntity<BookChapterPageContentResponse> getBookChapterPageContent(
-        @PathVariable String id,
-        @PathVariable Long chapter,
-        @PathVariable Long page
-    ) {
-        BookChapterPageContentResponse response = bookService.getBookChapterPageContent(id, chapter, page);
         return ResponseEntity.ok(response);
     }
 

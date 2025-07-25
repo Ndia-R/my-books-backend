@@ -16,12 +16,14 @@ import com.example.my_books_backend.dto.role.RoleRequest;
 import com.example.my_books_backend.dto.role.RoleResponse;
 import com.example.my_books_backend.service.RoleService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/roles")
 @RequiredArgsConstructor
+@Tag(name = "Role", description = "ロール")
 public class RoleController {
     private final RoleService roleService;
 

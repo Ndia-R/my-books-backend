@@ -16,12 +16,14 @@ import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.service.BookmarkService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/bookmarks")
 @RequiredArgsConstructor
+@Tag(name = "Bookmark", description = "ブックマーク")
 public class BookmarkController {
     private final BookmarkService bookmarkService;
 

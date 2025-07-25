@@ -11,12 +11,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.my_books_backend.dto.user.UserResponse;
 import com.example.my_books_backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/admin/users")
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
+@Tag(name = "AdminUser", description = "管理者権限ユーザー用")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminUserController {
     private final UserService userService;
 

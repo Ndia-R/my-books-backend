@@ -15,12 +15,14 @@ import com.example.my_books_backend.dto.favorite.FavoriteResponse;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.service.FavoriteService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/favorites")
 @RequiredArgsConstructor
+@Tag(name = "Favorite", description = "お気に入り")
 public class FavoriteController {
     private final FavoriteService favoriteService;
 

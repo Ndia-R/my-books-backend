@@ -10,6 +10,7 @@ import com.example.my_books_backend.dto.auth.SignupRequest;
 import com.example.my_books_backend.dto.auth.AccessTokenResponse;
 import com.example.my_books_backend.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("")
 @RequiredArgsConstructor
+@Tag(name = "Auth", description = "認証")
 public class AuthController {
     private final AuthService authService;
 

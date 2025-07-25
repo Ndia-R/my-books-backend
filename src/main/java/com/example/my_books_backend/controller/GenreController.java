@@ -16,12 +16,14 @@ import com.example.my_books_backend.dto.genre.GenreRequest;
 import com.example.my_books_backend.dto.genre.GenreResponse;
 import com.example.my_books_backend.service.GenreService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/genres")
 @RequiredArgsConstructor
+@Tag(name = "Genre", description = "ジャンル")
 public class GenreController {
     private final GenreService genreService;
 

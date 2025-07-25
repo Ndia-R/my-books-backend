@@ -25,12 +25,14 @@ import com.example.my_books_backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/me")
 @RequiredArgsConstructor
+@Tag(name = "User", description = "ユーザー")
 public class UserController {
     private final UserService userService;
     private final ReviewService reviewService;
