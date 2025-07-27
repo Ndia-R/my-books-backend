@@ -52,7 +52,7 @@ public class ReviewServiceImpl implements ReviewService {
         );
         Page<Review> pageObj = (bookId == null)
             ? reviewRepository.findByUserAndIsDeletedFalse(user, pageable)
-            : reviewRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
+            : reviewRepository.findByUserAndIsDeletedFalseAndBookId(user, bookId, pageable);
 
         // 2クエリ戦略を適用
         Page<Review> updatedPageObj = PageableUtils.applyTwoQueryStrategy(

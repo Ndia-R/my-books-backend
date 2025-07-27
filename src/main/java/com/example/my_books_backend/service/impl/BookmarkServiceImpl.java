@@ -13,16 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.my_books_backend.dto.PageResponse;
 import com.example.my_books_backend.dto.bookmark.BookmarkRequest;
 import com.example.my_books_backend.dto.bookmark.BookmarkResponse;
-import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.BookChapter;
+import com.example.my_books_backend.entity.BookChapterPageContent;
 import com.example.my_books_backend.entity.Bookmark;
 import com.example.my_books_backend.entity.User;
 import com.example.my_books_backend.exception.ConflictException;
 import com.example.my_books_backend.exception.ForbiddenException;
 import com.example.my_books_backend.exception.NotFoundException;
 import com.example.my_books_backend.mapper.BookmarkMapper;
+import com.example.my_books_backend.repository.BookChapterPageContentRepository;
 import com.example.my_books_backend.repository.BookChapterRepository;
-import com.example.my_books_backend.repository.BookRepository;
 import com.example.my_books_backend.repository.BookmarkRepository;
 import com.example.my_books_backend.service.BookmarkService;
 import com.example.my_books_backend.util.PageableUtils;
@@ -35,8 +35,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final BookmarkRepository bookmarkRepository;
     private final BookmarkMapper bookmarkMapper;
 
-    private final BookRepository bookRepository;
     private final BookChapterRepository bookChapterRepository;
+    private final BookChapterPageContentRepository bookChapterPageContentRepository;
 
     /**
      * {@inheritDoc}
@@ -57,7 +57,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         );
         Page<Bookmark> pageObj = (bookId == null)
             ? bookmarkRepository.findByUserAndIsDeletedFalse(user, pageable)
-            : bookmarkRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
+            : bookmarkRepository.findByUserAndIsDeletedFalseAndBookId(user, bookId, pageable);
 
         // 2クエリ戦略を適用
         Page<Bookmark> updatedPageObj = PageableUtils.applyTwoQueryStrategy(
@@ -88,22 +88,25 @@ public class BookmarkServiceImpl implements BookmarkService {
 
         // 書籍IDを収集
         Set<String> bookIds = bookmarks.stream()
-            .map(bookmark -> bookmark.getBook().getId())
+            .map(bookmark -> bookmark.getPageContent().getBookId())
             .collect(Collectors.toSet());
 
         // 書籍ごとの章タイトルマップを作成
         Map<String, Map<Long, String>> bookChapterTitleMaps = createBookChapterTitleMaps(bookIds);
 
         // レスポンスに章タイトルを設定
-        response.getData().forEach(bookmark -> {
-            Map<Long, String> chapterTitleMap = bookChapterTitleMaps.get(bookmark.getBook().getId());
+        for (int i = 0; i < response.getData().size() && i < bookmarks.size(); i++) {
+            BookmarkResponse bookmarkResponse = response.getData().get(i);
+            Bookmark originalBookmark = bookmarks.get(i);
+
+            Map<Long, String> chapterTitleMap = bookChapterTitleMaps.get(originalBookmark.getPageContent().getBookId());
             if (chapterTitleMap != null) {
-                String chapterTitle = chapterTitleMap.get(bookmark.getChapterNumber());
+                String chapterTitle = chapterTitleMap.get(originalBookmark.getPageContent().getChapterNumber());
                 if (chapterTitle != null) {
-                    bookmark.setChapterTitle(chapterTitle);
+                    bookmarkResponse.setChapterTitle(chapterTitle);
                 }
             }
-        });
+        }
     }
 
     /**
@@ -116,7 +119,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         if (bookIds.isEmpty()) {
             return Map.of();
         }
-        
+
         Map<String, Map<Long, String>> result = new HashMap<>();
 
         for (String bookId : bookIds) {
@@ -140,15 +143,15 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Override
     @Transactional
     public BookmarkResponse createBookmark(BookmarkRequest request, User user) {
-        Book book = bookRepository.findById(request.getBookId())
-            .orElseThrow(() -> new NotFoundException("Book not found"));
+        BookChapterPageContent pageContent = bookChapterPageContentRepository
+            .findByBookIdAndChapterNumberAndPageNumber(
+                request.getBookId(),
+                request.getChapterNumber(),
+                request.getPageNumber()
+            )
+            .orElseThrow(() -> new NotFoundException("BookChapterPageContent not found"));
 
-        Optional<Bookmark> existingBookmark = bookmarkRepository.findByUserAndBookAndChapterNumberAndPageNumber(
-            user,
-            book,
-            request.getChapterNumber(),
-            request.getPageNumber()
-        );
+        Optional<Bookmark> existingBookmark = bookmarkRepository.findByUserAndPageContent(user, pageContent);
 
         Bookmark bookmark = new Bookmark();
         if (existingBookmark.isPresent()) {
@@ -160,9 +163,7 @@ public class BookmarkServiceImpl implements BookmarkService {
             }
         }
         bookmark.setUser(user);
-        bookmark.setBook(book);
-        bookmark.setChapterNumber(request.getChapterNumber());
-        bookmark.setPageNumber(request.getPageNumber());
+        bookmark.setPageContent(pageContent);
         bookmark.setNote(request.getNote());
 
         Bookmark savedBookmark = bookmarkRepository.save(bookmark);

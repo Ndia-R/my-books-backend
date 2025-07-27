@@ -19,7 +19,7 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     Page<Favorite> findByUserAndIsDeletedFalse(User user, Pageable pageable);
 
     // ユーザーが追加したお気に入りを取得（書籍ID指定）
-    Page<Favorite> findByUserAndIsDeletedFalseAndBookId(User user, Pageable pageable, String bookId);
+    Page<Favorite> findByUserAndIsDeletedFalseAndBookId(User user, String bookId, Pageable pageable);
 
     // ユーザーが追加したお気に入りを取得（書籍指定）
     Optional<Favorite> findByUserAndBook(User user, Book book);

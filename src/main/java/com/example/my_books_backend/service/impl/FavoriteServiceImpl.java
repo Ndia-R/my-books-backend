@@ -50,7 +50,7 @@ public class FavoriteServiceImpl implements FavoriteService {
         );
         Page<Favorite> pageObj = (bookId == null)
             ? favoriteRepository.findByUserAndIsDeletedFalse(user, pageable)
-            : favoriteRepository.findByUserAndIsDeletedFalseAndBookId(user, pageable, bookId);
+            : favoriteRepository.findByUserAndIsDeletedFalseAndBookId(user, bookId, pageable);
 
         // 2クエリ戦略を適用
         Page<Favorite> updatedPageObj = PageableUtils.applyTwoQueryStrategy(

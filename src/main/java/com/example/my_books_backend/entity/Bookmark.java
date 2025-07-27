@@ -9,13 +9,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "bookmarks")
+@Table(name = "bookmarks", 
+       uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "page_content_id"}))
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -31,14 +33,8 @@ public class Bookmark extends EntityBase {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "book_id", nullable = false)
-    private Book book;
-
-    @Column(name = "chapter_number", nullable = false)
-    private Long chapterNumber;
-
-    @Column(name = "page_number", nullable = false)
-    private Long pageNumber;
+    @JoinColumn(name = "page_content_id", nullable = false)
+    private BookChapterPageContent pageContent;
 
     @Column(name = "note")
     private String note;

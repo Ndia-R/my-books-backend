@@ -18,7 +18,6 @@ public abstract class ReviewMapper {
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "bookId", source = "book.id")
     @Mapping(target = "name", source = "user.name")
     @Mapping(target = "avatarPath", source = "user.avatarPath")
     @Mapping(target = "book", expression = "java(bookMapper.toBookResponse(review.getBook()))")

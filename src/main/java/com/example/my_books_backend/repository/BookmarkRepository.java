@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import com.example.my_books_backend.entity.Book;
+import com.example.my_books_backend.entity.BookChapterPageContent;
 import com.example.my_books_backend.entity.Bookmark;
 import com.example.my_books_backend.entity.User;
 
@@ -18,23 +18,28 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     Page<Bookmark> findByUserAndIsDeletedFalse(User user, Pageable pageable);
 
     // ユーザーが追加したブックマークを取得（書籍ID指定）
-    Page<Bookmark> findByUserAndIsDeletedFalseAndBookId(User user, Pageable pageable, String bookId);
-
-    // ユーザーが追加したブックマークを取得（書籍、章番号、ページ番号指定）
-    Optional<Bookmark> findByUserAndBookAndChapterNumberAndPageNumber(
-        User user,
-        Book book,
-        Long chapterNumber,
-        Long pageNumber
+    @Query("""
+        SELECT b FROM Bookmark b
+        WHERE b.user = :user AND b.isDeleted = false 
+        AND b.pageContent.bookId = :bookId
+        """)
+    Page<Bookmark> findByUserAndIsDeletedFalseAndBookId(
+        @Param("user") User user, 
+        @Param("bookId") String bookId,
+        Pageable pageable
     );
+
+    // ユーザーが追加したブックマークを取得（ページコンテンツ指定）
+    Optional<Bookmark> findByUserAndPageContent(User user, BookChapterPageContent pageContent);
 
     // 2クエリ戦略用：IDリストから関連データを含むリストを取得
     @Query("""
         SELECT DISTINCT b
         FROM Bookmark b
         LEFT JOIN FETCH b.user
-        LEFT JOIN FETCH b.book b2
-        LEFT JOIN FETCH b2.genres
+        LEFT JOIN FETCH b.pageContent pc
+        LEFT JOIN FETCH pc.book book
+        LEFT JOIN FETCH book.genres
         WHERE b.id IN :ids
         """)
     List<Bookmark> findAllByIdInWithRelations(@Param("ids") List<Long> ids);

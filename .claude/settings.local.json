@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(find:*)",
-      "Bash(./gradlew:*)"
+      "Bash(./gradlew:*)",
+      "Bash(rm:*)",
+      "Bash(docker-compose:*)",
+      "Bash(docker:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

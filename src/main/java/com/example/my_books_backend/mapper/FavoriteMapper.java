@@ -18,7 +18,6 @@ public abstract class FavoriteMapper {
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "bookId", source = "book.id")
     @Mapping(target = "book", expression = "java(bookMapper.toBookResponse(favorite.getBook()))")
     public abstract FavoriteResponse toFavoriteResponse(Favorite favorite);
 

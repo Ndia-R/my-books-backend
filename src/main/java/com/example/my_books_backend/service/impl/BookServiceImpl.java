@@ -18,7 +18,6 @@ import com.example.my_books_backend.entity.Book;
 import com.example.my_books_backend.entity.BookChapter;
 import com.example.my_books_backend.entity.BookChapterId;
 import com.example.my_books_backend.entity.BookChapterPageContent;
-import com.example.my_books_backend.entity.BookChapterPageContentId;
 import com.example.my_books_backend.entity.Genre;
 import com.example.my_books_backend.exception.BadRequestException;
 import com.example.my_books_backend.exception.NotFoundException;
@@ -173,10 +172,10 @@ public class BookServiceImpl implements BookService {
             Long chapterNumber = chapter.getId().getChapterNumber();
 
             List<BookChapterPageContent> pageContents = bookChapterPageContentRepository
-                .findByIdBookIdAndIdChapterNumber(id, chapterNumber);
+                .findByBookIdAndChapterNumber(id, chapterNumber);
 
             List<Long> pageNumbers = pageContents.stream()
-                .map(content -> content.getId().getPageNumber())
+                .map(BookChapterPageContent::getPageNumber)
                 .collect(Collectors.toList());
 
             BookChapterResponse response = new BookChapterResponse();
@@ -204,14 +203,10 @@ public class BookServiceImpl implements BookService {
         Long chapterNumber,
         Long pageNumber
     ) {
-        BookChapterPageContentId pageContentId = new BookChapterPageContentId(
-            bookId,
-            chapterNumber,
-            pageNumber
-        );
         BookChapterId chapterId = new BookChapterId(bookId, chapterNumber);
 
-        BookChapterPageContent pageContent = bookChapterPageContentRepository.findById(pageContentId)
+        BookChapterPageContent pageContent = bookChapterPageContentRepository
+            .findByBookIdAndChapterNumberAndPageNumber(bookId, chapterNumber, pageNumber)
             .orElseThrow(
                 () -> new NotFoundException("BookChapterPageContent not found")
             );

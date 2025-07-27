@@ -19,7 +19,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<Review> findByUserAndIsDeletedFalse(User user, Pageable pageable);
 
     // ユーザーが投稿したレビューを取得（書籍ID指定）
-    Page<Review> findByUserAndIsDeletedFalseAndBookId(User user, Pageable pageable, String bookId);
+    Page<Review> findByUserAndIsDeletedFalseAndBookId(User user, String bookId, Pageable pageable);
 
     // ユーザーが投稿したレビューを取得（書籍指定）
     Optional<Review> findByUserAndBook(User user, Book book);
