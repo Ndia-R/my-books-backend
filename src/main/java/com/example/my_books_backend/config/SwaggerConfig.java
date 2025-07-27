@@ -37,10 +37,10 @@ public class SwaggerConfig {
         servers.add(new Server().url(serverUrl).description(serverDescription));
 
         // 本番環境（Docker）の場合は追加のサーバーオプションを提供
-        if (serverUrl.contains("/api/v1")) {
+        if (serverUrl.contains("/api/v2")) {
             servers.add(
                 new Server()
-                    .url("http://localhost/api/v1")
+                    .url("http://localhost/api/v2")
                     .description("Local HTTP server (redirected to HTTPS)")
             );
         }
