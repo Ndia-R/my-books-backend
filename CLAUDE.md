@@ -133,6 +133,7 @@ com.example.my_books_backend/
 │   ├── UnauthorizedException.java
 │   └── ValidationException.java
 ├── mapper/         # MapStruct マッパーインターフェース
+│   ├── BookChapterPageContentMapper.java
 │   ├── BookMapper.java
 │   ├── BookmarkMapper.java
 │   ├── FavoriteMapper.java
@@ -202,6 +203,13 @@ com.example.my_books_backend/
 - **効果**: セキュリティ設定の大幅簡素化
 - **ビジネスモデル**: フリーミアム戦略の技術的実現
 - **保守性**: 複雑な認証ルールから単純な2層設計へ改善
+
+### 6. **LATEST** Response DTO設計の完全統一
+- **統一対象**: `BookmarkResponse`, `FavoriteResponse`, `ReviewResponse`
+- **重複排除**: `bookId`フィールドを削除し、`BookResponse book`のみに統一
+- **位置情報強化**: `BookmarkResponse`に`chapterNumber`, `pageNumber`を追加
+- **効果**: データ重複排除、API一貫性向上、保守性向上
+- **技術改善**: MapStruct使用方法の最適化（`uses`パラメータ活用）
 
 ## 重要な設計パターン
 
@@ -379,6 +387,46 @@ REVIEW_ALLOWED_FIELDS = ["updatedAt", "createdAt", "rating"]
 // お気に入り・ブックマーク
 FAVORITE_ALLOWED_FIELDS = ["updatedAt", "createdAt"]
 BOOKMARK_ALLOWED_FIELDS = ["updatedAt", "createdAt"]
+```
+
+### 統一されたResponse DTO設計
+
+#### 共通構造（すべてのResponse）
+```java
+// 統一されたフィールド構成
+private Long id;
+private Long userId;
+private LocalDateTime createdAt;
+private LocalDateTime updatedAt;
+private BookResponse book;  // 書籍情報は統一してbook.idでアクセス
+```
+
+#### BookmarkResponse（位置情報拡張）
+```java
+// ブックマーク固有のフィールド
+private Long chapterNumber;   // 章番号
+private Long pageNumber;      // ページ番号
+private String note;          // ノート
+private String chapterTitle;  // 章タイトル（動的取得）
+```
+
+#### API レスポンス例
+```json
+{
+  "id": 1,
+  "userId": 3,
+  "book": {
+    "id": "afcIMuetDuzj",
+    "title": "湖畔の永遠",
+    "authors": ["田中美咲"]
+  },
+  "chapterNumber": 3,
+  "pageNumber": 5,
+  "chapterTitle": "運命の出会い",
+  "note": "この感動的なシーンをもう一度読みたい",
+  "createdAt": "2024-01-15T10:30:00",
+  "updatedAt": "2024-01-15T10:30:00"
+}
 ```
 
 ## テスト構造
@@ -613,6 +661,8 @@ docker-compose exec app env | grep SPRING
 - **包括的なエラーハンドリング**: 適切な例外処理とレスポンス
 - **有料コンテンツ分離**: `/content/**`パターンでセキュリティ設計を大幅簡素化
 - **ビジネスモデル適合**: フリーミアム戦略と完全一致した技術設計
+- **Response DTO完全統一**: データ重複排除とAPI一貫性の実現
+- **位置情報詳細化**: ブックマークの章・ページ番号明示でUX向上
 
 ### 依存関係の最新状況
 ```gradle

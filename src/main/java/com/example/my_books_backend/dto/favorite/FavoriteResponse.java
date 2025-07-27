@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class FavoriteResponse {
     private Long id;
     private Long userId;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private BookResponse book;

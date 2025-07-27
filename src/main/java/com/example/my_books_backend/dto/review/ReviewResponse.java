@@ -12,12 +12,13 @@ import lombok.NoArgsConstructor;
 public class ReviewResponse {
     private Long id;
     private Long userId;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private BookResponse book;
 
     private String name;
     private String avatarPath;
     private String comment;
     private Double rating;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private BookResponse book;
 }

@@ -12,12 +12,13 @@ import lombok.NoArgsConstructor;
 public class BookmarkResponse {
     private Long id;
     private Long userId;
+
+    private Long chapterNumber;
+    private String chapterTitle;
+    private Long pageNumber;
+    private String note;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private BookResponse book;
-
-    private Long chapterNumber;
-    private Long pageNumber;
-    private String note;
-    private String chapterTitle;
 }
