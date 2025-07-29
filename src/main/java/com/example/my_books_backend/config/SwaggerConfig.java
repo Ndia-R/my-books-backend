@@ -6,20 +6,21 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Configuration
 public class SwaggerConfig {
 
-    @Value("${app.swagger.server.url:http://localhost:8080}")
+    @Value("${app.api.version}")
+    private String apiVersion;
+
+    @Value("${app.swagger.server.url}")
     private String serverUrl;
 
-    @Value("${app.swagger.server.description:Local server}")
+    @Value("${app.swagger.server.description}")
     private String serverDescription;
 
     @Bean
@@ -32,26 +33,19 @@ public class SwaggerConfig {
         // SecurityRequirementの追加
         SecurityRequirement securityRequirement = new SecurityRequirement().addList("bearerAuth");
 
-        // サーバー設定
-        List<Server> servers = new ArrayList<>();
-        servers.add(new Server().url(serverUrl).description(serverDescription));
-
-        // 本番環境（Docker）の場合は追加のサーバーオプションを提供
-        if (serverUrl.contains("/api/v2")) {
-            servers.add(
-                new Server()
-                    .url("http://localhost/api/v2")
-                    .description("Local HTTP server (redirected to HTTPS)")
-            );
-        }
-
         return new OpenAPI()
-            .servers(servers)
+            .servers(
+                List.of(
+                    new Server()
+                        .url(serverUrl)
+                        .description(serverDescription)
+                )
+            )
             .info(
                 new Info()
-                    .title("My Books API")
-                    .version("1.0")
-                    .description("書籍管理API")
+                    .title("My Books API " + apiVersion)
+                    .version(apiVersion)
+                    .description("書籍管理API - このAPIドキュメントはMy Books管理システムのAPIエンドポイントを説明します。")
             )
             .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
             .addSecurityItem(securityRequirement);
